@@ -1,47 +1,249 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Login from './Login';
+import Signup from './Signup';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const handleLoginClick = () => {
+    setShowLogin(true);
+    setShowSignup(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleSignupClick = () => {
+    setShowSignup(true);
+    setShowLogin(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowLogin(false);
+    setShowSignup(false);
+  };
+
+  const switchToSignup = () => {
+    setShowLogin(false);
+    setShowSignup(true);
+  };
+
+  const switchToLogin = () => {
+    setShowSignup(false);
+    setShowLogin(true);
+  };
+
+  const navigateToHome = () => {
+    navigate('/');
+    setIsMobileMenuOpen(false);
+  };
+
+  const navigateToTravelPackages = () => {
+    navigate('/travel-packages');
+    setIsMobileMenuOpen(false);
+  };
+
+  const navigateToContact = () => {
+    navigate('/contact');
+    setIsMobileMenuOpen(false);
+  };
+
+  const navigateToAbout = () => {
+    navigate('/about');
+    setIsMobileMenuOpen(false);
+  };
+
+  const scrollToAwareness = () => {
+    if (location.pathname === '/') {
+      const element = document.getElementById('awareness');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    } else {
+      navigate('/#awareness');
+    }
+    setIsMobileMenuOpen(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-sm">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center">
-            <div className="text-white">
-              <h1 className="text-2xl font-abeze font-bold">Mufasa</h1>
-              <p className="text-sm font-abeze font-light tracking-wider">WILDLIFE</p>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-sm">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center">
+              <div className="text-white cursor-pointer" onClick={navigateToHome}>
+                <h1 className="text-2xl font-abeze font-bold">Wild Path</h1>
+              </div>
+            </div>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <button 
+                onClick={navigateToHome}
+                className={`font-abeze font-medium transition-colors ${
+                  location.pathname === '/' ? 'text-green-400' : 'text-white hover:text-green-400'
+                }`}
+              >
+                HOME
+              </button>
+              <button 
+                onClick={scrollToAwareness}
+                className="text-white font-abeze font-medium hover:text-green-400 transition-colors"
+              >
+                AWARENESS
+              </button>
+              <button 
+                onClick={navigateToTravelPackages}
+                className={`font-abeze font-medium transition-colors ${
+                  location.pathname === '/travel-packages' ? 'text-green-400' : 'text-white hover:text-green-400'
+                }`}
+              >
+                PACKAGES
+              </button>
+              <button 
+                onClick={navigateToAbout}
+                className={`font-abeze font-medium transition-colors ${
+                  location.pathname === '/about' ? 'text-green-400' : 'text-white hover:text-green-400'
+                }`}
+              >
+                ABOUT US
+              </button>
+              <button 
+                onClick={navigateToContact}
+                className={`font-abeze font-medium transition-colors ${
+                  location.pathname === '/contact' ? 'text-green-400' : 'text-white hover:text-green-400'
+                }`}
+              >
+                CONTACT
+              </button>
+            </nav>
+
+            {/* Login Button */}
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={handleLoginClick}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
+              >
+                LOGIN
+              </button>
+              
+              {/* Mobile Menu Button */}
+              <button
+                onClick={toggleMobileMenu}
+                className="md:hidden text-white p-2"
+                aria-label="Toggle mobile menu"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {isMobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <a href="#home" className="text-green-400 font-abeze font-medium hover:text-green-300 transition-colors">
-              HOME
-            </a>
-            <a href="#awareness" className="text-white font-abeze font-medium hover:text-green-400 transition-colors">
-              AWARENESS
-            </a>
-            <a href="#safaris" className="text-white font-abeze font-medium hover:text-green-400 transition-colors">
-              SAFARIS
-            </a>
-            
-            <a href="#about" className="text-white font-abeze font-medium hover:text-green-400 transition-colors">
-              ABOUT US
-            </a>
-            <a href="#contact" className="text-white font-abeze font-medium hover:text-green-400 transition-colors">
-              CONTACT
-            </a>
-          </nav>
-
-          {/* Login Button */}
-          <div className="flex items-center">
-            <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300">
-              LOGIN
-            </button>
-          </div>
+          {/* Mobile Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden mt-4 pb-4 border-t border-white/20">
+              <nav className="flex flex-col space-y-4 pt-4">
+                <button 
+                  onClick={navigateToHome}
+                  className={`text-left font-abeze font-medium transition-colors ${
+                    location.pathname === '/' ? 'text-green-400' : 'text-white hover:text-green-400'
+                  }`}
+                >
+                  HOME
+                </button>
+                <button 
+                  onClick={scrollToAwareness}
+                  className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
+                >
+                  AWARENESS
+                </button>
+                <button 
+                  onClick={navigateToTravelPackages}
+                  className={`text-left font-abeze font-medium transition-colors ${
+                    location.pathname === '/travel-packages' ? 'text-green-400' : 'text-white hover:text-green-400'
+                  }`}
+                >
+                  PACKAGES
+                </button>
+                <button 
+                  onClick={navigateToAbout}
+                  className={`text-left font-abeze font-medium transition-colors ${
+                    location.pathname === '/about' ? 'text-green-400' : 'text-white hover:text-green-400'
+                  }`}
+                >
+                  ABOUT US
+                </button>
+                <button 
+                  onClick={navigateToContact}
+                  className={`text-left font-abeze font-medium transition-colors ${
+                    location.pathname === '/contact' ? 'text-green-400' : 'text-white hover:text-green-400'
+                  }`}
+                >
+                  CONTACT
+                </button>
+              </nav>
+            </div>
+          )}
         </div>
-      </div>
-    </header>
+      </header>
+
+      {/* Overlay for mobile menu */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={closeMobileMenu}
+        />
+      )}
+
+      {/* Login Modal */}
+      {showLogin && (
+        <Login 
+          onClose={handleCloseModal}
+          onSwitchToSignup={switchToSignup}
+        />
+      )}
+
+      {/* Signup Modal */}
+      {showSignup && (
+        <Signup 
+          onClose={handleCloseModal}
+          onSwitchToLogin={switchToLogin}
+        />
+      )}
+    </>
   );
 };
 
