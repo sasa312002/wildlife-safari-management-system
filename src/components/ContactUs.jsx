@@ -28,7 +28,6 @@ const ContactUs = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitSuccess(true);
@@ -44,7 +43,6 @@ const ContactUs = () => {
         travelDate: ''
       });
       
-      // Reset success message after 5 seconds
       setTimeout(() => setSubmitSuccess(false), 5000);
     }, 2000);
   };
@@ -102,7 +100,6 @@ const ContactUs = () => {
   return (
     <section id="contact" className="py-20 bg-gradient-to-b from-gray-800 to-gray-900">
       <div className="container mx-auto px-6">
-        {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
             Get in <span className="text-green-400">Touch</span>
@@ -114,7 +111,6 @@ const ContactUs = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
           <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
             <h3 className="text-2xl font-abeze font-bold text-white mb-6">
               Send us a Message
@@ -129,7 +125,6 @@ const ContactUs = () => {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white font-abeze font-medium mb-2">
@@ -192,7 +187,6 @@ const ContactUs = () => {
                 </div>
               </div>
 
-              {/* Safari Information */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-white font-abeze font-medium mb-2">
@@ -246,15 +240,20 @@ const ContactUs = () => {
                 <label className="block text-white font-abeze font-medium mb-2">
                   Subject *
                 </label>
-                <input
-                  type="text"
+                <select
                   name="subject"
                   value={formData.subject}
                   onChange={handleInputChange}
                   required
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:border-green-400 focus:outline-none transition-colors"
-                  placeholder="What is your inquiry about?"
-                />
+                  className="w-full bg-gray-700 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:border-green-400 focus:outline-none transition-colors"
+                >
+                  <option value="">Select a subject</option>
+                  <option value="safari-booking">Safari Booking</option>
+                  <option value="custom-package">Custom Package</option>
+                  <option value="general-inquiry">General Inquiry</option>
+                  <option value="group-booking">Group Booking</option>
+                  <option value="support">Customer Support</option>
+                </select>
               </div>
 
               <div>
@@ -282,9 +281,7 @@ const ContactUs = () => {
             </form>
           </div>
 
-          {/* Contact Information */}
           <div className="space-y-8">
-            {/* Contact Info Cards */}
             <div className="grid md:grid-cols-2 gap-6">
               {contactInfo.map((info, index) => (
                 <div 
@@ -308,7 +305,6 @@ const ContactUs = () => {
               ))}
             </div>
 
-            {/* Business Hours */}
             <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30">
               <h4 className="text-xl font-abeze font-bold text-white mb-4">
                 Business Hours
@@ -333,8 +329,7 @@ const ContactUs = () => {
               </div>
             </div>
 
-            {/* Quick Response */}
-            <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30">
+            <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm-rounded-2xl p-6 border border-green-400/30">
               <h4 className="text-xl font-abeze font-bold text-white mb-4">
                 Quick Response Guarantee
               </h4>
@@ -364,4 +359,4 @@ const ContactUs = () => {
   );
 };
 
-export default ContactUs; 
+export default ContactUs;
