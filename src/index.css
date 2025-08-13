@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* Apply ABeeZee font globally */
+body {
+  font-family: 'ABeeZee', sans-serif;
+}
+
+/* Custom font classes for different weights */
+.font-abeze {
+  font-family: 'ABeeZee', sans-serif;
+}
+
+.font-abeze-italic {
+  font-family: 'ABeeZee', sans-serif;
+  font-style: italic;
+}
