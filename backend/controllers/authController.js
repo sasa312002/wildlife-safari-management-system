@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { uploadToImgBB } from "../config/imgbb.js";
 
 const getJwtSecret = () => {
   const secret = process.env.JWT_SECRET || "dev_secret_change_me";
@@ -42,6 +43,7 @@ export const register = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         country: user.country,
+        profilePicture: user.profilePicture,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -79,6 +81,7 @@ export const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         country: user.country,
+        profilePicture: user.profilePicture,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },
@@ -151,6 +154,7 @@ export const updateProfile = async (req, res, next) => {
           email: updatedUser.email,
           phone: updatedUser.phone,
           country: updatedUser.country,
+          profilePicture: updatedUser.profilePicture,
           createdAt: updatedUser.createdAt,
           updatedAt: updatedUser.updatedAt,
         },
@@ -178,6 +182,7 @@ export const updateProfile = async (req, res, next) => {
           email: updatedUser.email,
           phone: updatedUser.phone,
           country: updatedUser.country,
+          profilePicture: updatedUser.profilePicture,
           createdAt: updatedUser.createdAt,
           updatedAt: updatedUser.updatedAt,
         },
@@ -185,6 +190,68 @@ export const updateProfile = async (req, res, next) => {
       });
     }
   } catch (err) {
+    next(err);
+  }
+};
+
+// Upload profile picture
+export const uploadProfilePicture = async (req, res, next) => {
+  try {
+    console.log('Profile picture upload request received');
+    console.log('File:', req.file);
+    console.log('User:', req.user);
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const userId = req.user._id;
+    console.log('User ID:', userId);
+
+    // Upload image to ImgBB
+    const filename = `profile_${userId}_${Date.now()}`;
+    console.log('Uploading to ImgBB with filename:', filename);
+    
+    const uploadResult = await uploadToImgBB(req.file.buffer, filename);
+    console.log('ImgBB upload result:', uploadResult);
+
+    // Get current user to check if they have an existing profile picture
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update user with new profile picture
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        profilePicture: {
+          url: uploadResult.url,
+          deleteUrl: uploadResult.deleteUrl,
+          id: uploadResult.id,
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    console.log('User updated successfully');
+
+    return res.json({
+      user: {
+        id: updatedUser._id,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        country: updatedUser.country,
+        profilePicture: updatedUser.profilePicture,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+      },
+      message: "Profile picture uploaded successfully"
+    });
+  } catch (err) {
+    console.error('Error in uploadProfilePicture:', err);
     next(err);
   }
 };

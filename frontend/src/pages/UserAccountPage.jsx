@@ -52,10 +52,20 @@ const UserAccountPage = () => {
               <div className="md:col-span-1">
                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
                   <div className="text-center mb-6">
-                    <div className="w-24 h-24 bg-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-                      <span className="text-2xl font-abeze font-bold text-white">
-                        {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                      </span>
+                    <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-white/20">
+                      {user?.profilePicture?.url ? (
+                        <img 
+                          src={user.profilePicture.url} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-green-500 flex items-center justify-center">
+                          <span className="text-2xl font-abeze font-bold text-white">
+                            {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <h2 className="text-xl font-abeze font-bold text-white">
                       {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.firstName || 'User'}

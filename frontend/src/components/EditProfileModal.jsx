@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -59,6 +59,8 @@ const EditProfileModal = ({ onClose, user }) => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
+  const fileInputRef = useRef(null);
 
   const countries = [
     'Sri Lanka', 'India', 'United States', 'United Kingdom', 'Canada', 'Australia',
@@ -105,6 +107,55 @@ const EditProfileModal = ({ onClose, user }) => {
     if (validation.isValid) return 'text-green-400';
     if (formData.newPassword.length >= 6) return 'text-yellow-400';
     return 'text-red-400';
+  };
+
+  const handleProfilePictureClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    console.log('File selected:', file);
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size must be less than 5MB');
+      return;
+    }
+
+    setIsUploadingPicture(true);
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+
+      console.log('FormData created, uploading...');
+      console.log('Auth token:', localStorage.getItem('auth_token'));
+
+      const { user: updatedUser } = await authApi.uploadProfilePicture(formData);
+      
+      console.log('Upload successful:', updatedUser);
+      
+      // Update the auth context with new user data
+      login(updatedUser, localStorage.getItem('auth_token'));
+      
+      // Clear the file input
+      e.target.value = '';
+    } catch (err) {
+      console.error('Upload error:', err);
+      console.error('Error response:', err.response);
+      const msg = err?.response?.data?.message || 'Upload failed';
+      alert(msg);
+    } finally {
+      setIsUploadingPicture(false);
+    }
   };
 
   // Form validation
@@ -269,9 +320,58 @@ const EditProfileModal = ({ onClose, user }) => {
           </svg>
         </button>
 
-        {/* Edit Profile Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Name Fields */}
+                 {/* Edit Profile Form */}
+         <form onSubmit={handleSubmit} className="space-y-6">
+           {/* Profile Picture Section */}
+           <div className="text-center mb-6">
+             <div 
+               className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer relative overflow-hidden border-2 border-white/20 hover:border-green-400 transition-colors"
+               onClick={handleProfilePictureClick}
+             >
+               {user?.profilePicture?.url ? (
+                 <img 
+                   src={user.profilePicture.url} 
+                   alt="Profile" 
+                   className="w-full h-full object-cover"
+                 />
+               ) : (
+                 <div className="w-full h-full bg-green-500 flex items-center justify-center">
+                   <span className="text-xl font-abeze font-bold text-white">
+                     {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                   </span>
+                 </div>
+               )}
+               
+               {/* Upload overlay */}
+               <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                 <div className="text-center">
+                   {isUploadingPicture ? (
+                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mx-auto"></div>
+                   ) : (
+                     <svg className="w-5 h-5 text-white mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                     </svg>
+                   )}
+                   <p className="text-xs text-white mt-1 font-abeze">Change Photo</p>
+                 </div>
+               </div>
+             </div>
+             
+             {/* Hidden file input */}
+             <input
+               ref={fileInputRef}
+               type="file"
+               accept="image/*"
+               onChange={handleFileChange}
+               className="hidden"
+             />
+             
+             <p className="text-sm text-gray-300 font-abeze">
+               Click to upload profile picture
+             </p>
+           </div>
+
+           {/* Name Fields */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">

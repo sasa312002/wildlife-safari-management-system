@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
     phone: { type: String },
     country: { type: String },
     passwordHash: { type: String, required: true },
+    profilePicture: {
+      url: { type: String },
+      deleteUrl: { type: String },
+      id: { type: String }
+    }
   },
   { timestamps: true }
 );

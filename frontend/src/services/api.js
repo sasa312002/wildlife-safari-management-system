@@ -30,6 +30,22 @@ export const authApi = {
     const { data } = await api.put('/api/auth/profile', payload);
     return data;
   },
+  async uploadProfilePicture(formData) {
+    // Create a new axios instance for file upload to avoid header conflicts
+    const uploadApi = axios.create({
+      baseURL,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+    
+    const { data } = await uploadApi.post('/api/auth/profile-picture', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
 };
 
 
