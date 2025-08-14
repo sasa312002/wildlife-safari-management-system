@@ -60,6 +60,9 @@ const EditProfileModal = ({ onClose, user }) => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showPictureSuccessMessage, setShowPictureSuccessMessage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   const fileInputRef = useRef(null);
 
   const countries = [
@@ -145,6 +148,14 @@ const EditProfileModal = ({ onClose, user }) => {
       
       // Update the auth context with new user data
       login(updatedUser, localStorage.getItem('auth_token'));
+      
+      // Show success message for picture upload
+      setShowPictureSuccessMessage(true);
+      
+      // Auto-hide success message after 2 seconds
+      setTimeout(() => {
+        setShowPictureSuccessMessage(false);
+      }, 2000);
       
       // Clear the file input
       e.target.value = '';
@@ -288,7 +299,17 @@ const EditProfileModal = ({ onClose, user }) => {
       
       // Update the auth context with new user data
       login(updatedUser, localStorage.getItem('auth_token'));
-      onClose();
+      
+      // Show success message
+      const message = formData.newPassword ? 'Profile and password updated successfully!' : 'Profile updated successfully!';
+      setSuccessMessage(message);
+      setShowSuccessMessage(true);
+      
+      // Auto-hide success message after 3 seconds (but don't close modal)
+      setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 3000);
+      
     } catch (err) {
       const msg = err?.response?.data?.message || 'Update failed';
       alert(msg);
@@ -299,7 +320,9 @@ const EditProfileModal = ({ onClose, user }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-lg border border-white/20 max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-lg border border-white/20 max-h-[90vh] overflow-y-auto relative">
+        
+
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
@@ -322,12 +345,24 @@ const EditProfileModal = ({ onClose, user }) => {
 
                  {/* Edit Profile Form */}
          <form onSubmit={handleSubmit} className="space-y-6">
-           {/* Profile Picture Section */}
-           <div className="text-center mb-6">
-             <div 
-               className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer relative overflow-hidden border-2 border-white/20 hover:border-green-400 transition-colors"
-               onClick={handleProfilePictureClick}
-             >
+                       {/* Profile Picture Section */}
+            <div className="text-center mb-6">
+              {/* Profile Picture Success Message */}
+              {showPictureSuccessMessage && (
+                <div className="mb-4 p-3 bg-green-600/20 border border-green-400/30 rounded-lg">
+                  <div className="flex items-center justify-center text-green-400">
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="font-abeze text-sm">Profile picture updated successfully!</span>
+                  </div>
+                </div>
+              )}
+              
+              <div 
+                className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer relative overflow-hidden border-2 border-white/20 hover:border-green-400 transition-colors"
+                onClick={handleProfilePictureClick}
+              >
                {user?.profilePicture?.url ? (
                  <img 
                    src={user.profilePicture.url} 
@@ -632,14 +667,26 @@ const EditProfileModal = ({ onClose, user }) => {
              </div>
            </div>
 
-           {/* Submit Button */}
-           <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
-          >
-            {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
-          </button>
+                       {/* Small Success Message */}
+            {showSuccessMessage && (
+              <div className="mb-4 p-3 bg-green-600/20 border border-green-400/30 rounded-lg">
+                <div className="flex items-center justify-center text-green-400">
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="font-abeze text-sm">{successMessage}</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Submit Button */}
+            <button
+             type="submit"
+             disabled={isSubmitting}
+             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
+           >
+             {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
+           </button>
         </form>
       </div>
     </div>
