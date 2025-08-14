@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { authApi, setAuthToken } from '../services/api';
 
 const Login = ({ onClose, onSwitchToSignup }) => {
   const [formData, setFormData] = useState({
@@ -20,14 +21,21 @@ const Login = ({ onClose, onSwitchToSignup }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      const { token, user } = await authApi.login({
+        email: formData.email,
+        password: formData.password,
+      });
+      setAuthToken(token);
+      // Optionally store user profile
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      onClose();
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Login failed';
+      alert(msg);
+    } finally {
       setIsSubmitting(false);
-      // Here you would typically handle the actual login logic
-      console.log('Login attempt:', formData);
-      onClose(); // Close modal after successful login
-    }, 2000);
+    }
   };
 
   return (

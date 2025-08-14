@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { authApi, setAuthToken } from '../services/api';
 
 const Signup = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -40,14 +41,24 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate signup process
-    setTimeout(() => {
+    try {
+      const { token, user } = await authApi.register({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        password: formData.password,
+      });
+      setAuthToken(token);
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      onClose();
+    } catch (err) {
+      const msg = err?.response?.data?.message || 'Signup failed';
+      alert(msg);
+    } finally {
       setIsSubmitting(false);
-      // Here you would typically handle the actual signup logic
-      console.log('Signup attempt:', formData);
-      onClose(); // Close modal after successful signup
-    }, 2000);
+    }
   };
 
   const countries = [
