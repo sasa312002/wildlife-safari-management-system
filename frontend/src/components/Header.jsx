@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Login from './Login';
 import Signup from './Signup';
 
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -57,6 +59,12 @@ const Header = () => {
 
   const navigateToAbout = () => {
     navigate('/about');
+    window.scrollTo(0, 0);
+    setIsMobileMenuOpen(false);
+  };
+
+  const navigateToAccount = () => {
+    navigate('/account');
     window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
@@ -135,14 +143,23 @@ const Header = () => {
               </button>
             </nav>
 
-            {/* Login Button */}
+            {/* Login/Account Button */}
             <div className="flex items-center space-x-4">
-              <button 
-                onClick={handleLoginClick}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
-              >
-                LOGIN
-              </button>
+              {isAuthenticated ? (
+                <button 
+                  onClick={navigateToAccount}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
+                >
+                  MY ACCOUNT
+                </button>
+              ) : (
+                <button 
+                  onClick={handleLoginClick}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
+                >
+                  LOGIN
+                </button>
+              )}
               
               {/* Mobile Menu Button */}
               <button

@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { authApi, setAuthToken } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { authApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Signup = ({ onClose, onSwitchToLogin }) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -204,9 +208,9 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
         country: formData.country,
         password: formData.password,
       });
-      setAuthToken(token);
-      localStorage.setItem('auth_user', JSON.stringify(user));
+      login(user, token);
       onClose();
+      navigate('/');
     } catch (err) {
       const msg = err?.response?.data?.message || 'Signup failed';
       alert(msg);

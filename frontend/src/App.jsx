@@ -1,5 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './components/Home'
@@ -8,6 +9,8 @@ import SafariPackages from './components/SafariPackages'
 import TravelPackagesPage from './pages/TravelPackagesPage'
 import ContactUsPage from './pages/ContactUsPage'
 import AboutUsPage from './pages/AboutUsPage'
+import UserAccountPage from './pages/UserAccountPage'
+import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
 function MainPage() {
@@ -24,14 +27,21 @@ function MainPage() {
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<MainPage />} />
-        <Route path="/travel-packages" element={<TravelPackagesPage />} />
-        <Route path="/contact" element={<ContactUsPage />} />
-        <Route path="/about" element={<AboutUsPage />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<MainPage />} />
+          <Route path="/travel-packages" element={<TravelPackagesPage />} />
+          <Route path="/contact" element={<ContactUsPage />} />
+          <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/account" element={
+            <ProtectedRoute>
+              <UserAccountPage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Router>
+    </AuthProvider>
   )
 }
 

@@ -26,6 +26,10 @@ export const authApi = {
     const { data } = await api.post('/api/auth/register', payload);
     return data;
   },
+  async updateProfile(payload) {
+    const { data } = await api.put('/api/auth/profile', payload);
+    return data;
+  },
 };
 
 

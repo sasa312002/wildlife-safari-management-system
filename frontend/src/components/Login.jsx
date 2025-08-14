@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { authApi, setAuthToken } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { authApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 const Login = ({ onClose, onSwitchToSignup }) => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -45,10 +49,9 @@ const Login = ({ onClose, onSwitchToSignup }) => {
         email: formData.email.trim(),
         password: formData.password,
       });
-      setAuthToken(token);
-      // Optionally store user profile
-      localStorage.setItem('auth_user', JSON.stringify(user));
+      login(user, token);
       onClose();
+      navigate('/');
     } catch (err) {
       const errorMessage = err?.response?.data?.message || 'Login failed';
       

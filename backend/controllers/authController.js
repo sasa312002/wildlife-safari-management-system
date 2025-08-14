@@ -42,6 +42,8 @@ export const register = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         country: user.country,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     });
   } catch (err) {
@@ -77,8 +79,111 @@ export const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         country: user.country,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { firstName, lastName, email, phone, country, currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    if (!firstName || !lastName || !email) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check if email is already taken by another user
+    const existingUser = await User.findOne({ email, _id: { $ne: userId } });
+    if (existingUser) {
+      return res.status(409).json({ message: "Email already in use" });
+    }
+
+    // Get current user to check password
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // If password change is requested
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: "Current password is required to change password" });
+      }
+
+      // Verify current password
+      const isValidCurrentPassword = await bcrypt.compare(currentPassword, currentUser.passwordHash);
+      if (!isValidCurrentPassword) {
+        return res.status(401).json({ message: "Current password is incorrect" });
+      }
+
+      // Validate new password
+      if (newPassword.length < 8) {
+        return res.status(400).json({ message: "New password must be at least 8 characters long" });
+      }
+
+      // Hash new password
+      const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+      // Update user profile with new password
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          firstName,
+          lastName,
+          email,
+          phone,
+          country,
+          passwordHash: newPasswordHash,
+        },
+        { new: true, runValidators: true }
+      );
+
+      return res.json({
+        user: {
+          id: updatedUser._id,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          country: updatedUser.country,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        },
+        message: "Profile and password updated successfully"
+      });
+    } else {
+      // Update user profile without password change
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          firstName,
+          lastName,
+          email,
+          phone,
+          country,
+        },
+        { new: true, runValidators: true }
+      );
+
+      return res.json({
+        user: {
+          id: updatedUser._id,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+          email: updatedUser.email,
+          phone: updatedUser.phone,
+          country: updatedUser.country,
+          createdAt: updatedUser.createdAt,
+          updatedAt: updatedUser.updatedAt,
+        },
+        message: "Profile updated successfully"
+      });
+    }
   } catch (err) {
     next(err);
   }
