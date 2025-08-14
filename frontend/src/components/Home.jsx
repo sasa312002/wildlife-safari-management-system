@@ -1,23 +1,12 @@
 import React from 'react';
-import elephantImage from '../assets/elephants-national-park-sri-lanka.jpg';
+import BackgroundSlideshow from './BackgroundSlideshow';
 
 const Home = () => {
   return (
-    <section id="home" className="relative min-h-screen flex items-center">
-      {/* Full Screen Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-        {/* Background Image */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-70"
-          style={{ backgroundImage: `url(${elephantImage})` }}
-        >
-          {/* Overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/40"></div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-6">
+    <BackgroundSlideshow>
+      <section id="home" className="min-h-screen flex items-center">
+        {/* Content */}
+        <div className="container mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Side - Text Content */}
           <div className="text-white space-y-8">
@@ -65,6 +54,7 @@ const Home = () => {
         </div>
       </div>
     </section>
+    </BackgroundSlideshow>
   );
 };
 
