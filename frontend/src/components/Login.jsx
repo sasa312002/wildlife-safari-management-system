@@ -7,8 +7,10 @@ const Login = ({ onClose, onSwitchToSignup }) => {
     password: ''
   });
 
+  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -16,14 +18,31 @@ const Login = ({ onClose, onSwitchToSignup }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Clear previous errors
+    setErrors({});
+    
     setIsSubmitting(true);
     try {
       const { token, user } = await authApi.login({
-        email: formData.email,
+        email: formData.email.trim(),
         password: formData.password,
       });
       setAuthToken(token);
@@ -31,8 +50,23 @@ const Login = ({ onClose, onSwitchToSignup }) => {
       localStorage.setItem('auth_user', JSON.stringify(user));
       onClose();
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Login failed';
-      alert(msg);
+      const errorMessage = err?.response?.data?.message || 'Login failed';
+      
+      // Trigger shake animation
+      triggerShake();
+      
+      // Set error messages based on the type of error
+      if (errorMessage.toLowerCase().includes('email') || errorMessage.toLowerCase().includes('user')) {
+        setErrors({ email: errorMessage });
+      } else if (errorMessage.toLowerCase().includes('password')) {
+        setErrors({ password: errorMessage });
+      } else {
+        // General error - show on both fields or as a general error
+        setErrors({ 
+          email: 'Invalid credentials',
+          password: 'Invalid credentials'
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -40,7 +74,9 @@ const Login = ({ onClose, onSwitchToSignup }) => {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white/20">
+      <div className={`bg-gray-900/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-md border border-white/20 transition-all duration-300 ${
+        isShaking ? 'animate-shake' : ''
+      }`}>
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
@@ -74,9 +110,14 @@ const Login = ({ onClose, onSwitchToSignup }) => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:border-green-400 focus:outline-none transition-colors"
+              className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+              }`}
               placeholder="your.email@example.com"
             />
+            {errors.email && (
+              <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
+            )}
           </div>
 
           {/* Password */}
@@ -91,7 +132,9 @@ const Login = ({ onClose, onSwitchToSignup }) => {
                 value={formData.password}
                 onChange={handleInputChange}
                 required
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:border-green-400 focus:outline-none transition-colors pr-12"
+                className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
+                  errors.password ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                }`}
                 placeholder="Enter your password"
               />
               <button
@@ -111,6 +154,9 @@ const Login = ({ onClose, onSwitchToSignup }) => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-1 font-abeze">{errors.password}</p>
+            )}
           </div>
 
           {/* Forgot Password */}
@@ -131,8 +177,6 @@ const Login = ({ onClose, onSwitchToSignup }) => {
           >
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
-
-
 
           {/* Sign Up Link */}
           <div className="text-center">
