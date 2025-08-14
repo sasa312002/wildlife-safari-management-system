@@ -39,21 +39,25 @@ const Header = () => {
 
   const navigateToHome = () => {
     navigate('/');
+    window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
 
   const navigateToTravelPackages = () => {
     navigate('/travel-packages');
+    window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
 
   const navigateToContact = () => {
     navigate('/contact');
+    window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
 
   const navigateToAbout = () => {
     navigate('/about');
+    window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
 
