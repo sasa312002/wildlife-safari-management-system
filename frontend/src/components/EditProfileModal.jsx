@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const EditProfileModal = ({ onClose, user }) => {
   const { login } = useAuth();
+  const navigate = useNavigate();
   
   // Country to phone code mapping with max digits
   const countryPhoneCodes = {
@@ -305,9 +307,11 @@ const EditProfileModal = ({ onClose, user }) => {
       setSuccessMessage(message);
       setShowSuccessMessage(true);
       
-      // Auto-hide success message after 3 seconds (but don't close modal)
+      // Auto-hide success message after 3 seconds and redirect to My Account
       setTimeout(() => {
         setShowSuccessMessage(false);
+        onClose();
+        navigate('/account');
       }, 3000);
       
     } catch (err) {
