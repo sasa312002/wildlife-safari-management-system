@@ -6,7 +6,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
+    phoneNumber: '',
     password: '',
     confirmPassword: '',
     country: '',
@@ -19,28 +19,28 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Country to phone code mapping
+  // Country to phone code mapping with max digits
   const countryPhoneCodes = {
-    'Sri Lanka': '+94',
-    'India': '+91',
-    'United States': '+1',
-    'United Kingdom': '+44',
-    'Canada': '+1',
-    'Australia': '+61',
-    'Germany': '+49',
-    'France': '+33',
-    'Japan': '+81',
-    'China': '+86',
-    'Singapore': '+65',
-    'Malaysia': '+60',
-    'Thailand': '+66',
-    'Vietnam': '+84',
-    'Indonesia': '+62',
-    'Philippines': '+63',
-    'South Africa': '+27',
-    'Kenya': '+254',
-    'Tanzania': '+255',
-    'Other': '+'
+    'Sri Lanka': { code: '+94', maxDigits: 9 },
+    'India': { code: '+91', maxDigits: 10 },
+    'United States': { code: '+1', maxDigits: 10 },
+    'United Kingdom': { code: '+44', maxDigits: 10 },
+    'Canada': { code: '+1', maxDigits: 10 },
+    'Australia': { code: '+61', maxDigits: 9 },
+    'Germany': { code: '+49', maxDigits: 11 },
+    'France': { code: '+33', maxDigits: 9 },
+    'Japan': { code: '+81', maxDigits: 10 },
+    'China': { code: '+86', maxDigits: 11 },
+    'Singapore': { code: '+65', maxDigits: 8 },
+    'Malaysia': { code: '+60', maxDigits: 9 },
+    'Thailand': { code: '+66', maxDigits: 9 },
+    'Vietnam': { code: '+84', maxDigits: 9 },
+    'Indonesia': { code: '+62', maxDigits: 9 },
+    'Philippines': { code: '+63', maxDigits: 9 },
+    'South Africa': { code: '+27', maxDigits: 9 },
+    'Kenya': { code: '+254', maxDigits: 9 },
+    'Tanzania': { code: '+255', maxDigits: 9 },
+    'Other': { code: '+', maxDigits: 15 }
   };
 
   const countries = [
@@ -115,13 +115,13 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
 
     // Phone validation (only if country is selected)
     if (formData.country && formData.country !== 'Other') {
-      const phoneCode = countryPhoneCodes[formData.country];
-      if (!formData.phone.trim()) {
-        newErrors.phone = 'Phone number is required';
-      } else if (!formData.phone.startsWith(phoneCode)) {
-        newErrors.phone = `Phone number should start with ${phoneCode}`;
-      } else if (formData.phone.replace(phoneCode, '').replace(/\s/g, '').length < 7) {
-        newErrors.phone = 'Phone number is too short';
+      const phoneData = countryPhoneCodes[formData.country];
+      if (!formData.phoneNumber.trim()) {
+        newErrors.phoneNumber = 'Phone number is required';
+      } else if (!/^\d+$/.test(formData.phoneNumber.trim())) {
+        newErrors.phoneNumber = 'Phone number should contain only numbers';
+      } else if (formData.phoneNumber.trim().length !== phoneData.maxDigits) {
+        newErrors.phoneNumber = `Phone number should be ${phoneData.maxDigits} digits`;
       }
     }
 
@@ -152,17 +152,24 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-
-    // Auto-update phone code when country changes
-    if (name === 'country' && value && value !== 'Other') {
-      const phoneCode = countryPhoneCodes[value];
+    // Handle phone number input - only allow numbers
+    if (name === 'phoneNumber') {
+      const numericValue = value.replace(/\D/g, ''); // Remove non-digits
+      const phoneData = formData.country && countryPhoneCodes[formData.country];
+      
+      // Limit to max digits for the selected country
+      if (phoneData && numericValue.length > phoneData.maxDigits) {
+        return; // Don't update if exceeding max digits
+      }
+      
       setFormData(prev => ({
         ...prev,
-        phone: phoneCode + ' '
+        [name]: numericValue
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: type === 'checkbox' ? checked : value
       }));
     }
 
@@ -184,11 +191,16 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
 
     setIsSubmitting(true);
     try {
+      // Combine country code with phone number
+      const fullPhoneNumber = formData.country && formData.country !== 'Other' 
+        ? countryPhoneCodes[formData.country].code + formData.phoneNumber.trim()
+        : formData.phoneNumber.trim();
+        
       const { token, user } = await authApi.register({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         email: formData.email.trim(),
-        phone: formData.phone.trim(),
+        phone: fullPhoneNumber,
         country: formData.country,
         password: formData.password,
       });
@@ -325,18 +337,38 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
               <label className="block text-white font-abeze font-medium mb-2">
                 Phone Number {formData.country !== 'Other' ? '*' : ''}
               </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                  errors.phone ? 'border-red-400' : 'border-white/20 focus:border-green-400'
-                }`}
-                placeholder={formData.country !== 'Other' ? `${countryPhoneCodes[formData.country]} 77 123 4567` : "Enter your phone number"}
-              />
-              {errors.phone && (
-                <p className="text-red-400 text-sm mt-1 font-abeze">{errors.phone}</p>
+              <div className="flex">
+                {/* Country Code Display */}
+                {formData.country !== 'Other' && (
+                  <div className="bg-white/20 border border-white/20 rounded-l-lg px-4 py-3 text-white font-abeze font-medium min-w-[80px] flex items-center justify-center">
+                    {countryPhoneCodes[formData.country].code}
+                  </div>
+                )}
+                {/* Phone Number Input */}
+                <input
+                  type="tel"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  maxLength={formData.country !== 'Other' ? countryPhoneCodes[formData.country].maxDigits : 15}
+                  className={`flex-1 bg-white/10 border border-white/20 rounded-r-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                    formData.country === 'Other' ? 'rounded-lg' : ''
+                  } ${
+                    errors.phoneNumber ? 'border-red-400' : 'focus:border-green-400'
+                  }`}
+                  placeholder={formData.country !== 'Other' 
+                    ? `e.g., 77 123 456 (${countryPhoneCodes[formData.country].maxDigits} digits)` 
+                    : "Enter your phone number"
+                  }
+                />
+              </div>
+              {errors.phoneNumber && (
+                <p className="text-red-400 text-sm mt-1 font-abeze">{errors.phoneNumber}</p>
+              )}
+              {formData.country !== 'Other' && formData.phoneNumber && (
+                <p className="text-gray-400 text-sm mt-1 font-abeze">
+                  {formData.phoneNumber.length}/{countryPhoneCodes[formData.country].maxDigits} digits
+                </p>
               )}
             </div>
           )}
