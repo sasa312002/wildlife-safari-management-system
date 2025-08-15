@@ -156,4 +156,31 @@ export const staffApi = {
   },
 };
 
+export const safariRequestApi = {
+  async getAllSafariRequests() {
+    const { data } = await api.get('/api/safari-requests');
+    return data;
+  },
+  async getSafariRequestById(id) {
+    const { data } = await api.get(`/api/safari-requests/${id}`);
+    return data;
+  },
+  async createSafariRequest(payload) {
+    const { data } = await api.post('/api/safari-requests', payload);
+    return data;
+  },
+  async updateSafariRequestStatus(id, payload) {
+    const { data } = await api.patch(`/api/safari-requests/${id}/status`, payload);
+    return data;
+  },
+  async deleteSafariRequest(id) {
+    const { data } = await api.delete(`/api/safari-requests/${id}`);
+    return data;
+  },
+  async getSafariRequestStats() {
+    const { data } = await api.get('/api/safari-requests/stats');
+    return data;
+  },
+};
+
 

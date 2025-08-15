@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { packageApi } from '../services/api';
+import { packageApi, safariRequestApi } from '../services/api';
 
 const TravelPackagesPage = () => {
   const navigate = useNavigate();
@@ -11,6 +11,21 @@ const TravelPackagesPage = () => {
   const [activeFilter, setActiveFilter] = useState('All');
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showRequestForm, setShowRequestForm] = useState(false);
+  const [requestFormData, setRequestFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    preferredDates: '',
+    groupSize: '',
+    duration: '',
+    budget: '',
+    specialRequirements: '',
+    preferredLocations: '',
+    wildlifeInterests: ''
+  });
+  const [requestFormErrors, setRequestFormErrors] = useState({});
+  const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
   const loginTriggerRef = useRef(null);
 
   const filters = ['All', 'Safari', 'Conservation', 'Photography', 'Birding', 'Adventure'];
@@ -43,6 +58,74 @@ const TravelPackagesPage = () => {
       return;
     }
     navigate(`/booking/${packageId}`);
+  };
+
+  const handleRequestFormChange = (e) => {
+    const { name, value } = e.target;
+    setRequestFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear error when user starts typing
+    if (requestFormErrors[name]) {
+      setRequestFormErrors(prev => ({
+        ...prev,
+        [name]: null
+      }));
+    }
+  };
+
+  const validateRequestForm = () => {
+    const newErrors = {};
+
+    if (!requestFormData.name.trim()) newErrors.name = 'Name is required';
+    if (!requestFormData.email.trim()) newErrors.email = 'Email is required';
+    if (!requestFormData.phone.trim()) newErrors.phone = 'Phone is required';
+    if (!requestFormData.preferredDates.trim()) newErrors.preferredDates = 'Preferred dates are required';
+    if (!requestFormData.groupSize.trim()) newErrors.groupSize = 'Group size is required';
+    if (!requestFormData.duration.trim()) newErrors.duration = 'Duration is required';
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (requestFormData.email && !emailRegex.test(requestFormData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    setRequestFormErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleRequestSafari = async (e) => {
+    e.preventDefault();
+    
+    if (!validateRequestForm()) {
+      return;
+    }
+
+    setIsSubmittingRequest(true);
+    try {
+      await safariRequestApi.createSafariRequest(requestFormData);
+      alert('Safari request submitted successfully! We will contact you soon.');
+      setRequestFormData({
+        name: '',
+        email: '',
+        phone: '',
+        preferredDates: '',
+        groupSize: '',
+        duration: '',
+        budget: '',
+        specialRequirements: '',
+        preferredLocations: '',
+        wildlifeInterests: ''
+      });
+      setShowRequestForm(false);
+    } catch (error) {
+      const errorMessage = error?.response?.data?.message || 'Failed to submit request. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsSubmittingRequest(false);
+    }
   };
 
   return (
@@ -222,8 +305,11 @@ const TravelPackagesPage = () => {
                 Let us create a custom safari experience tailored to your preferences. Our expert team will design the perfect wildlife adventure just for you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                  Custom Safari
+                <button 
+                  onClick={() => setShowRequestForm(!showRequestForm)}
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
+                >
+                  {showRequestForm ? 'Hide Request Form' : 'Request Safari'}
                 </button>
                 <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
                   Contact Us
@@ -231,6 +317,231 @@ const TravelPackagesPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Request Safari Form */}
+          {showRequestForm && (
+            <div className="mb-16">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+                <div className="text-center mb-8">
+                  <h3 className="text-3xl font-abeze font-bold text-white mb-2">
+                    Request Custom Safari
+                  </h3>
+                  <p className="text-gray-300 font-abeze">
+                    Tell us about your dream safari and we'll create a personalized experience for you
+                  </p>
+                </div>
+
+                <form onSubmit={handleRequestSafari} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Personal Information */}
+                    <div className="space-y-4">
+                      <h4 className="text-xl font-abeze font-bold text-white mb-4">Personal Information</h4>
+                      
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={requestFormData.name}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.name ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="John Doe"
+                        />
+                        {requestFormErrors.name && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.name}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Email Address *
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={requestFormData.email}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="john.doe@example.com"
+                        />
+                        {requestFormErrors.email && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.email}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Phone Number *
+                        </label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={requestFormData.phone}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.phone ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="+94 71 123 4567"
+                        />
+                        {requestFormErrors.phone && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.phone}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Safari Details */}
+                    <div className="space-y-4">
+                      <h4 className="text-xl font-abeze font-bold text-white mb-4">Safari Details</h4>
+                      
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Preferred Dates *
+                        </label>
+                        <input
+                          type="text"
+                          name="preferredDates"
+                          value={requestFormData.preferredDates}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.preferredDates ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="e.g., March 15-20, 2024"
+                        />
+                        {requestFormErrors.preferredDates && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.preferredDates}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Group Size *
+                        </label>
+                        <input
+                          type="text"
+                          name="groupSize"
+                          value={requestFormData.groupSize}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.groupSize ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="e.g., 4 adults, 2 children"
+                        />
+                        {requestFormErrors.groupSize && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.groupSize}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Duration *
+                        </label>
+                        <input
+                          type="text"
+                          name="duration"
+                          value={requestFormData.duration}
+                          onChange={handleRequestFormChange}
+                          className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
+                            requestFormErrors.duration ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                          }`}
+                          placeholder="e.g., 5 days, 4 nights"
+                        />
+                        {requestFormErrors.duration && (
+                          <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.duration}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Information */}
+                  <div className="space-y-4">
+                    <h4 className="text-xl font-abeze font-bold text-white mb-4">Additional Information</h4>
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Budget Range
+                        </label>
+                        <input
+                          type="text"
+                          name="budget"
+                          value={requestFormData.budget}
+                          onChange={handleRequestFormChange}
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
+                          placeholder="e.g., LKR 50,000 - 100,000 per person"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-white font-abeze font-medium mb-2">
+                          Preferred Locations
+                        </label>
+                        <input
+                          type="text"
+                          name="preferredLocations"
+                          value={requestFormData.preferredLocations}
+                          onChange={handleRequestFormChange}
+                          className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
+                          placeholder="e.g., Yala, Udawalawe, Wilpattu"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-white font-abeze font-medium mb-2">
+                        Wildlife Interests
+                      </label>
+                      <input
+                        type="text"
+                        name="wildlifeInterests"
+                        value={requestFormData.wildlifeInterests}
+                        onChange={handleRequestFormChange}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
+                        placeholder="e.g., Elephants, Leopards, Birds, Photography"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-white font-abeze font-medium mb-2">
+                        Special Requirements
+                      </label>
+                      <textarea
+                        name="specialRequirements"
+                        value={requestFormData.specialRequirements}
+                        onChange={handleRequestFormChange}
+                        rows="4"
+                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors resize-none"
+                        placeholder="Any special requirements, accessibility needs, dietary restrictions, or specific experiences you're looking for..."
+                      />
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowRequestForm(false)}
+                      className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isSubmittingRequest}
+                      className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg font-abeze font-bold transition-colors duration-300"
+                    >
+                      {isSubmittingRequest ? 'Submitting...' : 'Submit Request'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <Footer />
