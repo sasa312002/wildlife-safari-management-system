@@ -6,8 +6,15 @@ import authRoutes from "./routes/auth.js";
 import packageRoutes from "./routes/packages.js";
 import userRoutes from "./routes/users.js";
 import staffRoutes from "./routes/staff.js";
+import bookingRoutes from "./routes/bookings.js";
 
-dotenv.config();
+dotenv.config({ path: './.env' });
+
+// Debug: Log environment variables
+console.log('Environment variables loaded:');
+console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Present' : 'Missing');
+console.log('STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? 'Present' : 'Missing');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Present' : 'Missing');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,6 +38,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/staff", staffRoutes);
+app.use("/api/bookings", bookingRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

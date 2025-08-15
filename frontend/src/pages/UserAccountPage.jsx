@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { bookingApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EditProfileModal from '../components/EditProfileModal';
@@ -9,6 +10,10 @@ const UserAccountPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showBookings, setShowBookings] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [bookingsError, setBookingsError] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -23,10 +28,46 @@ const UserAccountPage = () => {
     setShowEditProfile(false);
   };
 
-  const handleViewBookings = () => {
-    // TODO: Implement view bookings functionality
-    console.log('View bookings clicked');
+  const handleViewBookings = async () => {
+    if (showBookings) {
+      setShowBookings(false);
+      return;
+    }
+    
+    setShowBookings(true);
+    setLoadingBookings(true);
+    setBookingsError(null);
+    
+    try {
+      const response = await bookingApi.getUserBookings();
+      if (response.success) {
+        setBookings(response.bookings);
+      } else {
+        setBookingsError(response.message || 'Failed to load bookings');
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setBookingsError('Failed to load bookings. Please try again.');
+    } finally {
+      setLoadingBookings(false);
+    }
   };
+
+  // Fetch bookings when component mounts if user has any
+  useEffect(() => {
+    const checkBookings = async () => {
+      try {
+        const response = await bookingApi.getUserBookings();
+        if (response.success && response.bookings.length > 0) {
+          setBookings(response.bookings);
+        }
+      } catch (error) {
+        console.error('Error checking initial bookings:', error);
+      }
+    };
+    
+    checkBookings();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700">
@@ -174,12 +215,18 @@ const UserAccountPage = () => {
                   <div className="grid md:grid-cols-2 gap-4">
                     <button
                       onClick={handleViewBookings}
-                      className="bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2"
+                      className={`py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2 ${
+                        showBookings 
+                          ? 'bg-red-600 hover:bg-red-700 text-white' 
+                          : 'bg-green-600 hover:bg-green-700 text-white'
+                      }`}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
-                      <span>View Bookings</span>
+                      <span>
+                        {showBookings ? 'Hide Bookings' : `View Bookings ${bookings.length > 0 ? `(${bookings.length})` : ''}`}
+                      </span>
                     </button>
                     
                     <button
@@ -193,6 +240,118 @@ const UserAccountPage = () => {
                     </button>
                   </div>
                 </div>
+
+                {/* Bookings Section */}
+                {showBookings && (
+                  <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                    <h3 className="text-2xl font-abeze font-bold text-white mb-6">
+                      My Bookings
+                    </h3>
+                    
+                    {loadingBookings ? (
+                      <div className="text-center py-8">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
+                        <p className="text-green-200 font-abeze">Loading your bookings...</p>
+                      </div>
+                    ) : bookingsError ? (
+                      <div className="text-center py-8">
+                        <div className="bg-red-600/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </div>
+                        <p className="text-red-400 font-abeze mb-4">{bookingsError}</p>
+                        <button
+                          onClick={handleViewBookings}
+                          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-abeze font-medium transition-colors duration-300"
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    ) : bookings.length === 0 ? (
+                      <div className="text-center py-8">
+                        <div className="bg-gray-600/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-300 font-abeze mb-4">No bookings found</p>
+                        <button
+                          onClick={() => navigate('/travel-packages')}
+                          className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-abeze font-medium transition-colors duration-300"
+                        >
+                          Book Your First Safari
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {bookings.map((booking) => (
+                          <div key={booking._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
+                            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                              <div className="flex-1">
+                                <h4 className="text-lg font-abeze font-bold text-white mb-2">
+                                  {booking.packageDetails?.title || 'Safari Package'}
+                                </h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Location:</span>
+                                    <p className="text-white font-abeze">{booking.packageDetails?.location || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Duration:</span>
+                                    <p className="text-white font-abeze">{booking.packageDetails?.duration || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">People:</span>
+                                    <p className="text-white font-abeze">{booking.bookingDetails?.numberOfPeople || 'N/A'}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Total Price:</span>
+                                    <p className="text-white font-abeze">LKR {booking.totalPrice?.toLocaleString() || 'N/A'}</p>
+                                  </div>
+                                </div>
+                                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Start Date:</span>
+                                    <p className="text-white font-abeze">
+                                      {booking.bookingDetails?.startDate ? new Date(booking.bookingDetails.startDate).toLocaleDateString() : 'N/A'}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">End Date:</span>
+                                    <p className="text-white font-abeze">
+                                      {booking.bookingDetails?.endDate ? new Date(booking.bookingDetails.endDate).toLocaleDateString() : 'N/A'}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Status:</span>
+                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-abeze font-medium ${
+                                      booking.status === 'Payment Confirmed' ? 'bg-green-600/20 text-green-400' :
+                                      booking.status === 'Confirmed' ? 'bg-blue-600/20 text-blue-400' :
+                                      booking.status === 'In Progress' ? 'bg-yellow-600/20 text-yellow-400' :
+                                      booking.status === 'Completed' ? 'bg-purple-600/20 text-purple-400' :
+                                      'bg-gray-600/20 text-gray-400'
+                                    }`}>
+                                      {booking.status}
+                                    </span>
+                                  </div>
+                                  <div>
+                                    <span className="text-green-200 font-abeze">Payment:</span>
+                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-abeze font-medium ${
+                                      booking.payment ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-red-400'
+                                    }`}>
+                                      {booking.payment ? 'Paid' : 'Pending'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
