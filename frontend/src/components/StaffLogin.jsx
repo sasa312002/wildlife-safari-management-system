@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
+const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
@@ -45,13 +45,20 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
     
     setIsSubmitting(true);
     try {
-      const { token, user } = await authApi.login({
+      const { token, user } = await authApi.staffLogin({
         email: formData.email.trim(),
         password: formData.password,
       });
+      
       login(user, token);
       onClose();
-      navigate('/');
+      
+      // Redirect based on role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/staff');
+      }
     } catch (err) {
       const errorMessage = err?.response?.data?.message || 'Login failed';
       
@@ -63,6 +70,8 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
         setErrors({ email: errorMessage });
       } else if (errorMessage.toLowerCase().includes('password')) {
         setErrors({ password: errorMessage });
+      } else if (errorMessage.toLowerCase().includes('access denied')) {
+        setErrors({ email: errorMessage });
       } else {
         // General error - show on both fields or as a general error
         setErrors({ 
@@ -83,10 +92,10 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Welcome Back
+            Staff Login
           </h2>
           <p className="text-gray-300 font-abeze">
-            Sign in to your Mufasa Wildlife account
+            Access your staff account
           </p>
         </div>
 
@@ -100,7 +109,6 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
           </svg>
         </button>
 
-        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
           <div>
@@ -116,7 +124,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="your.email@example.com"
+              placeholder="staff.email@mufasa.com"
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
@@ -162,49 +170,25 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
             )}
           </div>
 
-          {/* Forgot Password */}
-          <div className="flex justify-end">
-            <button
-              type="button"
-              className="text-green-400 hover:text-green-300 font-abeze text-sm transition-colors"
-            >
-              Forgot password?
-            </button>
-          </div>
-
           {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
           >
-            {isSubmitting ? 'Signing In...' : 'Sign In'}
+            {isSubmitting ? 'Signing In...' : 'Staff Sign In'}
           </button>
 
-          {/* Sign Up Link */}
+          {/* Switch to Regular Login */}
           <div className="text-center">
             <p className="text-gray-300 font-abeze">
-              Don't have an account?{' '}
+              Are you a customer?{' '}
               <button
                 type="button"
-                onClick={onSwitchToSignup}
+                onClick={onSwitchToRegularLogin}
                 className="text-green-400 hover:text-green-300 font-abeze font-medium transition-colors"
               >
-                Sign up here
-              </button>
-            </p>
-          </div>
-
-          {/* Staff Login Link */}
-          <div className="text-center pt-2 border-t border-white/20">
-            <p className="text-gray-300 font-abeze">
-              Are you a staff member?{' '}
-              <button
-                type="button"
-                onClick={onSwitchToStaffLogin}
-                className="text-blue-400 hover:text-blue-300 font-abeze font-medium transition-colors"
-              >
-                Staff login here
+                Customer login here
               </button>
             </p>
           </div>
@@ -214,4 +198,4 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
   );
 };
 
-export default Login; 
+export default StaffLogin;

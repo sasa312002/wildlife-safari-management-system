@@ -1,48 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { packageApi } from '../services/api';
 
 const SafariPackages = () => {
   const navigate = useNavigate();
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const packages = [
-    {
-      id: 1,
-      title: "Yala National Park Safari",
-      duration: "2 Days / 1 Night",
-      price: "LKR 45,000",
-      description: "Experience Sri Lanka's most famous wildlife sanctuary, home to leopards, elephants, and diverse bird species.",
-      features: ["Professional guide", "Luxury tented camp", "Game drives", "Traditional meals"],
-      image: "🦁",
-      popular: true
-    },
-    {
-      id: 2,
-      title: "Minneriya Elephant Gathering",
-      duration: "1 Day Tour",
-      price: "LKR 25,000",
-      description: "Witness the spectacular gathering of wild elephants at Minneriya National Park during the dry season.",
-      features: ["Elephant expert guide", "Safari jeep", "Refreshments", "Photography tips"],
-      image: "🐘"
-    },
-    {
-      id: 3,
-      title: "Sinharaja Rainforest Trek",
-      duration: "3 Days / 2 Nights",
-      price: "LKR 65,000",
-      description: "Explore the UNESCO World Heritage rainforest with endemic birds, butterflies, and rare wildlife.",
-      features: ["Rainforest expert", "Bird watching", "Eco-lodge stay", "Local cuisine"],
-      image: "🦜"
-    },
-    {
-      id: 4,
-      title: "Wilpattu Leopard Safari",
-      duration: "2 Days / 1 Night",
-      price: "LKR 55,000",
-      description: "Track leopards in Sri Lanka's largest national park with pristine wilderness and ancient ruins.",
-      features: ["Leopard specialist", "Wilderness camping", "Archaeological sites", "Sunset safari"],
-      image: "🐆"
+  useEffect(() => {
+    loadPackages();
+  }, []);
+
+  const loadPackages = async () => {
+    try {
+      const packagesData = await packageApi.getAllPackages();
+      // Only show popular packages on the home page
+      const popularPackages = packagesData.filter(pkg => pkg.isPopular).slice(0, 4);
+      setPackages(popularPackages);
+    } catch (error) {
+      console.error('Error loading packages:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const navigateToTravelPackages = () => {
     navigate('/travel-packages');
@@ -62,68 +42,97 @@ const SafariPackages = () => {
         </div>
 
         {/* Packages Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {packages.map((pkg) => (
-            <div 
-              key={pkg.id} 
-              className={`relative bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-green-400/50 transition-all duration-300 hover:transform hover:scale-105 ${
-                pkg.popular ? 'ring-2 ring-green-400' : ''
-              }`}
-            >
-              {/* Popular Badge */}
-              {pkg.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-abeze font-medium">
-                    Most Popular
-                  </span>
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-gray-300 font-abeze">Loading packages...</div>
+          </div>
+        ) : packages.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-300 font-abeze">No packages available at the moment.</div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {packages.map((pkg) => (
+              <div 
+                key={pkg._id} 
+                className={`relative bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-green-400/50 transition-all duration-300 hover:transform hover:scale-105 ${
+                  pkg.isPopular ? 'ring-2 ring-green-400' : ''
+                }`}
+              >
+                {/* Popular Badge */}
+                {pkg.isPopular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-green-500 text-white px-4 py-1 rounded-full text-sm font-abeze font-medium">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
+
+                {/* Package Image */}
+                <div className="w-full h-32 mb-4 rounded-lg overflow-hidden bg-gray-700">
+                  {pkg.image?.url ? (
+                    <img 
+                      src={pkg.image.url} 
+                      alt={pkg.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400">
+                      <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {/* Package Icon */}
-              <div className="text-6xl mb-4 text-center">
-                {pkg.image}
+                {/* Package Title */}
+                <h3 className="text-xl font-abeze font-bold text-white mb-2 text-center">
+                  {pkg.title}
+                </h3>
+
+                {/* Duration */}
+                <p className="text-green-400 font-abeze text-sm text-center mb-3">
+                  {pkg.duration}
+                </p>
+
+                {/* Price */}
+                <div className="text-center mb-4">
+                  <span className="text-3xl font-abeze font-bold text-white">
+                    LKR {pkg.price?.toLocaleString()}
+                  </span>
+                  <span className="text-gray-400 font-abeze text-sm"> per person</span>
+                </div>
+
+                {/* Description */}
+                <p className="text-gray-300 font-abeze text-sm mb-6 text-center leading-relaxed">
+                  {pkg.description}
+                </p>
+
+                {/* Features */}
+                {pkg.features && pkg.features.length > 0 && (
+                  <ul className="space-y-2 mb-6">
+                    {pkg.features.slice(0, 3).map((feature, index) => (
+                      <li key={index} className="flex items-center text-gray-300 font-abeze text-sm">
+                        <span className="text-green-400 mr-2">✓</span>
+                        {feature}
+                      </li>
+                    ))}
+                    {pkg.features.length > 3 && (
+                      <li className="text-gray-400 font-abeze text-sm">
+                        +{pkg.features.length - 3} more features
+                      </li>
+                    )}
+                  </ul>
+                )}
+
+                {/* Book Button */}
+                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300">
+                  Book Now
+                </button>
               </div>
-
-              {/* Package Title */}
-              <h3 className="text-xl font-abeze font-bold text-white mb-2 text-center">
-                {pkg.title}
-              </h3>
-
-              {/* Duration */}
-              <p className="text-green-400 font-abeze text-sm text-center mb-3">
-                {pkg.duration}
-              </p>
-
-              {/* Price */}
-              <div className="text-center mb-4">
-                <span className="text-3xl font-abeze font-bold text-white">
-                  {pkg.price}
-                </span>
-                <span className="text-gray-400 font-abeze text-sm"> per person</span>
-              </div>
-
-              {/* Description */}
-              <p className="text-gray-300 font-abeze text-sm mb-6 text-center leading-relaxed">
-                {pkg.description}
-              </p>
-
-              {/* Features */}
-              <ul className="space-y-2 mb-6">
-                {pkg.features.map((feature, index) => (
-                  <li key={index} className="flex items-center text-gray-300 font-abeze text-sm">
-                    <span className="text-green-400 mr-2">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Book Button */}
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300">
-                Book Now
-              </button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* See More Packages Link */}
         <div className="text-center mt-12">

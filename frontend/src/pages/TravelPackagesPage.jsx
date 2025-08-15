@@ -1,113 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import { packageApi } from '../services/api';
 
 const TravelPackagesPage = () => {
   const [activeFilter, setActiveFilter] = useState('All');
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const filters = ['All', 'Safari', 'Conservation', 'Photography', 'Birding', 'Adventure'];
 
-  const packages = [
-    {
-      name: "Yala National Park Safari",
-      category: "Safari",
-      duration: "2-3 Days",
-      price: "45,000",
-      rating: 4.8,
-      reviews: 127,
-      description: "Experience Sri Lanka's most famous wildlife sanctuary, home to leopards, elephants, and diverse bird species.",
-      highlights: ["Leopard sightings", "Elephant herds", "Bird watching"],
-      icon: "🐆"
-    },
-    {
-      name: "Minneriya Elephant Gathering",
-      category: "Conservation",
-      duration: "1 Day",
-      price: "25,000",
-      rating: 4.9,
-      reviews: 89,
-      description: "Witness the spectacular gathering of wild elephants at Minneriya National Park during the dry season.",
-      highlights: ["Elephant gathering", "Expert guide", "Safari jeep"],
-      icon: "🐘"
-    },
-    {
-      name: "Sinharaja Rainforest Trek",
-      category: "Adventure",
-      duration: "4-7 Days",
-      price: "65,000",
-      rating: 4.7,
-      reviews: 156,
-      description: "Explore the UNESCO World Heritage rainforest with endemic birds, butterflies, and rare wildlife.",
-      highlights: ["Rainforest trek", "Bird watching", "Eco-lodge"],
-      icon: "🌿"
-    },
-    {
-      name: "Wilpattu Leopard Safari",
-      category: "Safari",
-      duration: "2-3 Days",
-      price: "55,000",
-      rating: 4.6,
-      reviews: 94,
-      description: "Track leopards in Sri Lanka's largest national park with pristine wilderness and ancient ruins.",
-      highlights: ["Leopard tracking", "Wilderness camping", "Archaeological sites"],
-      icon: "🐆"
-    },
-    {
-      name: "Professional Wildlife Photography",
-      category: "Photography",
-      duration: "4-7 Days",
-      price: "85,000",
-      rating: 4.9,
-      reviews: 67,
-      description: "Capture stunning wildlife moments with professional photography guidance and exclusive access.",
-      highlights: ["Professional guidance", "Exclusive access", "Equipment provided"],
-      icon: "📸"
-    },
-    {
-      name: "Bundala Bird Sanctuary",
-      category: "Birding",
-      duration: "1-2 Days",
-      price: "35,000",
-      rating: 4.5,
-      reviews: 112,
-      description: "Discover over 200 bird species in this coastal wetland sanctuary, a paradise for bird enthusiasts.",
-      highlights: ["200+ bird species", "Coastal wetlands", "Expert ornithologist"],
-      icon: "🦅"
-    },
-    {
-      name: "Udawalawe Elephant Safari",
-      category: "Safari",
-      duration: "1 Day",
-      price: "30,000",
-      rating: 4.7,
-      reviews: 203,
-      description: "Observe wild elephants in their natural habitat at Udawalawe National Park, known for elephant sightings.",
-      highlights: ["Elephant sightings", "Natural habitat", "Conservation focus"],
-      icon: "🐘"
-    },
-    {
-      name: "Conservation Volunteer Program",
-      category: "Conservation",
-      duration: "1-2 Weeks",
-      price: "75,000",
-      rating: 4.8,
-      reviews: 45,
-      description: "Join our conservation efforts and contribute to wildlife protection while learning about local ecosystems.",
-      highlights: ["Hands-on conservation", "Educational experience", "Community involvement"],
-      icon: "🌱"
-    },
-    {
-      name: "Adventure Wildlife Camping",
-      category: "Adventure",
-      duration: "3-5 Days",
-      price: "50,000",
-      rating: 4.4,
-      reviews: 78,
-      description: "Experience wildlife up close with our adventure camping program in remote wilderness areas.",
-      highlights: ["Wilderness camping", "Close encounters", "Survival skills"],
-      icon: "⛺"
+  useEffect(() => {
+    loadPackages();
+  }, []);
+
+  const loadPackages = async () => {
+    try {
+      const packagesData = await packageApi.getAllPackages();
+      setPackages(packagesData);
+    } catch (error) {
+      console.error('Error loading packages:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const filteredPackages = activeFilter === 'All' 
     ? packages 
@@ -149,76 +65,88 @@ const TravelPackagesPage = () => {
           </div>
 
           {/* Packages Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-            {filteredPackages.map((pkg, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/20 hover:border-green-400/50 transition-all duration-300 hover:transform hover:scale-105"
-              >
-                <div className="relative h-64 bg-gradient-to-br from-green-600/20 to-green-400/20">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-8xl">{pkg.icon}</span>
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="text-gray-300 font-abeze">Loading packages...</div>
+            </div>
+          ) : filteredPackages.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-300 font-abeze">No packages found for the selected category.</div>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+              {filteredPackages.map((pkg) => (
+                <div
+                  key={pkg._id}
+                  className="bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/20 hover:border-green-400/50 transition-all duration-300 hover:transform hover:scale-105"
+                >
+                  <div className="relative h-64 bg-gradient-to-br from-green-600/20 to-green-400/20">
+                    {pkg.image?.url ? (
+                      <img 
+                        src={pkg.image.url} 
+                        alt={pkg.title} 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute top-4 right-4">
+                      <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-abeze font-bold">
+                        {pkg.duration}
+                      </span>
+                    </div>
+                    <div className="absolute bottom-4 left-4">
+                      <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-abeze">
+                        {pkg.category}
+                      </span>
+                    </div>
                   </div>
-                  <div className="absolute top-4 right-4">
-                    <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-abeze font-bold">
-                      {pkg.duration}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-4 left-4">
-                    <span className="bg-black/50 text-white px-3 py-1 rounded-full text-xs font-abeze">
-                      {pkg.category}
-                    </span>
+                  
+                  <div className="p-6">
+                    <h3 className="text-2xl font-abeze font-bold text-white mb-3">
+                      {pkg.title}
+                    </h3>
+                    <p className="text-gray-300 font-abeze text-sm mb-4 leading-relaxed">
+                      {pkg.description}
+                    </p>
+                    
+                    {pkg.highlights && pkg.highlights.length > 0 && (
+                      <div className="space-y-3 mb-6">
+                        {pkg.highlights.slice(0, 3).map((highlight, index) => (
+                          <div key={index} className="flex items-center space-x-2">
+                            <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span className="text-gray-300 font-abeze text-sm">{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <span className="text-3xl font-abeze font-bold text-green-400">LKR {pkg.price?.toLocaleString()}</span>
+                        <span className="text-gray-400 font-abeze text-sm">/person</span>
+                      </div>
+                      <div className="flex items-center space-x-1">
+                        <span className="text-yellow-400">★</span>
+                        <span className="text-gray-300 font-abeze text-sm">{pkg.rating || 0}</span>
+                        <span className="text-gray-400 font-abeze text-sm">({pkg.reviews || 0})</span>
+                      </div>
+                    </div>
+                    
+                    <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-abeze font-bold transition-colors duration-300">
+                      Book Now
+                    </button>
                   </div>
                 </div>
-                
-                <div className="p-6">
-                  <h3 className="text-2xl font-abeze font-bold text-white mb-3">
-                    {pkg.name}
-                  </h3>
-                  <p className="text-gray-300 font-abeze text-sm mb-4 leading-relaxed">
-                    {pkg.description}
-                  </p>
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      <span className="text-gray-300 font-abeze text-sm">{pkg.highlights[0]}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      <span className="text-gray-300 font-abeze text-sm">{pkg.highlights[1]}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                      </svg>
-                      <span className="text-gray-300 font-abeze text-sm">{pkg.highlights[2]}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between mb-6">
-                    <div>
-                      <span className="text-3xl font-abeze font-bold text-green-400">LKR {pkg.price}</span>
-                      <span className="text-gray-400 font-abeze text-sm">/person</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <span className="text-yellow-400">★</span>
-                      <span className="text-gray-300 font-abeze text-sm">{pkg.rating}</span>
-                      <span className="text-gray-400 font-abeze text-sm">({pkg.reviews})</span>
-                    </div>
-                  </div>
-                  
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                    Book Now
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Call to Action */}
           <div className="text-center mb-16">

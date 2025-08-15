@@ -8,6 +8,11 @@ const userSchema = new mongoose.Schema(
     phone: { type: String },
     country: { type: String },
     passwordHash: { type: String, required: true },
+    role: { 
+      type: String, 
+      enum: ['user', 'admin', 'staff'], 
+      default: 'user' 
+    },
     profilePicture: {
       url: { type: String },
       deleteUrl: { type: String },

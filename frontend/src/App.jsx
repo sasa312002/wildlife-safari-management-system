@@ -10,7 +10,9 @@ import TravelPackagesPage from './pages/TravelPackagesPage'
 import ContactUsPage from './pages/ContactUsPage'
 import AboutUsPage from './pages/AboutUsPage'
 import UserAccountPage from './pages/UserAccountPage'
+import AdminPage from './pages/AdminPage'
 import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import './App.css'
 
 function MainPage() {
@@ -38,6 +40,11 @@ function App() {
             <ProtectedRoute>
               <UserAccountPage />
             </ProtectedRoute>
+          } />
+          <Route path="/admin" element={
+            <ProtectedAdminRoute>
+              <AdminPage />
+            </ProtectedAdminRoute>
           } />
         </Routes>
       </Router>

@@ -147,15 +147,6 @@ const UserAccountPage = () => {
 
                     <div>
                       <label className="block text-green-200 font-abeze font-medium mb-2">
-                        Password
-                      </label>
-                      <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
-                        ••••••••••••••••
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-green-200 font-abeze font-medium mb-2">
                         Member Since
                       </label>
                       <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">

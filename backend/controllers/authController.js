@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import Staff from "../models/Staff.js";
 import { uploadToImgBB } from "../config/imgbb.js";
 
 const getJwtSecret = () => {
@@ -81,7 +82,62 @@ export const login = async (req, res, next) => {
         email: user.email,
         phone: user.phone,
         country: user.country,
+        role: user.role,
         profilePicture: user.profilePicture,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const staffLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Check if user is staff or admin
+    if (user.role !== 'admin' && user.role !== 'staff') {
+      return res.status(403).json({ message: "Access denied. Staff login only." });
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Get staff information if available
+    let staffInfo = null;
+    if (user.role === 'staff') {
+      staffInfo = await Staff.findOne({ userId: user._id });
+    }
+
+    const token = jwt.sign({ 
+      userId: user._id, 
+      role: user.role 
+    }, getJwtSecret(), { expiresIn: "7d" });
+
+    return res.json({
+      token,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        country: user.country,
+        role: user.role,
+        profilePicture: user.profilePicture,
+        staffInfo: staffInfo,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

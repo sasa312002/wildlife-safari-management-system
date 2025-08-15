@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Login from './Login';
 import Signup from './Signup';
+import StaffLogin from './StaffLogin';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -10,23 +11,34 @@ const Header = () => {
   const { isAuthenticated } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
+  const [showStaffLogin, setShowStaffLogin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLoginClick = () => {
     setShowLogin(true);
     setShowSignup(false);
+    setShowStaffLogin(false);
     setIsMobileMenuOpen(false);
   };
 
   const handleSignupClick = () => {
     setShowSignup(true);
     setShowLogin(false);
+    setShowStaffLogin(false);
+    setIsMobileMenuOpen(false);
+  };
+
+  const handleStaffLoginClick = () => {
+    setShowStaffLogin(true);
+    setShowLogin(false);
+    setShowSignup(false);
     setIsMobileMenuOpen(false);
   };
 
   const handleCloseModal = () => {
     setShowLogin(false);
     setShowSignup(false);
+    setShowStaffLogin(false);
   };
 
   const switchToSignup = () => {
@@ -36,6 +48,16 @@ const Header = () => {
 
   const switchToLogin = () => {
     setShowSignup(false);
+    setShowLogin(true);
+  };
+
+  const switchToStaffLogin = () => {
+    setShowLogin(false);
+    setShowStaffLogin(true);
+  };
+
+  const switchToRegularLogin = () => {
+    setShowStaffLogin(false);
     setShowLogin(true);
   };
 
@@ -254,6 +276,7 @@ const Header = () => {
         <Login 
           onClose={handleCloseModal}
           onSwitchToSignup={switchToSignup}
+          onSwitchToStaffLogin={switchToStaffLogin}
         />
       )}
 
@@ -262,6 +285,14 @@ const Header = () => {
         <Signup 
           onClose={handleCloseModal}
           onSwitchToLogin={switchToLogin}
+        />
+      )}
+
+      {/* Staff Login Modal */}
+      {showStaffLogin && (
+        <StaffLogin 
+          onClose={handleCloseModal}
+          onSwitchToRegularLogin={switchToRegularLogin}
         />
       )}
     </>
