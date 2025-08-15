@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import packageRoutes from "./routes/packages.js";
 import userRoutes from "./routes/users.js";
+import staffRoutes from "./routes/staff.js";
 
 dotenv.config();
 
@@ -29,6 +30,7 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/packages", packageRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/staff", staffRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

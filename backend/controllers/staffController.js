@@ -1,0 +1,277 @@
+import Staff from "../models/Staff.js";
+import { uploadToImgBB } from "../config/imgbb.js";
+import jwt from "jsonwebtoken";
+
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET || "dev_secret_change_me";
+  return secret;
+};
+
+// Get all staff (admin only)
+export const getAllStaff = async (req, res, next) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const staff = await Staff.find({}).select('-passwordHash').sort({ createdAt: -1 });
+    return res.json(staff);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get staff by ID
+export const getStaffById = async (req, res, next) => {
+  try {
+    const staffData = await Staff.findById(req.params.id).select('-passwordHash');
+    if (!staffData) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+    return res.json(staffData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Create new staff member (admin only)
+export const createStaff = async (req, res, next) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      phone,
+      role,
+      specialization,
+      experience,
+      licenseNumber
+    } = req.body;
+
+    if (!firstName || !lastName || !email || !password || !phone || !role) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check if email already exists
+    const existingStaff = await Staff.findOne({ email });
+    if (existingStaff) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+
+    const newStaff = await Staff.create({
+      firstName,
+      lastName,
+      email,
+      passwordHash: password, // Will be hashed by pre-save middleware
+      phone,
+      role,
+      specialization,
+      experience: Number(experience) || 0,
+      licenseNumber,
+      createdBy: req.user._id
+    });
+
+    // Return staff data without password
+    const staffData = newStaff.toObject();
+    delete staffData.passwordHash;
+
+    return res.status(201).json(staffData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Update staff member (admin only)
+export const updateStaff = async (req, res, next) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      role,
+      specialization,
+      experience,
+      licenseNumber,
+      isActive
+    } = req.body;
+
+    const staffData = await Staff.findById(req.params.id);
+    if (!staffData) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    // Check if email is being changed and if it already exists
+    if (email && email !== staffData.email) {
+      const existingStaff = await Staff.findOne({ email });
+      if (existingStaff) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+    }
+
+    const updatedStaff = await Staff.findByIdAndUpdate(
+      req.params.id,
+      {
+        firstName,
+        lastName,
+        email,
+        phone,
+        role,
+        specialization,
+        experience: Number(experience) || 0,
+        licenseNumber,
+        isActive
+      },
+      { new: true, runValidators: true }
+    ).select('-passwordHash');
+
+    return res.json(updatedStaff);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Delete staff member (admin only)
+export const deleteStaff = async (req, res, next) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const staffData = await Staff.findById(req.params.id);
+    if (!staffData) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    await Staff.findByIdAndDelete(req.params.id);
+    return res.json({ message: "Staff deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Staff login
+export const staffLogin = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const staff = await Staff.findOne({ email });
+    if (!staff) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    if (!staff.isActive) {
+      return res.status(401).json({ message: "Account is deactivated" });
+    }
+
+    const isPasswordValid = await staff.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Create JWT token
+    const token = jwt.sign(
+      { 
+        userId: staff._id, 
+        email: staff.email, 
+        role: staff.role,
+        userType: 'staff'
+      },
+      getJwtSecret(),
+      { expiresIn: '24h' }
+    );
+
+    // Return staff data without password
+    const staffData = staff.toObject();
+    delete staffData.passwordHash;
+
+    return res.json({
+      token,
+      user: staffData
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Upload staff profile picture
+export const uploadStaffProfilePicture = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "No image file provided" });
+    }
+
+    const staffId = req.params.id;
+    const staffData = await Staff.findById(staffId);
+    if (!staffData) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    // Upload image to ImgBB
+    const filename = `staff_${staffId}_${Date.now()}`;
+    const uploadResult = await uploadToImgBB(req.file.buffer, filename);
+
+    // Update staff with new image
+    const updatedStaff = await Staff.findByIdAndUpdate(
+      staffId,
+      {
+        profilePicture: {
+          url: uploadResult.url,
+          deleteUrl: uploadResult.deleteUrl,
+          id: uploadResult.id,
+        }
+      },
+      { new: true, runValidators: true }
+    ).select('-passwordHash');
+
+    return res.json({
+      staff: updatedStaff,
+      message: "Profile picture uploaded successfully"
+    });
+  } catch (err) {
+    console.error('Error in uploadStaffProfilePicture:', err);
+    next(err);
+  }
+};
+
+// Toggle staff active status
+export const toggleStaffStatus = async (req, res, next) => {
+  try {
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Access denied. Admin only." });
+    }
+
+    const staffData = await Staff.findById(req.params.id);
+    if (!staffData) {
+      return res.status(404).json({ message: "Staff not found" });
+    }
+
+    staffData.isActive = !staffData.isActive;
+    await staffData.save();
+
+    const updatedStaff = staffData.toObject();
+    delete updatedStaff.passwordHash;
+
+    return res.json(updatedStaff);
+  } catch (err) {
+    next(err);
+  }
+};

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi } from '../services/api';
+import { staffApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { staffLogin } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -45,17 +45,19 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
     
     setIsSubmitting(true);
     try {
-      const { token, user } = await authApi.staffLogin({
+      const { token, user } = await staffApi.staffLogin({
         email: formData.email.trim(),
         password: formData.password,
       });
       
-      login(user, token);
+      staffLogin(user, token);
       onClose();
       
       // Redirect based on role
-      if (user.role === 'admin') {
-        navigate('/admin');
+      if (user.role === 'driver') {
+        navigate('/driver-dashboard');
+      } else if (user.role === 'tour_guide') {
+        navigate('/tour-guide-dashboard');
       } else {
         navigate('/staff');
       }

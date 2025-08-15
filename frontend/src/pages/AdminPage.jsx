@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { packageApi, userApi } from '../services/api';
+import { packageApi, userApi, staffApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AddPackageModal from '../components/AddPackageModal';
 import EditPackageModal from '../components/EditPackageModal';
+import AddStaffModal from '../components/AddStaffModal';
 
 const AdminPage = () => {
   const { user, logout } = useAuth();
@@ -18,6 +19,9 @@ const AdminPage = () => {
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [usersLoading, setUsersLoading] = useState(false);
+  const [staff, setStaff] = useState([]);
+  const [staffLoading, setStaffLoading] = useState(false);
+  const [showAddStaff, setShowAddStaff] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -34,6 +38,8 @@ const AdminPage = () => {
       loadPackages();
     } else if (activeTab === 'users') {
       loadUsers();
+    } else if (activeTab === 'staff') {
+      loadStaff();
     }
   }, [activeTab]);
 
@@ -100,6 +106,45 @@ const AdminPage = () => {
         console.error('Error deleting user:', error);
         alert(error.response?.data?.message || 'Failed to delete user');
       }
+    }
+  };
+
+  const loadStaff = async () => {
+    setStaffLoading(true);
+    try {
+      const staffData = await staffApi.getAllStaff();
+      setStaff(staffData);
+    } catch (error) {
+      console.error('Error loading staff:', error);
+    } finally {
+      setStaffLoading(false);
+    }
+  };
+
+  const handleStaffAdded = () => {
+    loadStaff();
+  };
+
+  const handleDeleteStaff = async (staffId) => {
+    if (window.confirm('Are you sure you want to delete this staff member? This action cannot be undone.')) {
+      try {
+        await staffApi.deleteStaff(staffId);
+        loadStaff();
+        alert('Staff member deleted successfully');
+      } catch (error) {
+        console.error('Error deleting staff:', error);
+        alert(error.response?.data?.message || 'Failed to delete staff member');
+      }
+    }
+  };
+
+  const handleToggleStaffStatus = async (staffId) => {
+    try {
+      await staffApi.toggleStaffStatus(staffId);
+      loadStaff();
+    } catch (error) {
+      console.error('Error toggling staff status:', error);
+      alert('Failed to update staff status');
     }
   };
 
@@ -310,9 +355,124 @@ const AdminPage = () => {
   );
 
   const renderStaff = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Staff Management</h3>
-      <p className="text-gray-300 font-abeze">Staff management functionality will be implemented here.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-abeze font-bold text-white">Staff Management</h3>
+        <button
+          onClick={() => setShowAddStaff(true)}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          <span>Add Staff</span>
+        </button>
+      </div>
+
+      {/* Staff List */}
+      {staffLoading ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">Loading staff...</div>
+        </div>
+      ) : staff.length === 0 ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">No staff members found.</div>
+        </div>
+      ) : (
+        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Name</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Email</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Phone</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Role</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Specialization</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Experience</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {staff.map((staffMember) => (
+                  <tr key={staffMember._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                    <td className="py-4 px-6 text-white font-abeze">
+                      <div className="flex items-center space-x-3">
+                        {staffMember.profilePicture?.url ? (
+                          <img 
+                            src={staffMember.profilePicture.url} 
+                            alt={staffMember.firstName} 
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+                            <span className="text-blue-400 text-sm font-abeze">
+                              {staffMember.firstName?.charAt(0)?.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium">{staffMember.firstName} {staffMember.lastName}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze">{staffMember.email}</td>
+                    <td className="py-4 px-6 text-white font-abeze">{staffMember.phone}</td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        staffMember.role === 'admin' 
+                          ? 'bg-red-500/20 text-red-400' 
+                          : staffMember.role === 'tour_guide'
+                          ? 'bg-green-500/20 text-green-400'
+                          : 'bg-blue-500/20 text-blue-400'
+                      }`}>
+                        {staffMember.role === 'tour_guide' ? 'Tour Guide' : staffMember.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      {staffMember.specialization || 'N/A'}
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      {staffMember.experience || 0} years
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        staffMember.isActive 
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {staffMember.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleToggleStaffStatus(staffMember._id)}
+                          className={`px-3 py-1 rounded text-xs font-abeze transition-colors ${
+                            staffMember.isActive 
+                              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
+                              : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                          }`}
+                        >
+                          {staffMember.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStaff(staffMember._id)}
+                          className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -476,7 +636,7 @@ const AdminPage = () => {
                {[
                  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
                  { id: 'users', label: 'Customers', icon: '👥' },
-                 { id: 'staff', label: 'Staff', icon: '👨‍💼' },
+                 { id: 'staff', label: 'Staff Management', icon: '👨‍💼' },
                  { id: 'packages', label: 'Packages', icon: '🎒' },
                  { id: 'bookings', label: 'Bookings', icon: '📅' },
                  { id: 'reports', label: 'Reports', icon: '📈' },
@@ -528,6 +688,14 @@ const AdminPage = () => {
              setSelectedPackage(null);
            }}
            onPackageUpdated={handlePackageUpdated}
+         />
+       )}
+
+       {/* Add Staff Modal */}
+       {showAddStaff && (
+         <AddStaffModal 
+           onClose={() => setShowAddStaff(false)}
+           onStaffAdded={handleStaffAdded}
          />
        )}
     </div>

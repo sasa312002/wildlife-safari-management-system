@@ -4,23 +4,24 @@ const testAdminLogin = async () => {
   try {
     console.log('Testing admin login...');
     
-    const response = await axios.post('http://localhost:5000/api/auth/staff-login', {
+    const response = await axios.post('http://localhost:5000/api/auth/login', {
       email: 'admin@mufasa.com',
       password: 'admin123'
     });
     
     console.log('✅ Admin login successful!');
-    console.log('Response:', response.data);
-    console.log('User role:', response.data.user.role);
+    console.log('Token:', response.data.token);
+    console.log('User:', response.data.user);
     
   } catch (error) {
-    console.log('❌ Admin login failed!');
-    console.log('Error status:', error.response?.status);
-    console.log('Error data:', error.response?.data);
-    console.log('Error message:', error.message);
+    console.error('❌ Admin login failed:');
+    console.error('Status:', error.response?.status);
+    console.error('Message:', error.response?.data?.message);
+    console.error('Error:', error.message);
+    console.error('Full error:', error);
     
     if (error.code === 'ECONNREFUSED') {
-      console.log('Server is not running on port 5000');
+      console.error('Server is not running on port 5000');
     }
   }
 };

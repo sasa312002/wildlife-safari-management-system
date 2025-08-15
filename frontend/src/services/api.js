@@ -110,4 +110,50 @@ export const userApi = {
   },
 };
 
+export const staffApi = {
+  async getAllStaff() {
+    const { data } = await api.get('/api/staff');
+    return data;
+  },
+  async getStaffById(id) {
+    const { data } = await api.get(`/api/staff/${id}`);
+    return data;
+  },
+  async createStaff(payload) {
+    const { data } = await api.post('/api/staff', payload);
+    return data;
+  },
+  async updateStaff(id, payload) {
+    const { data } = await api.put(`/api/staff/${id}`, payload);
+    return data;
+  },
+  async deleteStaff(id) {
+    const { data } = await api.delete(`/api/staff/${id}`);
+    return data;
+  },
+  async toggleStaffStatus(id) {
+    const { data } = await api.patch(`/api/staff/${id}/toggle-status`);
+    return data;
+  },
+  async staffLogin(payload) {
+    const { data } = await api.post('/api/staff/login', payload);
+    return data;
+  },
+  async uploadStaffProfilePicture(id, formData) {
+    const uploadApi = axios.create({
+      baseURL,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+    
+    const { data } = await uploadApi.post(`/api/staff/${id}/profile-picture`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
+};
+
 

@@ -1,42 +1,85 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const staffSchema = new mongoose.Schema(
   {
-    userId: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      ref: 'User', 
-      required: true 
-    },
-    position: { 
-      type: String, 
-      required: true,
-      enum: ['admin', 'driver', 'guide', 'manager', 'receptionist']
-    },
-    department: { 
-      type: String, 
-      required: true,
-      enum: ['management', 'operations', 'customer_service', 'transportation']
-    },
-    employeeId: { 
-      type: String, 
-      required: true, 
-      unique: true 
-    },
-    hireDate: { 
-      type: Date, 
-      default: Date.now 
-    },
-    isActive: { 
-      type: Boolean, 
-      default: true 
-    },
-    permissions: [{
+    firstName: {
       type: String,
-      enum: ['manage_users', 'manage_bookings', 'manage_packages', 'view_reports', 'manage_staff']
-    }]
+      required: true,
+      trim: true
+    },
+    lastName: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true
+    },
+    passwordHash: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      required: true
+    },
+    role: {
+      type: String,
+      required: true,
+      enum: ['driver', 'tour_guide']
+    },
+    specialization: {
+      type: String,
+      trim: true
+    },
+    experience: {
+      type: Number,
+      default: 0
+    },
+    licenseNumber: {
+      type: String,
+      trim: true
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    profilePicture: {
+      url: { type: String },
+      deleteUrl: { type: String },
+      id: { type: String }
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    }
   },
   { timestamps: true }
 );
+
+// Hash password before saving
+staffSchema.pre('save', async function(next) {
+  if (!this.isModified('passwordHash')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Method to compare password
+staffSchema.methods.comparePassword = async function(candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.passwordHash);
+};
 
 const Staff = mongoose.model("Staff", staffSchema);
 
