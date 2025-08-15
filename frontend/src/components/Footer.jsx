@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -32,11 +33,15 @@ const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="mb-6">
-              <h3 className="text-2xl font-abeze font-bold text-green-400 mb-2">Wild Path</h3>
+              <img 
+                src={logo} 
+                alt="Wild Path Logo" 
+                className="h-16 w-auto mb-4"
+              />
               <p className="text-sm font-abeze font-light tracking-wider text-gray-300">WILDLIFE</p>
             </div>
             <p className="text-gray-300 font-abeze text-sm leading-relaxed mb-6">
@@ -113,52 +118,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Safari Packages */}
-          <div>
-            <h4 className="text-lg font-abeze font-bold text-white mb-6">Safari Packages</h4>
-            <ul className="space-y-3">
-              <li>
-                <button 
-                  onClick={navigateToTravelPackages}
-                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
-                >
-                  Yala National Park
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={navigateToTravelPackages}
-                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
-                >
-                  Wilpattu National Park
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={navigateToTravelPackages}
-                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
-                >
-                  Udawalawe National Park
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={navigateToTravelPackages}
-                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
-                >
-                  Minneriya National Park
-                </button>
-              </li>
-              <li>
-                <button 
-                  onClick={navigateToTravelPackages}
-                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
-                >
-                  Bundala National Park
-                </button>
-              </li>
-            </ul>
-          </div>
+
 
           {/* Contact Info */}
           <div>

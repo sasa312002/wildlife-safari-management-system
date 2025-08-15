@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import Login from './Login';
 import Signup from './Signup';
 import StaffLogin from './StaffLogin';
+import logo from '../assets/logo.png';
 
 const Header = ({ triggerLogin = null }) => {
   const navigate = useNavigate();
@@ -134,8 +135,12 @@ const Header = ({ triggerLogin = null }) => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="text-white cursor-pointer" onClick={navigateToHome}>
-                <h1 className="text-2xl font-abeze font-bold">Wild Path</h1>
+              <div className="cursor-pointer" onClick={navigateToHome}>
+                <img 
+                  src={logo} 
+                  alt="Wild Path Logo" 
+                  className="h-12 w-auto"
+                />
               </div>
             </div>
 
