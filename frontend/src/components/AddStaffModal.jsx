@@ -23,7 +23,8 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
 
   const roles = [
     { value: 'driver', label: 'Driver' },
-    { value: 'tour_guide', label: 'Tour Guide' }
+    { value: 'tour_guide', label: 'Tour Guide' },
+    { value: 'admin', label: 'Sub Admin' }
   ];
 
   const handleInputChange = (e) => {

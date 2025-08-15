@@ -27,6 +27,10 @@ const ProtectedStaffRoute = ({ children, allowedRoles = [] }) => {
 
   // If specific roles are required, check if user's role is allowed
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+    // If user is admin, redirect to admin dashboard instead of account
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/account" replace />;
   }
 
