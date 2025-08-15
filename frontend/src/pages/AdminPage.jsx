@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { packageApi } from '../services/api';
+import { packageApi, userApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AddPackageModal from '../components/AddPackageModal';
@@ -12,10 +12,12 @@ const AdminPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [packages, setPackages] = useState([]);
+  const [users, setUsers] = useState([]);
   const [showAddPackage, setShowAddPackage] = useState(false);
   const [showEditPackage, setShowEditPackage] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -26,10 +28,12 @@ const AdminPage = () => {
     setActiveTab(tab);
   };
 
-  // Load packages when packages tab is selected
+  // Load data when tabs are selected
   useEffect(() => {
     if (activeTab === 'packages') {
       loadPackages();
+    } else if (activeTab === 'users') {
+      loadUsers();
     }
   }, [activeTab]);
 
@@ -70,13 +74,32 @@ const AdminPage = () => {
     }
   };
 
-  const handleTogglePackageStatus = async (packageId) => {
+
+
+  const loadUsers = async () => {
+    setUsersLoading(true);
     try {
-      await packageApi.togglePackageStatus(packageId);
-      loadPackages();
+      const usersData = await userApi.getAllUsers();
+      // Filter out admin users, show only customers (normal users)
+      const customersOnly = usersData.filter(user => user.role === 'user');
+      setUsers(customersOnly);
     } catch (error) {
-      console.error('Error toggling package status:', error);
-      alert('Failed to update package status');
+      console.error('Error loading users:', error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId) => {
+    if (window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      try {
+        await userApi.deleteUser(userId);
+        loadUsers();
+        alert('User deleted successfully');
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        alert(error.response?.data?.message || 'Failed to delete user');
+      }
     }
   };
 
@@ -193,9 +216,96 @@ const AdminPage = () => {
   );
 
   const renderUsers = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">User Management</h3>
-      <p className="text-gray-300 font-abeze">User management functionality will be implemented here.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-abeze font-bold text-white">Customer Management</h3>
+        <div className="text-gray-300 font-abeze text-sm">
+          Total Customers: {users.length}
+        </div>
+      </div>
+
+      {/* Users List */}
+      {usersLoading ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">Loading customers...</div>
+        </div>
+      ) : users.length === 0 ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">No customers found.</div>
+        </div>
+      ) : (
+        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Name</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Email</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Phone</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Country</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Role</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Joined</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                    <td className="py-4 px-6 text-white font-abeze">
+                      <div className="flex items-center space-x-3">
+                        {user.profilePicture ? (
+                          <img 
+                            src={user.profilePicture} 
+                            alt={user.firstName} 
+                            className="w-8 h-8 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                            <span className="text-green-400 text-sm font-abeze">
+                              {user.firstName?.charAt(0)?.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        <div>
+                          <div className="font-medium">{user.firstName} {user.lastName}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze">{user.email}</td>
+                    <td className="py-4 px-6 text-white font-abeze">{user.phone || 'N/A'}</td>
+                    <td className="py-4 px-6 text-white font-abeze">{user.country || 'N/A'}</td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        user.role === 'admin' 
+                          ? 'bg-red-500/20 text-red-400' 
+                          : user.role === 'staff'
+                          ? 'bg-blue-500/20 text-blue-400'
+                          : 'bg-green-500/20 text-green-400'
+                      }`}>
+                        {user.role}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-6">
+                      {user.role !== 'admin' && (
+                        <button
+                          onClick={() => handleDeleteUser(user._id)}
+                          className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -302,16 +412,6 @@ const AdminPage = () => {
                      Edit
                    </button>
                    <button
-                     onClick={() => handleTogglePackageStatus(pkg._id)}
-                     className={`px-3 py-1 rounded text-xs font-abeze transition-colors ${
-                       pkg.isActive 
-                         ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                         : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                     }`}
-                   >
-                     {pkg.isActive ? 'Deactivate' : 'Activate'}
-                   </button>
-                   <button
                      onClick={() => handleDeletePackage(pkg._id)}
                      className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
                    >
@@ -349,6 +449,18 @@ const AdminPage = () => {
         <div className="container mx-auto px-6">
           {/* Page Header */}
           <div className="text-center mb-12">
+            <div className="flex justify-between items-center mb-4">
+              <div></div> {/* Empty div for spacing */}
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Logout</span>
+              </button>
+            </div>
             <h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
               Admin Dashboard
             </h1>
@@ -363,7 +475,7 @@ const AdminPage = () => {
                          <div className="flex flex-wrap gap-2 mb-8">
                {[
                  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-                 { id: 'users', label: 'Users', icon: '👥' },
+                 { id: 'users', label: 'Customers', icon: '👥' },
                  { id: 'staff', label: 'Staff', icon: '👨‍💼' },
                  { id: 'packages', label: 'Packages', icon: '🎒' },
                  { id: 'bookings', label: 'Bookings', icon: '📅' },

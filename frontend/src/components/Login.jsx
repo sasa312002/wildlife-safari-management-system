@@ -51,7 +51,13 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
       });
       login(user, token);
       onClose();
-      navigate('/');
+      
+      // Redirect based on user role
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err) {
       const errorMessage = err?.response?.data?.message || 'Login failed';
       

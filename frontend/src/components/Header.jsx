@@ -5,14 +5,25 @@ import Login from './Login';
 import Signup from './Signup';
 import StaffLogin from './StaffLogin';
 
-const Header = () => {
+const Header = ({ triggerLogin = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showStaffLogin, setShowStaffLogin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Expose the login trigger function to parent components
+  React.useEffect(() => {
+    if (triggerLogin) {
+      triggerLogin.current = () => {
+        setShowLogin(true);
+        setShowSignup(false);
+        setShowStaffLogin(false);
+      };
+    }
+  }, [triggerLogin]);
 
   const handleLoginClick = () => {
     setShowLogin(true);
@@ -86,7 +97,12 @@ const Header = () => {
   };
 
   const navigateToAccount = () => {
-    navigate('/account');
+    // Redirect based on user role
+    if (user?.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/account');
+    }
     window.scrollTo(0, 0);
     setIsMobileMenuOpen(false);
   };
@@ -172,7 +188,7 @@ const Header = () => {
                   onClick={navigateToAccount}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
                 >
-                  MY ACCOUNT
+                  {user?.role === 'admin' ? 'ADMIN' : 'MY ACCOUNT'}
                 </button>
               ) : (
                 <button 
@@ -257,6 +273,14 @@ const Header = () => {
                 >
                   CONTACT
                 </button>
+                {isAuthenticated && (
+                  <button 
+                    onClick={navigateToAccount}
+                    className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
+                  >
+                    {user?.role === 'admin' ? 'ADMIN' : 'MY ACCOUNT'}
+                  </button>
+                )}
               </nav>
             </div>
           )}

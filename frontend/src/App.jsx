@@ -11,6 +11,7 @@ import ContactUsPage from './pages/ContactUsPage'
 import AboutUsPage from './pages/AboutUsPage'
 import UserAccountPage from './pages/UserAccountPage'
 import AdminPage from './pages/AdminPage'
+import BookingPage from './pages/BookingPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import './App.css'
@@ -45,6 +46,11 @@ function App() {
             <ProtectedAdminRoute>
               <AdminPage />
             </ProtectedAdminRoute>
+          } />
+          <Route path="/booking/:packageId" element={
+            <ProtectedRoute>
+              <BookingPage />
+            </ProtectedRoute>
           } />
         </Routes>
       </Router>

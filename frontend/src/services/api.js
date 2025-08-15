@@ -95,4 +95,19 @@ export const packageApi = {
   },
 };
 
+export const userApi = {
+  async getAllUsers() {
+    const { data } = await api.get('/api/users');
+    return data;
+  },
+  async getUserStats() {
+    const { data } = await api.get('/api/users/stats');
+    return data;
+  },
+  async deleteUser(id) {
+    const { data } = await api.delete(`/api/users/${id}`);
+    return data;
+  },
+};
+
 
