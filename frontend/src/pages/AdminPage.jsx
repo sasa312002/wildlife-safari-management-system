@@ -112,38 +112,8 @@ const AdminPage = () => {
   const loadStaff = async () => {
     setStaffLoading(true);
     try {
-      // Fetch staff members from Staff collection
       const staffData = await staffApi.getAllStaff();
-      
-      // Fetch main admin from User collection
-      const usersData = await userApi.getAllUsers();
-      const mainAdmin = usersData.find(user => user.role === 'admin');
-      
-      // Combine main admin with staff members
-      const allStaff = [];
-      
-      // Add main admin if found
-      if (mainAdmin) {
-        allStaff.push({
-          ...mainAdmin,
-          _id: mainAdmin._id,
-          firstName: mainAdmin.firstName,
-          lastName: mainAdmin.lastName,
-          email: mainAdmin.email,
-          phone: mainAdmin.phone || 'N/A',
-          role: 'admin',
-          specialization: 'Main Administrator',
-          experience: 'N/A',
-          isActive: true,
-          profilePicture: mainAdmin.profilePicture,
-          userType: 'main_admin' // Flag to identify main admin
-        });
-      }
-      
-      // Add staff members
-      allStaff.push(...staffData);
-      
-      setStaff(allStaff);
+      setStaff(staffData);
     } catch (error) {
       console.error('Error loading staff:', error);
     } finally {
@@ -452,21 +422,13 @@ const AdminPage = () => {
                     <td className="py-4 px-6 text-white font-abeze">{staffMember.phone}</td>
                     <td className="py-4 px-6">
                       <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                        staffMember.userType === 'main_admin'
-                          ? 'bg-purple-500/20 text-purple-400'
-                          : staffMember.role === 'admin' 
+                        staffMember.role === 'admin' 
                           ? 'bg-red-500/20 text-red-400' 
                           : staffMember.role === 'tour_guide'
                           ? 'bg-green-500/20 text-green-400'
                           : 'bg-blue-500/20 text-blue-400'
                       }`}>
-                        {staffMember.userType === 'main_admin' 
-                          ? 'Main Admin' 
-                          : staffMember.role === 'tour_guide' 
-                          ? 'Tour Guide' 
-                          : staffMember.role === 'admin'
-                          ? 'Sub Admin'
-                          : staffMember.role}
+                        {staffMember.role === 'tour_guide' ? 'Tour Guide' : staffMember.role}
                       </span>
                     </td>
                     <td className="py-4 px-6 text-white font-abeze text-sm">
@@ -486,29 +448,22 @@ const AdminPage = () => {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center space-x-2">
-                        {/* Don't show toggle/delete buttons for main admin */}
-                        {staffMember.userType !== 'main_admin' ? (
-                          <>
-                            <button
-                              onClick={() => handleToggleStaffStatus(staffMember._id)}
-                              className={`px-3 py-1 rounded text-xs font-abeze transition-colors ${
-                                staffMember.isActive 
-                                  ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                                  : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                              }`}
-                            >
-                              {staffMember.isActive ? 'Deactivate' : 'Activate'}
-                            </button>
-                            <button
-                              onClick={() => handleDeleteStaff(staffMember._id)}
-                              className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
-                            >
-                              Delete
-                            </button>
-                          </>
-                        ) : (
-                          <span className="text-gray-400 text-xs font-abeze">Main Admin</span>
-                        )}
+                        <button
+                          onClick={() => handleToggleStaffStatus(staffMember._id)}
+                          className={`px-3 py-1 rounded text-xs font-abeze transition-colors ${
+                            staffMember.isActive 
+                              ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
+                              : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                          }`}
+                        >
+                          {staffMember.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteStaff(staffMember._id)}
+                          className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
+                        >
+                          Delete
+                        </button>
                       </div>
                     </td>
                   </tr>
