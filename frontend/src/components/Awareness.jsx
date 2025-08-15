@@ -1,10 +1,10 @@
 import React from 'react';
 
 const Awareness = () => {
-  const conservationTopics = [
+  const hikingTopics = [
     {
       id: 1,
-      title: "Elephant Conservation",
+      title: "Elephant Hiking",
       description: "Learn about Sri Lanka's wild elephant population and the challenges they face in their natural habitat.",
       icon: "🐘",
       stats: "6,000+ wild elephants",
@@ -39,7 +39,7 @@ const Awareness = () => {
   const initiatives = [
     {
       title: "Community Education",
-      description: "Working with local communities to promote wildlife conservation and sustainable tourism practices.",
+      description: "Working with local communities to promote wildlife hiking and sustainable tourism practices.",
       impact: "500+ families educated"
     },
     {
@@ -65,17 +65,17 @@ const Awareness = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
-            Wildlife <span className="text-green-400">Conservation</span>
+            Wildlife <span className="text-green-400">Hiking</span>
           </h2>
           <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-            Join us in protecting Sri Lanka's precious wildlife heritage. Learn about conservation efforts, 
+            Join us in exploring Sri Lanka's precious wildlife heritage. Learn about hiking trails, 
             environmental challenges, and how you can contribute to preserving our natural wonders for future generations.
           </p>
         </div>
 
         {/* Conservation Topics Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
-          {conservationTopics.map((topic) => (
+          {hikingTopics.map((topic) => (
             <div 
               key={topic.id}
               className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-green-400/50 transition-all duration-300 hover:transform hover:scale-105"
@@ -106,7 +106,7 @@ const Awareness = () => {
         {/* Conservation Initiatives */}
         <div className="mb-16">
           <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-            Our <span className="text-green-400">Conservation Initiatives</span>
+            Our <span className="text-green-400">Hiking Initiatives</span>
           </h3>
           
           <div className="grid md:grid-cols-2 gap-8">
@@ -136,12 +136,12 @@ const Awareness = () => {
               Be Part of the Solution
             </h3>
             <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-              Every visit to our wildlife sanctuaries contributes to conservation efforts. 
+              Every visit to our wildlife sanctuaries contributes to hiking experiences. 
               Your tourism dollars directly support habitat protection, anti-poaching measures, and community education programs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                Support Conservation
+                Support Hiking
               </button>
               <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
                 Learn More

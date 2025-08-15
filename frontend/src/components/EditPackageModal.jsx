@@ -170,7 +170,7 @@ const EditPackageModal = ({ package: packageData, onClose, onPackageUpdated }) =
                 } focus:border-green-400 focus:outline-none transition-colors`}
               >
                 <option value="Safari">Safari</option>
-                <option value="Conservation">Conservation</option>
+                <option value="Hiking">Hiking</option>
                 <option value="Photography">Photography</option>
                 <option value="Birding">Birding</option>
                 <option value="Adventure">Adventure</option>

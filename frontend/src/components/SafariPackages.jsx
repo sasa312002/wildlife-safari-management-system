@@ -141,7 +141,7 @@ const SafariPackages = () => {
               Explore Our Complete Collection
             </h3>
             <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-              Discover more wildlife experiences including photography tours, bird watching, conservation volunteering, and custom adventure packages.
+              Discover more wildlife experiences including photography tours, bird watching, hiking adventures, and custom adventure packages.
             </p>
             <button 
               onClick={navigateToTravelPackages}

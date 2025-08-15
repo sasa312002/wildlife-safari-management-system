@@ -26,7 +26,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
-  const categories = ['Safari', 'Conservation', 'Photography', 'Birding', 'Adventure'];
+  const categories = ['Safari', 'Hiking', 'Photography', 'Birding', 'Adventure'];
   const difficulties = ['Easy', 'Moderate', 'Challenging'];
 
   const handleInputChange = (e) => {

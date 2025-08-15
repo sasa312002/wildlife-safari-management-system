@@ -10,7 +10,7 @@ const packageSchema = new mongoose.Schema(
     category: { 
       type: String, 
       required: true,
-      enum: ['Safari', 'Conservation', 'Photography', 'Birding', 'Adventure']
+      enum: ['Safari', 'Hiking', 'Photography', 'Birding', 'Adventure']
     },
     duration: { 
       type: String, 

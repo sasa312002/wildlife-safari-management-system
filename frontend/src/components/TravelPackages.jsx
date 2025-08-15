@@ -8,7 +8,7 @@ const TravelPackages = () => {
   const categories = [
     { id: 'all', name: 'All Packages' },
     { id: 'safari', name: 'Safari Tours' },
-    { id: 'conservation', name: 'Conservation' },
+    { id: 'hiking', name: 'Hiking' },
     { id: 'photography', name: 'Photography' },
     { id: 'birding', name: 'Bird Watching' },
     { id: 'adventure', name: 'Adventure' }
@@ -48,7 +48,7 @@ const TravelPackages = () => {
     {
       id: 2,
       title: "Minneriya Elephant Gathering",
-      category: "conservation",
+      category: "hiking",
       duration: "1-day",
       price: "LKR 25,000",
       originalPrice: "LKR 28,000",
@@ -117,16 +117,16 @@ const TravelPackages = () => {
     },
     {
       id: 7,
-      title: "Conservation Volunteering",
-      category: "conservation",
+      title: "Hiking Adventure",
+      category: "hiking",
       duration: "8+days",
       price: "LKR 95,000",
       originalPrice: "LKR 110,000",
       rating: 4.9,
       reviews: 43,
-      description: "Join our conservation efforts and make a difference while experiencing Sri Lankan wildlife up close.",
-      highlights: ["Conservation work", "Research projects", "Community engagement", "Accommodation"],
-      image: "🌱",
+      description: "Join our hiking adventures and explore the beautiful trails while experiencing Sri Lankan wildlife up close.",
+      highlights: ["Hiking trails", "Mountain views", "Community engagement", "Accommodation"],
+      image: "🏔️",
       discount: "14% OFF"
     },
     {

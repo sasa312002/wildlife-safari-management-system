@@ -94,7 +94,7 @@ const ContactUs = () => {
     "Bird Watching Tour",
     "Photography Safari",
     "Custom Wildlife Tour",
-    "Conservation Volunteering"
+    "Hiking Adventures"
   ];
 
   return (
@@ -106,7 +106,7 @@ const ContactUs = () => {
           </h2>
           <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
             Ready to start your Sri Lankan wildlife adventure? Contact us for personalized safari experiences, 
-            conservation inquiries, or any questions about our tours.
+            hiking inquiries, or any questions about our tours.
           </p>
         </div>
 

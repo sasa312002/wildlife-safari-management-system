@@ -5,13 +5,13 @@ const AboutUs = () => {
     {
       name: "Kumara Perera",
       role: "Founder & Wildlife Expert",
-      description: "With over 15 years of experience in wildlife conservation, Kumara leads our mission to protect Sri Lanka's natural heritage.",
-      expertise: "Elephant behavior, Conservation biology",
+      description: "With over 15 years of experience in wildlife hiking, Kumara leads our mission to explore Sri Lanka's natural heritage.",
+expertise: "Elephant behavior, Hiking trails",
       image: "👨‍🦱"
     },
     {
       name: "Dr. Anjali Silva",
-      role: "Conservation Director",
+      role: "Hiking Director",
       description: "A PhD in Wildlife Biology, Dr. Silva oversees our research programs and community education initiatives.",
       expertise: "Research & Monitoring, Community Outreach",
       image: "👩‍🔬"
@@ -34,7 +34,7 @@ const AboutUs = () => {
 
   const values = [
     {
-      title: "Conservation First",
+      title: "Hiking First",
       description: "Every tour is designed to minimize environmental impact while maximizing educational value.",
       icon: "🌱"
     },
@@ -73,7 +73,7 @@ const AboutUs = () => {
     },
     {
       number: "15+",
-      label: "Conservation Projects",
+      label: "Hiking Projects",
       description: "Actively supporting wildlife protection"
     }
   ];
@@ -105,10 +105,10 @@ const AboutUs = () => {
               </p>
               <p>
                 Our founder, Kumara Perera, grew up in the shadow of Yala National Park, developing a deep connection with the 
-                island's wildlife from an early age. This personal connection drives our commitment to conservation and responsible tourism.
+                island's wildlife from an early age. This personal connection drives our commitment to hiking and responsible tourism.
               </p>
               <p>
-                Today, we work with local communities, conservation experts, and government agencies to create sustainable wildlife 
+                Today, we work with local communities, hiking experts, and government agencies to create sustainable wildlife 
                 experiences that benefit both visitors and the natural world they come to explore.
               </p>
             </div>
@@ -116,12 +116,12 @@ const AboutUs = () => {
           <div className="bg-gradient-to-br from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-8 border border-green-400/30">
             <h4 className="text-2xl font-abeze font-bold text-white mb-4">Our Mission</h4>
             <p className="text-gray-300 font-abeze mb-6">
-              To provide authentic, educational, and sustainable wildlife experiences that inspire conservation 
+              To provide authentic, educational, and sustainable wildlife experiences that inspire hiking 
               while supporting local communities and protecting Sri Lanka's natural heritage.
             </p>
             <h4 className="text-2xl font-abeze font-bold text-white mb-4">Our Vision</h4>
             <p className="text-gray-300 font-abeze">
-              A world where wildlife tourism serves as a powerful tool for conservation, education, and 
+              A world where wildlife tourism serves as a powerful tool for hiking, education, and 
               sustainable development, ensuring Sri Lanka's natural wonders thrive for generations to come.
             </p>
           </div>
