@@ -54,9 +54,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
       onClose();
       
       // Redirect based on role
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else if (user.role === 'driver') {
+      if (user.role === 'driver') {
         navigate('/driver-dashboard');
       } else if (user.role === 'tour_guide') {
         navigate('/tour-guide-dashboard');

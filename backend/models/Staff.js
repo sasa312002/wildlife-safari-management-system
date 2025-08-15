@@ -31,7 +31,7 @@ const staffSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ['driver', 'tour_guide', 'admin']
+      enum: ['driver', 'tour_guide']
     },
     specialization: {
       type: String,
