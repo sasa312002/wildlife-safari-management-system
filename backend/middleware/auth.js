@@ -44,3 +44,21 @@ export const authenticateToken = async (req, res, next) => {
     return res.status(500).json({ message: "Authentication error" });
   }
 };
+
+export const requireAdmin = async (req, res, next) => {
+  try {
+    // First authenticate the token
+    await authenticateToken(req, res, async (err) => {
+      if (err) return next(err);
+      
+      // Check if user is admin
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      next();
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Authorization error" });
+  }
+};

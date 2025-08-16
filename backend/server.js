@@ -7,6 +7,7 @@ import packageRoutes from "./routes/packages.js";
 import userRoutes from "./routes/users.js";
 import staffRoutes from "./routes/staff.js";
 import safariRequestRoutes from "./routes/safariRequests.js";
+import contactMessageRoutes from "./routes/contactMessages.js";
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use("/api/packages", packageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/staff", staffRoutes);
 app.use("/api/safari-requests", safariRequestRoutes);
+app.use("/api/contact-messages", contactMessageRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

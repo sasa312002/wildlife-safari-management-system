@@ -95,6 +95,37 @@ export const packageApi = {
   },
 };
 
+export const contactMessageApi = {
+  async createContactMessage(payload) {
+    const { data } = await api.post('/api/contact-messages', payload);
+    return data;
+  },
+  async getAllContactMessages(params = {}) {
+    const { data } = await api.get('/api/contact-messages', { params });
+    return data;
+  },
+  async getUserContactMessages(email, params = {}) {
+    const { data } = await api.get(`/api/contact-messages/user/${email}`, { params });
+    return data;
+  },
+  async getContactMessageById(id) {
+    const { data } = await api.get(`/api/contact-messages/${id}`);
+    return data;
+  },
+  async updateContactMessage(id, payload) {
+    const { data } = await api.put(`/api/contact-messages/${id}`, payload);
+    return data;
+  },
+  async deleteContactMessage(id) {
+    const { data } = await api.delete(`/api/contact-messages/${id}`);
+    return data;
+  },
+  async getContactMessageStats() {
+    const { data } = await api.get('/api/contact-messages/stats');
+    return data;
+  },
+};
+
 export const userApi = {
   async getAllUsers() {
     const { data } = await api.get('/api/users');

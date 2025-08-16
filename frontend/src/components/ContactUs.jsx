@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-const ContactUs = () => {
+const ContactUs = ({ loginTrigger }) => {
+  const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -26,6 +28,16 @@ const ContactUs = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Trigger the login modal from header
+      if (loginTrigger && loginTrigger.current) {
+        loginTrigger.current();
+      }
+      return;
+    }
+    
     setIsSubmitting(true);
     
     setTimeout(() => {

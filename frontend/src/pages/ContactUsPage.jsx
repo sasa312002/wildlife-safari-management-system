@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { contactMessageApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const ContactUsPage = () => {
+  const { isAuthenticated, user } = useAuth();
+  const loginTriggerRef = useRef(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -14,6 +18,19 @@ const ContactUsPage = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Pre-fill form with user data when authenticated
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || ''
+      }));
+    }
+  }, [isAuthenticated, user]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -24,20 +41,49 @@ const ContactUsPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Trigger the login modal from header
+      if (loginTriggerRef.current) {
+        loginTriggerRef.current();
+      }
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setFormData({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
+    try {
+      await contactMessageApi.createContactMessage(formData);
+      
+      // Reset form - preserve user data if authenticated
+      if (isAuthenticated && user) {
+        setFormData({
+          firstName: user.firstName || '',
+          lastName: user.lastName || '',
+          email: user.email || '',
+          phone: user.phone || '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      }
+      
       alert('Thank you! Your message has been sent successfully. We\'ll get back to you within 24 hours.');
-    }, 2000);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const faqs = [
@@ -69,7 +115,7 @@ const ContactUsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
-      <Header />
+      <Header triggerLogin={loginTriggerRef} />
       
       <div className="pt-20">
         <div className="container mx-auto px-6">
@@ -87,27 +133,54 @@ const ContactUsPage = () => {
               <h3 className="text-2xl font-abeze font-bold text-white mb-6">Send us a Message</h3>
               
               <form onSubmit={handleSubmit} className="space-y-6">
+                {isAuthenticated && (
+                  <div className="bg-green-500/20 border border-green-400/30 rounded-lg p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-green-400 font-abeze text-sm">
+                        Your contact information has been pre-filled from your account.
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-white font-abeze font-medium mb-2">First Name</label>
+                    <label className="block text-white font-abeze font-medium mb-2">
+                      First Name {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                    </label>
                     <input
                       type="text"
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors"
+                      readOnly={isAuthenticated}
+                      className={`w-full border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                        isAuthenticated 
+                          ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
+                          : 'bg-white/10 border-white/20 focus:border-green-400'
+                      }`}
                       placeholder="Enter your first name"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-abeze font-medium mb-2">Last Name</label>
+                    <label className="block text-white font-abeze font-medium mb-2">
+                      Last Name {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                    </label>
                     <input
                       type="text"
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors"
+                      readOnly={isAuthenticated}
+                      className={`w-full border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                        isAuthenticated 
+                          ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
+                          : 'bg-white/10 border-white/20 focus:border-green-400'
+                      }`}
                       placeholder="Enter your last name"
                       required
                     />
@@ -115,26 +188,40 @@ const ContactUsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-white font-abeze font-medium mb-2">Email Address</label>
+                  <label className="block text-white font-abeze font-medium mb-2">
+                    Email Address {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                  </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors"
+                    readOnly={isAuthenticated}
+                    className={`w-full border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                      isAuthenticated 
+                        ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
+                        : 'bg-white/10 border-white/20 focus:border-green-400'
+                    }`}
                     placeholder="Enter your email address"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-white font-abeze font-medium mb-2">Phone Number</label>
+                  <label className="block text-white font-abeze font-medium mb-2">
+                    Phone Number {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                  </label>
                   <input
                     type="tel"
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors"
+                    readOnly={isAuthenticated}
+                    className={`w-full border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                      isAuthenticated 
+                        ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
+                        : 'bg-white/10 border-white/20 focus:border-green-400'
+                    }`}
                     placeholder="Enter your phone number"
                   />
                 </div>
