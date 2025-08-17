@@ -249,7 +249,7 @@ const BookingPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                 <h2 className="text-2xl font-abeze font-bold text-white mb-6">Package Summary</h2>
                 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   {/* Package Image */}
                   <div className="relative h-48 bg-gradient-to-br from-green-600/20 to-green-400/20 rounded-lg overflow-hidden">
                     {packageData.image?.url ? (
@@ -270,48 +270,147 @@ const BookingPage = () => {
                         {packageData.duration}
                       </span>
                     </div>
-                  </div>
-
-                  {/* Package Details */}
-                  <div className="space-y-3">
-                    <h3 className="text-xl font-abeze font-bold text-white">{packageData.title}</h3>
-                    <p className="text-gray-300 font-abeze text-sm">{packageData.description}</p>
-                    
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-400 font-abeze">Category:</span>
-                        <span className="text-white font-abeze ml-2">{packageData.category}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400 font-abeze">Location:</span>
-                        <span className="text-white font-abeze ml-2">{packageData.location}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400 font-abeze">Max Group:</span>
-                        <span className="text-white font-abeze ml-2">{packageData.maxGroupSize} people</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-400 font-abeze">Price:</span>
-                        <span className="text-green-400 font-abeze font-bold ml-2">LKR {packageData.price?.toLocaleString()}/person</span>
-                      </div>
-                    </div>
-
-                    {/* Highlights */}
-                    {packageData.highlights && packageData.highlights.length > 0 && (
-                      <div className="mt-4">
-                        <h4 className="text-green-400 font-abeze font-medium text-sm mb-2">Highlights:</h4>
-                        <div className="space-y-1">
-                          {packageData.highlights.slice(0, 3).map((highlight, index) => (
-                            <div key={index} className="flex items-center space-x-2">
-                              <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
-                              </svg>
-                              <span className="text-gray-300 font-abeze text-xs">{highlight}</span>
-                            </div>
-                          ))}
-                        </div>
+                    {packageData.isPopular && (
+                      <div className="absolute top-4 left-4">
+                        <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-abeze font-bold">
+                          Popular
+                        </span>
                       </div>
                     )}
+                  </div>
+
+                  {/* Package Title and Description */}
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-abeze font-bold text-white">{packageData.title}</h3>
+                    <p className="text-gray-300 font-abeze text-sm leading-relaxed">{packageData.description}</p>
+                  </div>
+
+                  {/* Package Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                      </svg>
+                      <div>
+                        <span className="text-gray-400 font-abeze">Category:</span>
+                        <span className="text-white font-abeze ml-2">{packageData.category || 'Safari'}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      <div>
+                        <span className="text-gray-400 font-abeze">Location:</span>
+                        <span className="text-white font-abeze ml-2">{packageData.location || 'Sri Lanka'}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div>
+                        <span className="text-gray-400 font-abeze">Duration:</span>
+                        <span className="text-white font-abeze ml-2">{packageData.duration}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                      </svg>
+                      <div>
+                        <span className="text-gray-400 font-abeze">Max Group:</span>
+                        <span className="text-white font-abeze ml-2">{packageData.maxGroupSize || 'Unlimited'} people</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Price Information */}
+                  <div className="bg-green-600/20 rounded-lg p-4 border border-green-400/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-white font-abeze font-medium">Base Price:</span>
+                      <span className="text-2xl font-abeze font-bold text-green-400">
+                        LKR {packageData.price?.toLocaleString()}/person
+                      </span>
+                    </div>
+                    {packageData.originalPrice && packageData.originalPrice !== packageData.price && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-400 font-abeze text-sm">Original Price:</span>
+                        <span className="text-gray-400 font-abeze text-sm line-through">
+                          LKR {packageData.originalPrice?.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                    {packageData.discount && (
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-green-400 font-abeze text-sm">Discount:</span>
+                        <span className="text-green-400 font-abeze font-bold text-sm">{packageData.discount}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Highlights */}
+                  {packageData.highlights && packageData.highlights.length > 0 && (
+                    <div>
+                      <h4 className="text-green-400 font-abeze font-medium text-base mb-3 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                        </svg>
+                        Key Highlights
+                      </h4>
+                      <div className="space-y-2">
+                        {packageData.highlights.map((highlight, index) => (
+                          <div key={index} className="flex items-center space-x-3">
+                            <svg className="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span className="text-gray-300 font-abeze text-sm">{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Features */}
+                  {packageData.features && packageData.features.length > 0 && (
+                    <div>
+                      <h4 className="text-blue-400 font-abeze font-medium text-base mb-3 flex items-center">
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Included Features
+                      </h4>
+                      <div className="space-y-2">
+                        {packageData.features.map((feature, index) => (
+                          <div key={index} className="flex items-center space-x-3">
+                            <svg className="w-4 h-4 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="text-gray-300 font-abeze text-sm">{feature}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Important Notes */}
+                  <div className="bg-yellow-600/20 rounded-lg p-4 border border-yellow-400/30">
+                    <h4 className="text-yellow-400 font-abeze font-medium text-base mb-2 flex items-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                      Important Notes
+                    </h4>
+                    <ul className="text-gray-300 font-abeze text-sm space-y-1">
+                      <li>• Booking confirmation subject to availability</li>
+                      <li>• Prices may vary during peak seasons</li>
+                      <li>• Cancellation policy applies</li>
+                      <li>• Weather conditions may affect safari experience</li>
+                    </ul>
                   </div>
                 </div>
               </div>
