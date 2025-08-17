@@ -14,6 +14,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [redirectAfterLogin, setRedirectAfterLogin] = useState(null);
 
   useEffect(() => {
     // Check for existing token and user data on app load
@@ -32,19 +33,30 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setAuthToken(token);
     localStorage.setItem('auth_user', JSON.stringify(userData));
+    localStorage.setItem('auth_token', token);
   };
 
   const staffLogin = (userData, token) => {
     setUser(userData);
     setAuthToken(token);
     localStorage.setItem('auth_user', JSON.stringify(userData));
+    localStorage.setItem('auth_token', token);
   };
 
   const logout = () => {
     setUser(null);
     setAuthToken(null);
+    setRedirectAfterLogin(null);
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_token');
+  };
+
+  const setRedirectPath = (path) => {
+    setRedirectAfterLogin(path);
+  };
+
+  const clearRedirectPath = () => {
+    setRedirectAfterLogin(null);
   };
 
   const value = {
@@ -53,7 +65,10 @@ export const AuthProvider = ({ children }) => {
     staffLogin,
     logout,
     loading,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    redirectAfterLogin,
+    setRedirectPath,
+    clearRedirectPath
   };
 
   return (
