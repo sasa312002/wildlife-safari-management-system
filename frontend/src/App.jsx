@@ -12,6 +12,8 @@ import AboutUsPage from './pages/AboutUsPage'
 import UserAccountPage from './pages/UserAccountPage'
 import AdminPage from './pages/AdminPage'
 import BookingPage from './pages/BookingPage'
+import BookingSuccessPage from './pages/BookingSuccessPage'
+import BookingCancelledPage from './pages/BookingCancelledPage'
 import DriverDashboard from './pages/DriverDashboard'
 import TourGuideDashboard from './pages/TourGuideDashboard'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -55,6 +57,8 @@ function App() {
               <BookingPage />
             </ProtectedRoute>
           } />
+          <Route path="/booking-success" element={<BookingSuccessPage />} />
+          <Route path="/booking-cancelled" element={<BookingCancelledPage />} />
           <Route path="/driver-dashboard" element={
             <ProtectedStaffRoute allowedRoles={['driver']}>
               <DriverDashboard />

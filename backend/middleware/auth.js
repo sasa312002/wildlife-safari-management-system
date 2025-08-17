@@ -19,13 +19,15 @@ export const authenticateToken = async (req, res, next) => {
     const decoded = jwt.verify(token, getJwtSecret());
     
     // Check if it's a staff member or regular user
-    if (decoded.userType === 'staff') {
-      const staff = await Staff.findById(decoded.userId).select('-passwordHash');
-      if (!staff) {
+    if (decoded.role === 'staff' || decoded.role === 'admin') {
+      // For staff/admin, we need to get the staff info
+      const user = await User.findById(decoded.userId).select('-passwordHash');
+      if (!user) {
         return res.status(401).json({ message: "Invalid token" });
       }
-      req.user = staff;
+      req.user = user;
     } else {
+      // Regular user - no role field or role is 'user'
       const user = await User.findById(decoded.userId).select('-passwordHash');
       if (!user) {
         return res.status(401).json({ message: "Invalid token" });
