@@ -214,4 +214,31 @@ export const safariRequestApi = {
   },
 };
 
+export const bookingApi = {
+  async createStripeCheckout(payload) {
+    const { data } = await api.post('/api/bookings/stripe-checkout', payload);
+    return data;
+  },
+  async verifyPayment(sessionId) {
+    const { data } = await api.post('/api/bookings/verify-payment', { session_id: sessionId });
+    return data;
+  },
+  async getUserBookings() {
+    const { data } = await api.get('/api/bookings/user');
+    return data;
+  },
+  async getAllBookings() {
+    const { data } = await api.get('/api/bookings/all');
+    return data;
+  },
+  async getBookingDetails(bookingId) {
+    const { data } = await api.get(`/api/bookings/details/${bookingId}`);
+    return data;
+  },
+  async updateBookingStatus(bookingId, status) {
+    const { data } = await api.put(`/api/bookings/status/${bookingId}`, { status });
+    return data;
+  },
+};
+
 
