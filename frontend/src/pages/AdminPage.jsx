@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { packageApi, userApi, staffApi, safariRequestApi } from '../services/api';
+import { packageApi, userApi, staffApi, safariRequestApi, bookingApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import AddPackageModal from '../components/AddPackageModal';
@@ -31,6 +31,8 @@ const AdminPage = () => {
   const [selectedSafariRequest, setSelectedSafariRequest] = useState(null);
   const [showEditStaff, setShowEditStaff] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [bookingsLoading, setBookingsLoading] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -51,8 +53,17 @@ const AdminPage = () => {
       loadStaff();
     } else if (activeTab === 'safari-requests') {
       loadSafariRequests();
+    } else if (activeTab === 'bookings') {
+      loadBookings();
     }
   }, [activeTab]);
+
+  // Load initial data for dashboard
+  useEffect(() => {
+    loadUsers();
+    loadStaff();
+    loadBookings();
+  }, []);
 
   const loadPackages = async () => {
     setLoading(true);
@@ -176,34 +187,6 @@ const AdminPage = () => {
     }
   };
 
-  const handleUpdateSafariRequestStatus = async (requestId, status, adminNotes = '', estimatedPrice = null) => {
-    try {
-      await safariRequestApi.updateSafariRequestStatus(requestId, {
-        status,
-        adminNotes,
-        estimatedPrice
-      });
-      loadSafariRequests();
-      alert('Safari request status updated successfully');
-    } catch (error) {
-      console.error('Error updating safari request status:', error);
-      alert('Failed to update safari request status');
-    }
-  };
-
-  const handleDeleteSafariRequest = async (requestId) => {
-    if (window.confirm('Are you sure you want to delete this safari request? This action cannot be undone.')) {
-      try {
-        await safariRequestApi.deleteSafariRequest(requestId);
-        loadSafariRequests();
-        alert('Safari request deleted successfully');
-      } catch (error) {
-        console.error('Error deleting safari request:', error);
-        alert('Failed to delete safari request');
-      }
-    }
-  };
-
   const handleViewSafariRequest = (request) => {
     setSelectedSafariRequest(request);
     setShowSafariRequestModal(true);
@@ -238,19 +221,65 @@ const AdminPage = () => {
     setSelectedSafariRequest(null);
   };
 
-  // Mock data for demonstration
-  const dashboardStats = {
-    totalUsers: 1250,
-    totalBookings: 342,
-    totalRevenue: 45600,
-    activeStaff: 15
+  const handleDeleteSafariRequest = async (requestId) => {
+    if (window.confirm('Are you sure you want to delete this safari request? This action cannot be undone.')) {
+      try {
+        await safariRequestApi.deleteSafariRequest(requestId);
+        loadSafariRequests();
+        alert('Safari request deleted successfully');
+      } catch (error) {
+        console.error('Error deleting safari request:', error);
+        alert('Failed to delete safari request');
+      }
+    }
   };
 
-  const recentBookings = [
-    { id: 1, customer: 'John Doe', package: 'Elephant Safari', date: '2024-01-15', status: 'Confirmed' },
-    { id: 2, customer: 'Jane Smith', package: 'Lion Safari', date: '2024-01-16', status: 'Pending' },
-    { id: 3, customer: 'Mike Johnson', package: 'Bird Watching', date: '2024-01-17', status: 'Confirmed' },
-  ];
+  const loadBookings = async () => {
+    setBookingsLoading(true);
+    try {
+      const bookingsData = await bookingApi.getAllBookings();
+      console.log('Bookings API response:', bookingsData);
+      
+      // Note: getAllBookings returns { success: true, bookings: [...] }
+      // while other APIs like getAllUsers return the array directly
+      if (Array.isArray(bookingsData)) {
+        setBookings(bookingsData);
+      } else if (bookingsData && Array.isArray(bookingsData.bookings)) {
+        // If the API returns an object with a bookings array
+        setBookings(bookingsData.bookings);
+      } else {
+        console.warn('Unexpected bookings data format:', bookingsData);
+        setBookings([]);
+      }
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+      setBookings([]);
+    } finally {
+      setBookingsLoading(false);
+    }
+  };
+
+  const handleUpdateBookingStatus = async (bookingId) => {
+    const newStatus = prompt('Enter new status for booking (e.g., "Payment Confirmed", "Confirmed", "In Progress", "Completed", "Cancelled"):');
+    if (newStatus) {
+      try {
+        await bookingApi.updateBookingStatus(bookingId, newStatus);
+        loadBookings();
+        alert('Booking status updated successfully!');
+      } catch (error) {
+        console.error('Error updating booking status:', error);
+        alert('Failed to update booking status');
+      }
+    }
+  };
+
+  // Calculate dashboard stats from real data
+  const dashboardStats = {
+    totalUsers: users.length,
+    totalBookings: Array.isArray(bookings) ? bookings.length : 0,
+    totalRevenue: Array.isArray(bookings) ? bookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0) : 0,
+    activeStaff: staff.filter(s => s.isActive).length
+  };
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -288,10 +317,10 @@ const AdminPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-yellow-200 font-abeze text-sm">Total Revenue</p>
-              <p className="text-3xl font-abeze font-bold text-white">${dashboardStats.totalRevenue}</p>
+              <p className="text-3xl font-abeze font-bold text-white">LKR {dashboardStats.totalRevenue.toLocaleString()}</p>
             </div>
             <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
               </svg>
             </div>
@@ -316,36 +345,50 @@ const AdminPage = () => {
       {/* Recent Bookings */}
       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
         <h3 className="text-xl font-abeze font-bold text-white mb-4">Recent Bookings</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/20">
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Customer</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Package</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Date</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recentBookings.map((booking) => (
-                <tr key={booking.id} className="border-b border-white/10">
-                  <td className="py-3 px-4 text-white font-abeze">{booking.customer}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{booking.package}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{booking.date}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                      booking.status === 'Confirmed' 
-                        ? 'bg-green-500/20 text-green-400' 
-                        : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {booking.status}
-                    </span>
-                  </td>
+        {bookingsLoading ? (
+          <div className="text-center py-8">
+            <div className="text-gray-300 font-abeze">Loading recent bookings...</div>
+          </div>
+        ) : Array.isArray(bookings) && bookings.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Customer</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Package</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Date</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {bookings.slice(0, 5).map((booking) => (
+                  <tr key={booking._id} className="border-b border-white/10">
+                    <td className="py-3 px-4 text-white font-abeze">
+                      {booking.userId?.firstName} {booking.userId?.lastName}
+                    </td>
+                    <td className="py-3 px-4 text-white font-abeze">{booking.packageDetails?.title}</td>
+                    <td className="py-3 px-4 text-white font-abeze">
+                      {new Date(booking.bookingDetails?.startDate).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        booking.status === 'Payment Confirmed' || booking.status === 'Confirmed'
+                          ? 'bg-green-500/20 text-green-400' 
+                          : 'bg-yellow-500/20 text-yellow-400'
+                      }`}>
+                        {booking.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-300 font-abeze">No bookings found.</div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -779,9 +822,105 @@ const AdminPage = () => {
   );
 
   const renderBookings = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Booking Management</h3>
-      <p className="text-gray-300 font-abeze">Booking management functionality will be implemented here.</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <h3 className="text-xl font-abeze font-bold text-white">Booking Management</h3>
+        <div className="text-sm text-gray-300 font-abeze">
+          Total Bookings: {Array.isArray(bookings) ? bookings.length : 0}
+        </div>
+      </div>
+
+      {/* Bookings List */}
+      {bookingsLoading ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">Loading bookings...</div>
+        </div>
+      ) : !Array.isArray(bookings) || bookings.length === 0 ? (
+        <div className="text-center py-8">
+          <div className="text-gray-300 font-abeze">No bookings found.</div>
+        </div>
+      ) : (
+        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Customer</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Package</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Dates</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">People</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Total Price</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Payment</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bookings.map((booking) => (
+                  <tr key={booking._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                    <td className="py-4 px-6 text-white font-abeze">
+                      <div>
+                        <div className="font-medium">
+                          {booking.userId?.firstName} {booking.userId?.lastName}
+                        </div>
+                        <div className="text-sm text-gray-400">{booking.userId?.email}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze">
+                      <div>
+                        <div className="font-medium">{booking.packageDetails?.title}</div>
+                        <div className="text-sm text-gray-400">{booking.packageDetails?.location}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      <div>
+                        <div>Start: {new Date(booking.bookingDetails?.startDate).toLocaleDateString()}</div>
+                        <div>End: {new Date(booking.bookingDetails?.endDate).toLocaleDateString()}</div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      {booking.bookingDetails?.numberOfPeople} people
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze">
+                      LKR {booking.totalPrice?.toLocaleString()}
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        booking.status === 'Payment Confirmed' ? 'bg-green-500/20 text-green-400' :
+                        booking.status === 'Confirmed' ? 'bg-blue-500/20 text-blue-400' :
+                        booking.status === 'In Progress' ? 'bg-yellow-500/20 text-yellow-400' :
+                        booking.status === 'Completed' ? 'bg-purple-500/20 text-purple-400' :
+                        booking.status === 'Cancelled' ? 'bg-red-500/20 text-red-400' :
+                        'bg-gray-500/20 text-gray-400'
+                      }`}>
+                        {booking.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                        booking.payment ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {booking.payment ? 'Paid' : 'Pending'}
+                      </span>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleUpdateBookingStatus(booking._id)}
+                          className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-xs font-abeze transition-colors"
+                        >
+                          Update Status
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { packageApi } from '../services/api';
+import { packageApi, bookingApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
@@ -175,16 +175,26 @@ const BookingPage = () => {
 
     setIsSubmitting(true);
     try {
-      // TODO: Implement booking API call
-      console.log('Booking data:', {
+      const bookingPayload = {
         packageId,
-        userId: user._id,
-        ...bookingData,
-        totalPrice: calculateTotalPrice()
-      });
+        startDate: bookingData.startDate,
+        endDate: bookingData.endDate,
+        numberOfPeople: bookingData.numberOfPeople,
+        specialRequests: bookingData.specialRequests,
+        emergencyContact: bookingData.emergencyContact,
+        dietaryRestrictions: bookingData.dietaryRestrictions,
+        accommodationPreference: bookingData.accommodationPreference,
+        transportationPreference: bookingData.transportationPreference
+      };
+
+      const response = await bookingApi.createStripeCheckout(bookingPayload);
       
-      alert('Booking submitted successfully! We will contact you soon to confirm your booking.');
-      navigate('/account');
+      if (response.success) {
+        // Redirect to Stripe checkout
+        window.location.href = response.session_url;
+      } else {
+        alert('Failed to create booking. Please try again.');
+      }
     } catch (error) {
       console.error('Error submitting booking:', error);
       alert('Failed to submit booking. Please try again.');
