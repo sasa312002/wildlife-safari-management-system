@@ -9,7 +9,7 @@ import logo from '../assets/logo.png';
 const Header = ({ triggerLogin = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, redirectAfterLogin } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showStaffLogin, setShowStaffLogin] = useState(false);
@@ -126,6 +126,20 @@ const Header = ({ triggerLogin = null }) => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  // Show a message if there's a redirect path set
+  const showRedirectMessage = () => {
+    if (redirectAfterLogin && !isAuthenticated) {
+      return (
+        <div className="bg-green-600/20 border border-green-400/30 rounded-lg p-3 mb-4">
+          <p className="text-green-400 font-abeze text-sm text-center">
+            Please login to continue with your booking
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (

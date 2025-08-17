@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { packageApi } from '../services/api';
 
 const SafariPackages = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, setRedirectPath } = useAuth();
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +28,18 @@ const SafariPackages = () => {
 
   const navigateToTravelPackages = () => {
     navigate('/travel-packages');
+  };
+
+  const handleBookNow = (packageId) => {
+    if (!isAuthenticated) {
+      // Set the redirect path to the booking page for this package
+      setRedirectPath(`/booking/${packageId}`);
+      // For now, navigate to travel packages page where they can login
+      // This will be handled by the Header component's login modal
+      navigate('/travel-packages');
+      return;
+    }
+    navigate(`/booking/${packageId}`);
   };
 
   return (
@@ -126,7 +140,10 @@ const SafariPackages = () => {
                 )}
 
                 {/* Book Button */}
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300">
+                <button 
+                  onClick={() => handleBookNow(pkg._id)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
+                >
                   Book Now
                 </button>
               </div>

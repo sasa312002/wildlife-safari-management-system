@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, redirectAfterLogin, clearRedirectPath } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -52,8 +52,12 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
       login(user, token);
       onClose();
       
-      // Redirect based on user role
-      if (user.role === 'admin') {
+      // Redirect based on redirectAfterLogin or user role
+      if (redirectAfterLogin) {
+        // Clear the redirect path and navigate to the intended destination
+        clearRedirectPath();
+        navigate(redirectAfterLogin);
+      } else if (user.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/');

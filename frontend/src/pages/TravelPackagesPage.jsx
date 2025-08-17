@@ -7,7 +7,7 @@ import { packageApi, safariRequestApi } from '../services/api';
 
 const TravelPackagesPage = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, setRedirectPath, redirectAfterLogin } = useAuth();
   const [activeFilter, setActiveFilter] = useState('All');
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,6 +51,8 @@ const TravelPackagesPage = () => {
 
   const handleBookNow = (packageId) => {
     if (!isAuthenticated) {
+      // Set the redirect path to the booking page for this package
+      setRedirectPath(`/booking/${packageId}`);
       // Trigger the login modal from header
       if (loginTriggerRef.current) {
         loginTriggerRef.current();
@@ -139,10 +141,24 @@ const TravelPackagesPage = () => {
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
               Safari <span className="text-green-400">Packages</span>
             </h1>
-            <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
+            <p className="text-gray-300 font-abeze text-lg max-w-3xl mx-auto">
               Discover the perfect wildlife adventure with our carefully curated safari packages across Sri Lanka's most pristine national parks.
             </p>
           </div>
+
+          {/* Redirect Message */}
+          {redirectAfterLogin && !isAuthenticated && (
+            <div className="bg-green-600/20 border border-green-400/30 rounded-lg p-4 mb-8">
+              <div className="flex items-center justify-center space-x-3">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-green-400 font-abeze text-lg">
+                  Please login to continue with your booking
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Filter Section */}
           <div className="mb-12">

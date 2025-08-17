@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const TravelPackages = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, setRedirectPath } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
@@ -156,6 +160,17 @@ const TravelPackages = () => {
     return categoryMatch && durationMatch && priceMatch;
   });
 
+  const handleBookNow = (packageId) => {
+    if (!isAuthenticated) {
+      // Set the redirect path to the booking page for this package
+      setRedirectPath(`/booking/${packageId}`);
+      // Navigate to travel packages page where they can login
+      navigate('/travel-packages');
+      return;
+    }
+    navigate(`/booking/${packageId}`);
+  };
+
   return (
     <section id="travel-packages" className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
       <div className="container mx-auto px-6">
@@ -298,7 +313,10 @@ const TravelPackages = () => {
 
               {/* Action Buttons */}
               <div className="space-y-3">
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300">
+                <button 
+                  onClick={() => handleBookNow(pkg.id)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
+                >
                   Book Now
                 </button>
                 <button className="w-full bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-white py-2 rounded-lg font-abeze font-medium transition-all duration-300">
