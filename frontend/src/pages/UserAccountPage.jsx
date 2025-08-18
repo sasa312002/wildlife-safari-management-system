@@ -19,6 +19,16 @@ const UserAccountPage = () => {
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [bookingsError, setBookingsError] = useState(null);
   const [showReviewForBookingId, setShowReviewForBookingId] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [showReviewSuccess, setShowReviewSuccess] = useState(false);
+  const [showAlreadyReviewedMessage, setShowAlreadyReviewedMessage] = useState(false);
+  
+  // Pagination states
+  const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
+  const [currentBookingsPage, setCurrentBookingsPage] = useState(1);
+  const [reviewsPerPage] = useState(10);
+  const [bookingsPerPage] = useState(10);
 
   const handleLogout = () => {
     logout();
@@ -83,10 +93,67 @@ const UserAccountPage = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    if (tab === 'bookings' && bookings.length === 0) {
-      handleViewBookings();
+    if (tab === 'bookings') {
+      setCurrentBookingsPage(1);
+      if (bookings.length === 0) {
+        handleViewBookings();
+      }
+    }
+    if (tab === 'reviews') {
+      setCurrentReviewsPage(1);
+      loadUserReviews();
     }
   };
+
+  const loadUserReviews = async () => {
+    setLoadingReviews(true);
+    try {
+      const response = await reviewApi.getUserReviews();
+      if (response.reviews) {
+        setReviews(response.reviews);
+      }
+    } catch (error) {
+      console.error('Error loading user reviews:', error);
+    } finally {
+      setLoadingReviews(false);
+    }
+  };
+
+  const checkIfAlreadyReviewed = (bookingId) => {
+    return reviews.some(review => review.bookingId === bookingId);
+  };
+
+  const handleAddReview = (bookingId) => {
+    if (checkIfAlreadyReviewed(bookingId)) {
+      setShowAlreadyReviewedMessage(true);
+      // Hide message after 3 seconds
+      setTimeout(() => setShowAlreadyReviewedMessage(false), 3000);
+      return;
+    }
+    setShowReviewForBookingId(bookingId);
+  };
+
+  // Pagination functions for reviews
+  const indexOfLastReview = currentReviewsPage * reviewsPerPage;
+  const indexOfFirstReview = indexOfLastReview - reviewsPerPage;
+  const currentReviews = reviews.slice(indexOfFirstReview, indexOfLastReview);
+  const totalReviewsPages = Math.ceil(reviews.length / reviewsPerPage);
+
+  const handleReviewsPageChange = (pageNumber) => {
+    setCurrentReviewsPage(pageNumber);
+  };
+
+  // Pagination functions for bookings
+  const indexOfLastBooking = currentBookingsPage * bookingsPerPage;
+  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
+  const currentBookings = bookings.slice(indexOfFirstBooking, indexOfLastBooking);
+  const totalBookingsPages = Math.ceil(bookings.length / bookingsPerPage);
+
+  const handleBookingsPageChange = (pageNumber) => {
+    setCurrentBookingsPage(pageNumber);
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700">
@@ -138,6 +205,16 @@ const UserAccountPage = () => {
                 }`}
               >
                 My Messages
+              </button>
+              <button
+                onClick={() => handleTabChange('reviews')}
+                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                  activeTab === 'reviews'
+                    ? 'bg-green-600 text-white'
+                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                My Reviews
               </button>
             </div>
 
@@ -298,6 +375,166 @@ const UserAccountPage = () => {
               <UserContactMessages userEmail={user?.email} />
             )}
 
+            {/* Reviews Tab Content */}
+            {activeTab === 'reviews' && (
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                <h3 className="text-2xl font-abeze font-bold text-white mb-6">
+                  My Reviews
+                </h3>
+                
+                {loadingReviews ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
+                    <p className="text-green-200 font-abeze">Loading your reviews...</p>
+                  </div>
+                ) : reviews.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="bg-gray-600/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-300 font-abeze mb-4">No reviews yet</p>
+                    <p className="text-gray-400 font-abeze text-sm">Complete a safari booking to leave a review!</p>
+                  </div>
+                ) : (
+                                     <div className="space-y-6">
+                     {currentReviews.map((review, index) => (
+                       <div 
+                         key={review._id} 
+                         className="group bg-gradient-to-r from-white/5 to-white/10 rounded-xl p-6 border border-white/20 hover:border-green-400/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl"
+                         style={{ animationDelay: `${index * 100}ms` }}
+                       >
+                         <div className="flex flex-col md:flex-row gap-6">
+                           <div className="flex-1">
+                             <div className="flex items-center justify-between mb-4">
+                               <div className="flex items-center space-x-3">
+                                 <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                 <h4 className="text-xl font-abeze font-bold text-white group-hover:text-green-300 transition-colors duration-200">
+                                   {review.packageId?.title || 'Safari Package'}
+                                 </h4>
+                               </div>
+                               <div className="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-full border border-white/20">
+                                 <div className="flex items-center space-x-1">
+                                   {[...Array(5)].map((_, i) => (
+                                     <svg
+                                       key={i}
+                                       className={`w-4 h-4 ${
+                                         i < review.rating ? 'text-yellow-400 fill-current' : 'text-gray-400'
+                                       }`}
+                                       fill="currentColor"
+                                       viewBox="0 0 20 20"
+                                     >
+                                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                     </svg>
+                                   ))}
+                                 </div>
+                                 <span className="text-white font-abeze font-semibold text-sm">{review.rating}/5</span>
+                               </div>
+                             </div>
+                             
+                             {review.comment && (
+                               <div className="mb-4 p-4 bg-white/5 rounded-lg border-l-4 border-green-400/50">
+                                 <p className="text-gray-200 font-abeze italic leading-relaxed">"{review.comment}"</p>
+                               </div>
+                             )}
+                             
+                             <div className="flex items-center space-x-4 text-sm">
+                               <div className="flex items-center space-x-2 text-gray-300">
+                                 <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                 </svg>
+                                 <span className="font-abeze">Reviewed on {new Date(review.createdAt).toLocaleDateString()}</span>
+                               </div>
+                               <div className="flex items-center space-x-2 text-gray-300">
+                                 <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                 </svg>
+                                 <span className="font-abeze">Booking: {review.bookingId?.slice(-8) || 'N/A'}</span>
+                               </div>
+                               {review.images && review.images.length > 0 && (
+                                 <div className="flex items-center space-x-2 text-gray-300">
+                                   <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 002 2z" />
+                                   </svg>
+                                   <span className="font-abeze">{review.images.length} photo{review.images.length !== 1 ? 's' : ''}</span>
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                           
+                           {review.images && review.images.length > 0 && (
+                             <div className="flex flex-col space-y-2">
+                               <p className="text-green-200 font-abeze font-medium text-sm text-center">Your Photos</p>
+                               <div className="grid grid-cols-2 gap-2">
+                                 {review.images.map((image, index) => (
+                                   <div key={index} className="relative group/image">
+                                     <img
+                                       src={image.url}
+                                       alt={`Review ${index + 1}`}
+                                       className="w-24 h-24 object-cover rounded-lg border-2 border-white/20 group-hover/image:border-green-400/50 transition-all duration-200 cursor-pointer hover:scale-105"
+                                       onClick={() => {
+                                         // Optional: Add image modal here
+                                       }}
+                                     />
+                                     <div className="absolute inset-0 bg-black/0 group-hover/image:bg-black/20 transition-all duration-200 rounded-lg flex items-center justify-center">
+                                       <svg className="w-6 h-6 text-white opacity-0 group-hover/image:opacity-100 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                       </svg>
+                                     </div>
+                                   </div>
+                                 ))}
+                               </div>
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     ))}
+                     
+                     {/* Reviews Pagination */}
+                     {totalReviewsPages > 1 && (
+                       <div className="mt-8 flex justify-center">
+                         <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
+                           <button
+                             onClick={() => handleReviewsPageChange(currentReviewsPage - 1)}
+                             disabled={currentReviewsPage === 1}
+                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                           >
+                             Previous
+                           </button>
+                           
+                           {[...Array(totalReviewsPages)].map((_, index) => {
+                             const pageNumber = index + 1;
+                             return (
+                               <button
+                                 key={pageNumber}
+                                 onClick={() => handleReviewsPageChange(pageNumber)}
+                                 className={`px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                                   currentReviewsPage === pageNumber
+                                     ? 'bg-green-600 text-white'
+                                     : 'text-green-200 hover:text-white hover:bg-white/10'
+                                 }`}
+                               >
+                                 {pageNumber}
+                               </button>
+                             );
+                           })}
+                           
+                           <button
+                             onClick={() => handleReviewsPageChange(currentReviewsPage + 1)}
+                             disabled={currentReviewsPage === totalReviewsPages}
+                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                           >
+                             Next
+                           </button>
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                )}
+              </div>
+            )}
+
             {/* Bookings Tab Content */}
             {activeTab === 'bookings' && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
@@ -342,7 +579,7 @@ const UserAccountPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
+                    {currentBookings.map((booking) => (
                       <div key={booking._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1">
@@ -403,18 +640,82 @@ const UserAccountPage = () => {
                             </div>
                           </div>
                           <div className="md:ml-6">
-                            {booking.status === 'Completed' && (
-                              <button
-                                onClick={() => setShowReviewForBookingId(booking._id)}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-abeze"
-                              >
-                                Add Review
-                              </button>
-                            )}
+                                                         {booking.status === 'Completed' && (
+                               <button
+                                 onClick={() => handleAddReview(booking._id)}
+                                 className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
+                                   checkIfAlreadyReviewed(booking._id)
+                                     ? 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed border-gray-400/30'
+                                     : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-400/30'
+                                 }`}
+                                 disabled={checkIfAlreadyReviewed(booking._id)}
+                               >
+                                 <div className="flex items-center space-x-2">
+                                   {checkIfAlreadyReviewed(booking._id) ? (
+                                     <>
+                                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                       </svg>
+                                       <span>Already Reviewed</span>
+                                     </>
+                                   ) : (
+                                     <>
+                                       <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                       </svg>
+                                       <span>Share Your Experience</span>
+                                     </>
+                                   )}
+                                 </div>
+                                 {!checkIfAlreadyReviewed(booking._id) && (
+                                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                 )}
+                               </button>
+                             )}
                           </div>
                         </div>
                       </div>
                     ))}
+                    
+                    {/* Bookings Pagination */}
+                    {totalBookingsPages > 1 && (
+                      <div className="mt-8 flex justify-center">
+                        <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
+                          <button
+                            onClick={() => handleBookingsPageChange(currentBookingsPage - 1)}
+                            disabled={currentBookingsPage === 1}
+                            className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                          >
+                            Previous
+                          </button>
+                          
+                          {[...Array(totalBookingsPages)].map((_, index) => {
+                            const pageNumber = index + 1;
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => handleBookingsPageChange(pageNumber)}
+                                className={`px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                                  currentBookingsPage === pageNumber
+                                    ? 'bg-green-600 text-white'
+                                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                                }`}
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          })}
+                          
+                          <button
+                            onClick={() => handleBookingsPageChange(currentBookingsPage + 1)}
+                            disabled={currentBookingsPage === totalBookingsPages}
+                            className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -433,21 +734,65 @@ const UserAccountPage = () => {
         />
       )}
 
-      {/* Add Review Modal */}
-      {showReviewForBookingId && (
-        <AddReviewModal
-          onClose={() => setShowReviewForBookingId(null)}
-          onSubmit={async ({ rating, comment, files }) => {
-            const formData = new FormData();
-            formData.append('rating', String(rating));
-            formData.append('comment', comment || '');
-            (files || []).forEach((f) => formData.append('images', f));
-            await reviewApi.createReview(showReviewForBookingId, formData);
-            setShowReviewForBookingId(null);
-            // Optional: toast
-          }}
-        />
-      )}
+             {/* Add Review Modal */}
+       {showReviewForBookingId && (
+         <AddReviewModal
+           onClose={() => setShowReviewForBookingId(null)}
+           onSubmit={async ({ rating, comment, files }) => {
+             const formData = new FormData();
+             formData.append('rating', String(rating));
+             formData.append('comment', comment || '');
+             (files || []).forEach((f) => formData.append('images', f));
+             await reviewApi.createReview(showReviewForBookingId, formData);
+             setShowReviewForBookingId(null);
+             setShowReviewSuccess(true);
+             // Refresh reviews if we're on the reviews tab
+             if (activeTab === 'reviews') {
+               loadUserReviews();
+             }
+             // Hide success message after 3 seconds
+             setTimeout(() => setShowReviewSuccess(false), 3000);
+           }}
+         />
+       )}
+
+       {/* Review Success Message */}
+       {showReviewSuccess && (
+         <div className="fixed top-20 right-6 z-50 animate-slide-in-right">
+           <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-green-400/30 backdrop-blur-sm">
+             <div className="flex items-center space-x-3">
+               <div className="animate-bounce">
+                 <svg className="w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                 </svg>
+               </div>
+               <div>
+                 <h4 className="font-abeze font-bold text-lg">Review Submitted! 🎉</h4>
+                 <p className="text-green-100 text-sm">Thank you for sharing your safari experience!</p>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Already Reviewed Message */}
+       {showAlreadyReviewedMessage && (
+         <div className="fixed top-20 right-6 z-50 animate-slide-in-right">
+           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-blue-400/30 backdrop-blur-sm">
+             <div className="flex items-center space-x-3">
+               <div className="animate-pulse">
+                 <svg className="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                 </svg>
+               </div>
+               <div>
+                 <h4 className="font-abeze font-bold text-lg">Already Reviewed! ℹ️</h4>
+                 <p className="text-blue-100 text-sm">You have already submitted a review for this booking.</p>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 };
