@@ -151,30 +151,63 @@ export const staffLogin = async (req, res, next) => {
       }
     }
 
-    const user = await User.findOne({ email });
+    // Check in User collection first
+    let user = await User.findOne({ email });
+    let userType = 'user';
+    
+    // If not found in User collection, check Staff collection
     if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+      const staff = await Staff.findOne({ email });
+      if (!staff) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Check if staff is active
+      if (!staff.isActive) {
+        return res.status(401).json({ message: "Account is deactivated" });
+      }
+      
+      // Verify staff password
+      const isPasswordValid = await staff.comparePassword(password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      // Convert staff to user format
+      user = {
+        _id: staff._id,
+        id: staff._id,
+        firstName: staff.firstName,
+        lastName: staff.lastName,
+        email: staff.email,
+        phone: staff.phone || '',
+        role: staff.role,
+        isActive: staff.isActive,
+        profilePicture: staff.profilePicture,
+        createdAt: staff.createdAt,
+        updatedAt: staff.updatedAt
+      };
+      userType = 'staff';
+    } else {
+      // User found in User collection
+      // Check if user is staff or admin
+      if (user.role !== 'admin' && user.role !== 'staff') {
+        return res.status(403).json({ message: "Access denied. Staff login only." });
+      }
 
-    // Check if user is staff or admin
-    if (user.role !== 'admin' && user.role !== 'staff') {
-      return res.status(403).json({ message: "Access denied. Staff login only." });
-    }
-
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    // Get staff information if available
-    let staffInfo = null;
-    if (user.role === 'staff') {
-      staffInfo = await Staff.findOne({ userId: user._id });
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+      
+      userType = user.role;
     }
 
     const token = jwt.sign({ 
       userId: user._id, 
-      role: user.role 
+      email: user.email,
+      role: user.role,
+      userType: userType
     }, getJwtSecret(), { expiresIn: "7d" });
 
     return res.json({
@@ -188,7 +221,6 @@ export const staffLogin = async (req, res, next) => {
         country: user.country,
         role: user.role,
         profilePicture: user.profilePicture,
-        staffInfo: staffInfo,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
       },

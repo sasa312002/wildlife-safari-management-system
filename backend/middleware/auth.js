@@ -18,8 +18,48 @@ export const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, getJwtSecret());
     
-    // Get user information
-    const user = await User.findById(decoded.userId).select('-passwordHash');
+    // Special handling for admin@mufasa.com
+    if (decoded.email === 'admin@mufasa.com' && decoded.role === 'admin') {
+      req.user = {
+        _id: decoded.userId,
+        id: decoded.userId,
+        firstName: 'Admin',
+        lastName: 'User',
+        email: 'admin@mufasa.com',
+        phone: '',
+        role: 'admin',
+        isActive: true,
+        profilePicture: null,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      return next();
+    }
+    
+    // Try to find user in User collection first
+    let user = await User.findById(decoded.userId).select('-passwordHash');
+    
+    // If not found in User collection, try Staff collection
+    if (!user) {
+      const staff = await Staff.findById(decoded.userId).select('-passwordHash');
+      if (staff) {
+        // Convert staff to user format
+        user = {
+          _id: staff._id,
+          id: staff._id,
+          firstName: staff.firstName,
+          lastName: staff.lastName,
+          email: staff.email,
+          phone: staff.phone,
+          role: staff.role,
+          isActive: staff.isActive,
+          profilePicture: staff.profilePicture,
+          createdAt: staff.createdAt,
+          updatedAt: staff.updatedAt
+        };
+      }
+    }
+    
     if (!user) {
       return res.status(401).json({ message: "Invalid token" });
     }
