@@ -239,6 +239,27 @@ export const bookingApi = {
     const { data } = await api.put(`/api/bookings/status/${bookingId}`, { status });
     return data;
   },
+  // Driver booking management
+  async getPendingBookingsForDriver() {
+    const { data } = await api.get('/api/bookings/driver/pending');
+    return data;
+  },
+  async getDriverAcceptedBookings() {
+    const { data } = await api.get('/api/bookings/driver/accepted');
+    return data;
+  },
+  async acceptBooking(bookingId) {
+    const { data } = await api.post(`/api/bookings/driver/accept/${bookingId}`);
+    return data;
+  },
+  async completeBooking(bookingId) {
+    const { data } = await api.post(`/api/bookings/driver/complete/${bookingId}`);
+    return data;
+  },
+  async testDriverAuth() {
+    const { data } = await api.get('/api/bookings/driver/test-auth');
+    return data;
+  },
 };
 
 export const reviewApi = {
@@ -383,6 +404,25 @@ export const payrollApi = {
   },
   async deletePayroll(id) {
     const { data } = await api.delete(`/api/payroll/${id}`);
+    return data;
+  },
+};
+
+export const vehicleApi = {
+  async getDriverVehicles() {
+    const { data } = await api.get('/api/vehicles/driver');
+    return data;
+  },
+  async addVehicle(vehicleData) {
+    const { data } = await api.post('/api/vehicles/driver', vehicleData);
+    return data;
+  },
+  async updateVehicle(vehicleId, vehicleData) {
+    const { data } = await api.put(`/api/vehicles/driver/${vehicleId}`, vehicleData);
+    return data;
+  },
+  async deleteVehicle(vehicleId) {
+    const { data } = await api.delete(`/api/vehicles/driver/${vehicleId}`);
     return data;
   },
 };

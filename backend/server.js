@@ -12,6 +12,7 @@ import bookingRoutes from "./routes/bookings.js";
 import attendanceRoutes from "./routes/attendance.js";
 import payrollRoutes from "./routes/payroll.js";
 import reviewRoutes from "./routes/reviews.js";
+import vehicleRoutes from "./routes/vehicles.js";
 
 dotenv.config({ path: './.env' });
 
@@ -51,6 +52,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/payroll", payrollRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/vehicles", vehicleRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
