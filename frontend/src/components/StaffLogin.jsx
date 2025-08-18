@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { staffApi } from '../services/api';
+import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
 const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
@@ -45,7 +45,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
     
     setIsSubmitting(true);
     try {
-      const { token, user } = await staffApi.staffLogin({
+      const { token, user } = await authApi.staffLogin({
         email: formData.email.trim(),
         password: formData.password,
       });
@@ -53,8 +53,10 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
       staffLogin(user, token);
       onClose();
       
-      // Redirect based on role
-      if (user.role === 'driver') {
+      // Redirect based on role - admins go to admin page, others to their specific dashboards
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else if (user.role === 'driver') {
         navigate('/driver-dashboard');
       } else if (user.role === 'tour_guide') {
         navigate('/tour-guide-dashboard');
@@ -94,10 +96,10 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Staff Login
+            Staff & Admin Login
           </h2>
           <p className="text-gray-300 font-abeze">
-            Access your staff account
+            Access your staff or admin account
           </p>
         </div>
 
@@ -178,7 +180,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
             disabled={isSubmitting}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
           >
-            {isSubmitting ? 'Signing In...' : 'Staff Sign In'}
+            {isSubmitting ? 'Signing In...' : 'Staff & Admin Sign In'}
           </button>
 
           {/* Switch to Regular Login */}

@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { packageApi, userApi, staffApi, safariRequestApi, bookingApi } from '../services/api';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+
 import AddPackageModal from '../components/AddPackageModal';
 import EditPackageModal from '../components/EditPackageModal';
 import AddStaffModal from '../components/AddStaffModal';
@@ -935,10 +934,8 @@ const AdminPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <Header />
-      
       {/* Main Content */}
-      <div className="pt-24 pb-16">
+      <div className="pt-8 pb-16">
         <div className="container mx-auto px-6">
           {/* Page Header */}
           <div className="text-center mb-12">
@@ -1009,8 +1006,6 @@ const AdminPage = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
 
              {/* Add Package Modal */}
        {showAddPackage && (

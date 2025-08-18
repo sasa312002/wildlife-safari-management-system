@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+
 
 const TourGuideDashboard = () => {
   const { user, logout } = useAuth();
@@ -233,10 +232,8 @@ const TourGuideDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <Header />
-      
       {/* Main Content */}
-      <div className="pt-24 pb-16">
+      <div className="pt-8 pb-16">
         <div className="container mx-auto px-6">
           {/* Page Header */}
           <div className="text-center mb-12">
@@ -295,8 +292,6 @@ const TourGuideDashboard = () => {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 };

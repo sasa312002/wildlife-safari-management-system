@@ -16,6 +16,8 @@ import BookingSuccessPage from './pages/BookingSuccessPage'
 import BookingCancelledPage from './pages/BookingCancelledPage'
 import DriverDashboard from './pages/DriverDashboard'
 import TourGuideDashboard from './pages/TourGuideDashboard'
+import DonatePage from './pages/DonatePage'
+import DonationDetailsPage from './pages/DonationDetailsPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import ProtectedStaffRoute from './components/ProtectedStaffRoute'
@@ -42,6 +44,8 @@ function App() {
           <Route path="/travel-packages" element={<TravelPackagesPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
+          <Route path="/donate" element={<DonatePage />} />
+          <Route path="/donation-details" element={<DonationDetailsPage />} />
           <Route path="/account" element={
             <ProtectedRoute>
               <UserAccountPage />

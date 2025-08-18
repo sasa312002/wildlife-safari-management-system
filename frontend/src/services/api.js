@@ -167,7 +167,7 @@ export const staffApi = {
     return data;
   },
   async staffLogin(payload) {
-    const { data } = await api.post('/api/staff/login', payload);
+    const { data } = await api.post('/api/auth/staff-login', payload);
     return data;
   },
   async uploadStaffProfilePicture(id, formData) {

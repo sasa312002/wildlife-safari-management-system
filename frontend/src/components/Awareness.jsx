@@ -1,6 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Awareness = () => {
+  const navigate = useNavigate();
+
+  const handleNavigateToDonate = () => {
+    navigate('/donate');
+    // Scroll to top when navigating to donate page
+    window.scrollTo(0, 0);
+  };
   const hikingTopics = [
     {
       id: 1,
@@ -65,10 +73,10 @@ const Awareness = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
-            Wildlife <span className="text-green-400">Hiking</span>
+            Wildlife <span className="text-green-400">Conservation</span>
           </h2>
           <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-            Join us in exploring Sri Lanka's precious wildlife heritage. Learn about hiking trails, 
+            Join us in protecting Sri Lanka's precious wildlife heritage. Learn about conservation efforts, 
             environmental challenges, and how you can contribute to preserving our natural wonders for future generations.
           </p>
         </div>
@@ -106,7 +114,7 @@ const Awareness = () => {
         {/* Conservation Initiatives */}
         <div className="mb-16">
           <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-            Our <span className="text-green-400">Hiking Initiatives</span>
+            Our <span className="text-green-400">Conservation Initiatives</span>
           </h3>
           
           <div className="grid md:grid-cols-2 gap-8">
@@ -136,17 +144,23 @@ const Awareness = () => {
               Be Part of the Solution
             </h3>
             <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-              Every visit to our wildlife sanctuaries contributes to hiking experiences. 
-              Your tourism dollars directly support habitat protection, anti-poaching measures, and community education programs.
+              Every donation directly supports wildlife conservation efforts. 
+              Your contribution funds habitat protection, anti-poaching measures, community education programs, and scientific research.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                Support Hiking
-              </button>
-              <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
-                Learn More
-              </button>
-            </div>
+                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
+               <button 
+                 onClick={handleNavigateToDonate}
+                 className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
+               >
+                 Support Wildlife
+               </button>
+               <button 
+                 onClick={handleNavigateToDonate}
+                 className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300"
+               >
+                 Learn More
+               </button>
+             </div>
           </div>
         </div>
 

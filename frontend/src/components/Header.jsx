@@ -212,7 +212,7 @@ const Header = ({ triggerLogin = null }) => {
               ) : (
                 <button 
                   onClick={handleLoginClick}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full font-abeze font-medium transition-colors duration-300 text-sm"
                 >
                   LOGIN
                 </button>
@@ -292,12 +292,19 @@ const Header = ({ triggerLogin = null }) => {
                 >
                   CONTACT
                 </button>
-                {isAuthenticated && (
+                {isAuthenticated ? (
                   <button 
                     onClick={navigateToAccount}
                     className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
                   >
                     {user?.role === 'admin' ? 'ADMIN' : 'MY ACCOUNT'}
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleLoginClick}
+                    className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
+                  >
+                    LOGIN
                   </button>
                 )}
               </nav>

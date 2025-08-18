@@ -191,8 +191,8 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
             {isSubmitting ? 'Signing In...' : 'Sign In'}
           </button>
 
-          {/* Sign Up Link */}
-          <div className="text-center">
+          {/* Links */}
+          <div className="text-center space-y-2">
             <p className="text-gray-300 font-abeze">
               Don't have an account?{' '}
               <button
@@ -203,12 +203,8 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
                 Sign up here
               </button>
             </p>
-          </div>
-
-          {/* Staff Login Link */}
-          <div className="text-center pt-2 border-t border-white/20">
             <p className="text-gray-300 font-abeze">
-              Are you a staff member?{' '}
+              Are you staff?{' '}
               <button
                 type="button"
                 onClick={onSwitchToStaffLogin}

@@ -172,18 +172,56 @@ export const staffLogin = async (req, res, next) => {
       return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const staff = await Staff.findOne({ email });
+
+
+    // Check in Staff collection first
+    let staff = await Staff.findOne({ email });
+    let userType = 'staff';
+
+    // If not found in Staff, check in User collection for admin/staff roles
     if (!staff) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+      const User = (await import("../models/User.js")).default;
+      const bcrypt = (await import("bcryptjs")).default;
+      
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
 
-    if (!staff.isActive) {
-      return res.status(401).json({ message: "Account is deactivated" });
-    }
+      // Check if user is staff or admin
+      if (user.role !== 'admin' && user.role !== 'staff') {
+        return res.status(403).json({ message: "Access denied. Staff login only." });
+      }
 
-    const isPasswordValid = await staff.comparePassword(password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      const isValid = await bcrypt.compare(password, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+
+      // Convert user to staff format
+      staff = {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone || '',
+        role: user.role,
+        isActive: true,
+        profilePicture: user.profilePicture,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      };
+      userType = user.role;
+    } else {
+      // Staff found in Staff collection
+      if (!staff.isActive) {
+        return res.status(401).json({ message: "Account is deactivated" });
+      }
+
+      const isPasswordValid = await staff.comparePassword(password);
+      if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
     }
 
     // Create JWT token
@@ -192,15 +230,17 @@ export const staffLogin = async (req, res, next) => {
         userId: staff._id, 
         email: staff.email, 
         role: staff.role,
-        userType: 'staff'
+        userType: userType
       },
       getJwtSecret(),
       { expiresIn: '24h' }
     );
 
     // Return staff data without password
-    const staffData = staff.toObject();
-    delete staffData.passwordHash;
+    const staffData = staff.toObject ? staff.toObject() : staff;
+    if (staffData.passwordHash) {
+      delete staffData.passwordHash;
+    }
 
     return res.json({
       token,
