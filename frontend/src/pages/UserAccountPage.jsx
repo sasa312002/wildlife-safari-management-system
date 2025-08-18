@@ -6,6 +6,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import EditProfileModal from '../components/EditProfileModal';
 import UserContactMessages from '../components/UserContactMessages';
+import AddReviewModal from '../components/AddReviewModal';
+import { reviewApi } from '../services/api';
 
 const UserAccountPage = () => {
   const { user, logout } = useAuth();
@@ -16,6 +18,7 @@ const UserAccountPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [bookingsError, setBookingsError] = useState(null);
+  const [showReviewForBookingId, setShowReviewForBookingId] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -399,6 +402,16 @@ const UserAccountPage = () => {
                               </div>
                             </div>
                           </div>
+                          <div className="md:ml-6">
+                            {booking.status === 'Completed' && (
+                              <button
+                                onClick={() => setShowReviewForBookingId(booking._id)}
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-abeze"
+                              >
+                                Add Review
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -417,6 +430,22 @@ const UserAccountPage = () => {
         <EditProfileModal 
           onClose={handleCloseEditProfile}
           user={user}
+        />
+      )}
+
+      {/* Add Review Modal */}
+      {showReviewForBookingId && (
+        <AddReviewModal
+          onClose={() => setShowReviewForBookingId(null)}
+          onSubmit={async ({ rating, comment, files }) => {
+            const formData = new FormData();
+            formData.append('rating', String(rating));
+            formData.append('comment', comment || '');
+            (files || []).forEach((f) => formData.append('images', f));
+            await reviewApi.createReview(showReviewForBookingId, formData);
+            setShowReviewForBookingId(null);
+            // Optional: toast
+          }}
         />
       )}
     </div>
