@@ -31,3 +31,19 @@ body {
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+/* Slide in animation for review success message */
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out;
+}

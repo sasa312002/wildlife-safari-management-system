@@ -99,6 +99,32 @@ export const getReviewsByPackage = async (req, res, next) => {
   }
 };
 
+// Get user's own reviews
+export const getUserReviews = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const reviews = await Review.find({ userId })
+      .populate("packageId", "title location")
+      .sort({ createdAt: -1 });
+    return res.json({ reviews });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Get all reviews for gallery (public)
+export const getGalleryReviews = async (req, res, next) => {
+  try {
+    const reviews = await Review.find()
+      .populate("userId", "firstName lastName")
+      .populate("packageId", "title location")
+      .sort({ createdAt: -1 });
+    return res.json({ reviews });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Delete a review (admin only)
 export const deleteReview = async (req, res, next) => {
   try {

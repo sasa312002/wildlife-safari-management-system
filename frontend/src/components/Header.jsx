@@ -97,6 +97,12 @@ const Header = ({ triggerLogin = null }) => {
     setIsMobileMenuOpen(false);
   };
 
+  const navigateToGallery = () => {
+    navigate('/gallery');
+    window.scrollTo(0, 0);
+    setIsMobileMenuOpen(false);
+  };
+
   const navigateToAccount = () => {
     // Redirect based on user role
     if (user?.role === 'admin') {
@@ -181,6 +187,14 @@ const Header = ({ triggerLogin = null }) => {
                 }`}
               >
                 PACKAGES
+              </button>
+              <button 
+                onClick={navigateToGallery}
+                className={`font-abeze font-medium transition-colors ${
+                  location.pathname === '/gallery' ? 'text-green-400' : 'text-white hover:text-green-400'
+                }`}
+              >
+                GALLERY
               </button>
               <button 
                 onClick={navigateToAbout}
@@ -275,6 +289,14 @@ const Header = ({ triggerLogin = null }) => {
                   }`}
                 >
                   PACKAGES
+                </button>
+                <button 
+                  onClick={navigateToGallery}
+                  className={`text-left font-abeze font-medium transition-colors ${
+                    location.pathname === '/gallery' ? 'text-green-400' : 'text-white hover:text-green-400'
+                  }`}
+                >
+                  GALLERY
                 </button>
                 <button 
                   onClick={navigateToAbout}

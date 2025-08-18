@@ -21,6 +21,10 @@ const Footer = () => {
     navigate('/about');
   };
 
+  const navigateToGallery = () => {
+    navigate('/gallery');
+  };
+
   const scrollToAwareness = () => {
     const element = document.getElementById('awareness');
     if (element) {
@@ -97,6 +101,14 @@ const Footer = () => {
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
                   Safari Packages
+                </button>
+              </li>
+              <li>
+                <button 
+                  onClick={navigateToGallery}
+                  className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
+                >
+                  Gallery
                 </button>
               </li>
               <li>
