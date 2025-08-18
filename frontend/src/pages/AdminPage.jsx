@@ -9,6 +9,8 @@ import EditPackageModal from '../components/EditPackageModal';
 import AddStaffModal from '../components/AddStaffModal';
 import EditStaffModal from '../components/EditStaffModal';
 import ContactMessages from '../components/ContactMessages';
+import Attendance from '../components/Attendance';
+import Payroll from '../components/Payroll';
 
 const AdminPage = () => {
   const { user, logout } = useAuth();
@@ -972,6 +974,8 @@ const AdminPage = () => {
                  { id: 'safari-requests', label: 'Safari Requests', icon: '🦁' },
                  { id: 'contact-messages', label: 'Contact Messages', icon: '💬' },
                  { id: 'bookings', label: 'Bookings', icon: '📅' },
+                 { id: 'attendance', label: 'Attendance', icon: '⏰' },
+                 { id: 'payroll', label: 'Payroll', icon: '💰' },
                  { id: 'reports', label: 'Reports', icon: '📈' },
                ].map((tab) => (
                 <button
@@ -998,6 +1002,8 @@ const AdminPage = () => {
               {activeTab === 'safari-requests' && renderSafariRequests()}
               {activeTab === 'contact-messages' && <ContactMessages />}
               {activeTab === 'bookings' && renderBookings()}
+              {activeTab === 'attendance' && <Attendance />}
+              {activeTab === 'payroll' && <Payroll />}
               {activeTab === 'reports' && renderReports()}
             </div>
           </div>

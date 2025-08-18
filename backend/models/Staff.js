@@ -49,6 +49,11 @@ const staffSchema = new mongoose.Schema(
       type: Boolean,
       default: true
     },
+    basicSalary: {
+      type: Number,
+      default: 50000,
+      min: 0
+    },
     profilePicture: {
       url: { type: String },
       deleteUrl: { type: String },

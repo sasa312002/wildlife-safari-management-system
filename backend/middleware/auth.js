@@ -18,21 +18,18 @@ export const authenticateToken = async (req, res, next) => {
 
     const decoded = jwt.verify(token, getJwtSecret());
     
-    // Check if it's a staff member or regular user
-    if (decoded.role === 'staff' || decoded.role === 'admin') {
-      // For staff/admin, we need to get the staff info
-      const user = await User.findById(decoded.userId).select('-passwordHash');
-      if (!user) {
-        return res.status(401).json({ message: "Invalid token" });
-      }
-      req.user = user;
-    } else {
-      // Regular user - no role field or role is 'user'
-      const user = await User.findById(decoded.userId).select('-passwordHash');
-      if (!user) {
-        return res.status(401).json({ message: "Invalid token" });
-      }
-      req.user = user;
+    // Get user information
+    const user = await User.findById(decoded.userId).select('-passwordHash');
+    if (!user) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
+    
+    // Set user info in request
+    req.user = user;
+    
+    // If token has role field, use it; otherwise use user's role from database
+    if (decoded.role) {
+      req.user.role = decoded.role;
     }
 
     next();
@@ -49,17 +46,26 @@ export const authenticateToken = async (req, res, next) => {
 
 export const requireAdmin = async (req, res, next) => {
   try {
-    // First authenticate the token
-    await authenticateToken(req, res, async (err) => {
-      if (err) return next(err);
-      
-      // Check if user is admin
-      if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-      
-      next();
-    });
+    // Check if user is admin (authenticateToken already ran)
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Admin access required" });
+    }
+    
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: "Authorization error" });
+  }
+};
+
+export const requireStaff = async (req, res, next) => {
+  try {
+    // Check if user is staff or admin (authenticateToken already ran)
+    if (req.user.role !== 'staff' && req.user.role !== 'admin') {
+      return res.status(403).json({ message: "Staff or admin access required" });
+    }
+    
+    next();
+    
   } catch (error) {
     return res.status(500).json({ message: "Authorization error" });
   }
