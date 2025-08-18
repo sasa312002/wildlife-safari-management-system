@@ -241,4 +241,121 @@ export const bookingApi = {
   },
 };
 
+export const attendanceApi = {
+  async getAllAttendance() {
+    const { data } = await api.get('/api/attendance');
+    return data;
+  },
+  async getAttendanceByStaff(staffId, startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const { data } = await api.get(`/api/attendance/staff/${staffId}?${params}`);
+    return data;
+  },
+  async getAttendanceByDateRange(startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const { data } = await api.get(`/api/attendance/date-range?${params}`);
+    return data;
+  },
+  async getAttendanceStats(startDate, endDate) {
+    const params = new URLSearchParams();
+    if (startDate) params.append('startDate', startDate);
+    if (endDate) params.append('endDate', endDate);
+    const { data } = await api.get(`/api/attendance/stats?${params}`);
+    return data;
+  },
+  async createAttendance(payload) {
+    const { data } = await api.post('/api/attendance', payload);
+    return data;
+  },
+  async bulkCreateAttendance(payload) {
+    const { data } = await api.post('/api/attendance/bulk', payload);
+    return data;
+  },
+  async updateAttendance(id, payload) {
+    const { data } = await api.put(`/api/attendance/${id}`, payload);
+    return data;
+  },
+  async deleteAttendance(id) {
+    const { data } = await api.delete(`/api/attendance/${id}`);
+    return data;
+  },
+  async checkIn(payload) {
+    const { data } = await api.post('/api/attendance/check-in', payload);
+    return data;
+  },
+  async checkOut(payload) {
+    const { data } = await api.post('/api/attendance/check-out', payload);
+    return data;
+  },
+  async getCurrentDayStatus(staffId) {
+    const { data } = await api.get(`/api/attendance/current-day/${staffId}`);
+    return data;
+  },
+  async getDailyReport(date) {
+    const params = new URLSearchParams();
+    if (date) params.append('date', date);
+    const { data } = await api.get(`/api/attendance/daily-report?${params}`);
+    return data;
+  },
+  async downloadDailyReportPDF(date) {
+    const params = new URLSearchParams();
+    if (date) params.append('date', date);
+    const response = await api.get(`/api/attendance/daily-report-pdf?${params}`, {
+      responseType: 'blob'
+    });
+    return response.data;
+  },
+};
+
+export const payrollApi = {
+  async getAllPayroll() {
+    const { data } = await api.get('/api/payroll');
+    return data;
+  },
+  async getPayrollByStaff(staffId, year) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year);
+    const { data } = await api.get(`/api/payroll/staff/${staffId}?${params}`);
+    return data;
+  },
+  async getPayrollByMonth(month, year) {
+    const { data } = await api.get(`/api/payroll/month/${month}/${year}`);
+    return data;
+  },
+  async getPayrollStats(year) {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year);
+    const { data } = await api.get(`/api/payroll/stats?${params}`);
+    return data;
+  },
+  async generatePayroll(month, year) {
+    const { data } = await api.post('/api/payroll/generate', { month, year });
+    return data;
+  },
+  async createOrUpdatePayroll(payload) {
+    const { data } = await api.post('/api/payroll/create', payload);
+    return data;
+  },
+  async updatePayrollStatus(id, status, notes) {
+    const { data } = await api.patch(`/api/payroll/${id}/status`, { status, notes });
+    return data;
+  },
+  async recalculatePayroll(id) {
+    const { data } = await api.post(`/api/payroll/${id}/recalculate`);
+    return data;
+  },
+  async refreshPayrollForMonth(month, year) {
+    const { data } = await api.post(`/api/payroll/refresh/${month}/${year}`);
+    return data;
+  },
+  async deletePayroll(id) {
+    const { data } = await api.delete(`/api/payroll/${id}`);
+    return data;
+  },
+};
+
 

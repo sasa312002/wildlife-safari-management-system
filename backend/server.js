@@ -9,6 +9,8 @@ import staffRoutes from "./routes/staff.js";
 import safariRequestRoutes from "./routes/safariRequests.js";
 import contactMessageRoutes from "./routes/contactMessages.js";
 import bookingRoutes from "./routes/bookings.js";
+import attendanceRoutes from "./routes/attendance.js";
+import payrollRoutes from "./routes/payroll.js";
 
 dotenv.config({ path: './.env' });
 
@@ -45,6 +47,8 @@ app.use("/api/staff", staffRoutes);
 app.use("/api/safari-requests", safariRequestRoutes);
 app.use("/api/contact-messages", contactMessageRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/attendance", attendanceRoutes);
+app.use("/api/payroll", payrollRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
