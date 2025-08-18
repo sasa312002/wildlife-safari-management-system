@@ -241,6 +241,35 @@ export const bookingApi = {
   },
 };
 
+export const reviewApi = {
+  async getReviewsByPackage(packageId) {
+    const { data } = await api.get(`/api/reviews/package/${packageId}`);
+    return data;
+  },
+  async createReview(bookingId, formData) {
+    const uploadApi = axios.create({
+      baseURL,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+    const { data } = await uploadApi.post(`/api/reviews/booking/${bookingId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return data;
+  },
+  async getAllReviews() {
+    const { data } = await api.get('/api/reviews/all');
+    return data;
+  },
+  async deleteReview(id) {
+    const { data } = await api.delete(`/api/reviews/${id}`);
+    return data;
+  },
+};
+
 export const attendanceApi = {
   async getAllAttendance() {
     const { data } = await api.get('/api/attendance');
