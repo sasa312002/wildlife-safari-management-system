@@ -281,6 +281,14 @@ export const reviewApi = {
     });
     return data;
   },
+  async getUserReviews() {
+    const { data } = await api.get('/api/reviews/user');
+    return data;
+  },
+  async getGalleryReviews() {
+    const { data } = await api.get('/api/reviews/gallery');
+    return data;
+  },
   async getAllReviews() {
     const { data } = await api.get('/api/reviews/all');
     return data;

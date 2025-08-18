@@ -18,6 +18,7 @@ import DriverDashboard from './pages/DriverDashboard'
 import TourGuideDashboard from './pages/TourGuideDashboard'
 import DonatePage from './pages/DonatePage'
 import DonationDetailsPage from './pages/DonationDetailsPage'
+import GalleryPage from './pages/GalleryPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
 import ProtectedStaffRoute from './components/ProtectedStaffRoute'
@@ -42,6 +43,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} />
           <Route path="/travel-packages" element={<TravelPackagesPage />} />
+          <Route path="/gallery" element={<GalleryPage />} />
           <Route path="/contact" element={<ContactUsPage />} />
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/donate" element={<DonatePage />} />
