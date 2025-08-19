@@ -18,6 +18,8 @@ import DriverDashboard from './pages/DriverDashboard'
 import TourGuideDashboard from './pages/TourGuideDashboard'
 import DonatePage from './pages/DonatePage'
 import DonationDetailsPage from './pages/DonationDetailsPage'
+import DonationSuccessPage from './pages/DonationSuccessPage'
+import DonationCancelledPage from './pages/DonationCancelledPage'
 import GalleryPage from './pages/GalleryPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import ProtectedAdminRoute from './components/ProtectedAdminRoute'
@@ -48,6 +50,8 @@ function App() {
           <Route path="/about" element={<AboutUsPage />} />
           <Route path="/donate" element={<DonatePage />} />
           <Route path="/donation-details" element={<DonationDetailsPage />} />
+          <Route path="/donation-success" element={<DonationSuccessPage />} />
+          <Route path="/donation-cancelled" element={<DonationCancelledPage />} />
           <Route path="/account" element={
             <ProtectedRoute>
               <UserAccountPage />

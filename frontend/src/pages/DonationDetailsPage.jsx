@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
+import { donationApi } from '../services/api';
 
 const DonationDetailsPage = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -177,19 +177,38 @@ const DonationDetailsPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+    if (!validateForm()) return;
+
+    try {
+      const payload = {
+        amount: Number(donationAmount),
+        currency: selectedCurrency,
+        donor: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          isAnonymous: !!formData.isAnonymous,
+        },
+        donorDetails: {
+          phone: formData.phone,
+          address: formData.address,
+          country: formData.country,
+          postalCode: formData.postalCode,
+          receiveUpdates: formData.receiveUpdates,
+        },
+      };
+      const response = await donationApi.createStripeCheckout(payload);
+      if (response?.success && response?.session_url) {
+        window.location.href = response.session_url;
+      } else {
+        alert('Failed to start donation payment. Please try again.');
+      }
+    } catch (error) {
+      console.error('Donation checkout error:', error);
+      alert('Something went wrong while starting the payment.');
     }
-    
-    // Here you would integrate with a payment processor
-    const currencySymbol = getCurrencySymbol();
-    alert(`Thank you for your donation of ${currencySymbol}${donationAmount}! Your payment is being processed securely.`);
-    
-    // Redirect to success page or home
-    navigate('/');
   };
 
 
