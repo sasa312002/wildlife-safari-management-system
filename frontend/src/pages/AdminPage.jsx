@@ -15,6 +15,7 @@ const AdminPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [packages, setPackages] = useState([]);
   const [users, setUsers] = useState([]);
   const [showAddPackage, setShowAddPackage] = useState(false);
@@ -45,6 +46,21 @@ const AdminPage = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
+
+  // Navigation items
+  const navigationItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: '📊', color: 'blue' },
+    { id: 'users', label: 'Customers', icon: '👥', color: 'green' },
+    { id: 'staff', label: 'Staff Management', icon: '👨‍💼', color: 'purple' },
+    { id: 'packages', label: 'Packages', icon: '🎒', color: 'yellow' },
+    { id: 'safari-requests', label: 'Safari Requests', icon: '🦁', color: 'orange' },
+    { id: 'contact-messages', label: 'Contact Messages', icon: '💬', color: 'pink' },
+    { id: 'bookings', label: 'Bookings', icon: '📅', color: 'indigo' },
+    { id: 'reviews', label: 'Reviews', icon: '⭐', color: 'amber' },
+    { id: 'attendance', label: 'Attendance', icon: '⏰', color: 'cyan' },
+    { id: 'payroll', label: 'Payroll', icon: '💰', color: 'emerald' },
+    { id: 'reports', label: 'Reports', icon: '📈', color: 'rose' },
+  ];
 
   // Load data when tabs are selected
   useEffect(() => {
@@ -322,6 +338,24 @@ const AdminPage = () => {
     totalBookings: Array.isArray(bookings) ? bookings.length : 0,
     totalRevenue: Array.isArray(bookings) ? bookings.reduce((sum, booking) => sum + (booking.totalPrice || 0), 0) : 0,
     activeStaff: staff.filter(s => s.isActive).length
+  };
+
+  // Get color classes for navigation items
+  const getColorClasses = (color, isActive = false) => {
+    const colorMap = {
+      blue: isActive ? 'bg-blue-600 text-white' : 'text-blue-400 hover:bg-blue-600/20',
+      green: isActive ? 'bg-green-600 text-white' : 'text-green-400 hover:bg-green-600/20',
+      purple: isActive ? 'bg-purple-600 text-white' : 'text-purple-400 hover:bg-purple-600/20',
+      yellow: isActive ? 'bg-yellow-600 text-white' : 'text-yellow-400 hover:bg-yellow-600/20',
+      orange: isActive ? 'bg-orange-600 text-white' : 'text-orange-400 hover:bg-orange-600/20',
+      pink: isActive ? 'bg-pink-600 text-white' : 'text-pink-400 hover:bg-pink-600/20',
+      indigo: isActive ? 'bg-indigo-600 text-white' : 'text-indigo-400 hover:bg-indigo-600/20',
+      amber: isActive ? 'bg-amber-600 text-white' : 'text-amber-400 hover:bg-amber-600/20',
+      cyan: isActive ? 'bg-cyan-600 text-white' : 'text-cyan-400 hover:bg-cyan-600/20',
+      emerald: isActive ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:bg-emerald-600/20',
+      rose: isActive ? 'bg-rose-600 text-white' : 'text-rose-400 hover:bg-rose-600/20',
+    };
+    return colorMap[color] || colorMap.blue;
   };
 
   const renderDashboard = () => (
@@ -979,64 +1013,119 @@ const AdminPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex">
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'w-64' : 'w-16'} bg-gray-900/95 backdrop-blur-xl border-r border-gray-700 transition-all duration-300 ease-in-out flex flex-col`}>
+        {/* Sidebar Header */}
+        <div className="p-6 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            {sidebarOpen && (
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">WS</span>
+                </div>
+                <div>
+                  <h2 className="text-white font-abeze font-bold text-lg">Wildlife Safari</h2>
+                  <p className="text-gray-400 text-xs">Admin Panel</p>
+                </div>
+              </div>
+            )}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation Menu */}
+        <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {navigationItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleTabChange(item.id)}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-abeze font-medium transition-all duration-200 ${
+                activeTab === item.id
+                  ? getColorClasses(item.color, true)
+                  : getColorClasses(item.color, false)
+              }`}
+            >
+              <span className="text-xl">{item.icon}</span>
+              {sidebarOpen && <span>{item.label}</span>}
+            </button>
+          ))}
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-gray-700">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">
+                {user?.firstName?.charAt(0)?.toUpperCase()}
+              </span>
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1">
+                <p className="text-white font-abeze text-sm font-medium">
+                  {user?.firstName} {user?.lastName}
+                </p>
+                <p className="text-gray-400 text-xs">Administrator</p>
+              </div>
+            )}
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-colors"
+              title="Logout"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Main Content */}
-      <div className="pt-8 pb-16">
-        <div className="container mx-auto px-6">
-          {/* Page Header */}
-          <div className="text-center mb-12">
-            <div className="flex justify-between items-center mb-4">
-              <div></div> {/* Empty div for spacing */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header */}
+        <header className="bg-gray-900/50 backdrop-blur-xl border-b border-gray-700 p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-abeze font-bold text-white">
+                {navigationItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
+              </h1>
+              <p className="text-gray-400 font-abeze">
+                Welcome back, {user?.firstName} {user?.lastName}
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              {/* Mobile menu button */}
               <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
-                <span>Logout</span>
+              </button>
+              
+              {/* Notifications */}
+              <button className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors relative">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.19 4.19A4 4 0 014 6v6m0 0v6a4 4 0 004 4h6a4 4 0 004-4v-6m-8-4a4 4 0 00-4-4H6a4 4 0 00-4 4v6h8V6z" />
+                </svg>
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </button>
             </div>
-            <h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
-              Admin Dashboard
-            </h1>
-            <p className="text-gray-300 font-abeze text-lg">
-              Welcome back, {user?.firstName} {user?.lastName}
-            </p>
           </div>
+        </header>
 
-          {/* Admin Content */}
+        {/* Page Content */}
+        <main className="flex-1 p-6 overflow-y-auto">
           <div className="max-w-7xl mx-auto">
-            {/* Navigation Tabs */}
-                         <div className="flex flex-wrap gap-2 mb-8">
-               {[
-                 { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-                 { id: 'users', label: 'Customers', icon: '👥' },
-                 { id: 'staff', label: 'Staff Management', icon: '👨‍💼' },
-                 { id: 'packages', label: 'Packages', icon: '🎒' },
-                 { id: 'safari-requests', label: 'Safari Requests', icon: '🦁' },
-                 { id: 'contact-messages', label: 'Contact Messages', icon: '💬' },
-                 { id: 'bookings', label: 'Bookings', icon: '📅' },
-                 { id: 'reviews', label: 'Reviews', icon: '⭐' },
-                 { id: 'attendance', label: 'Attendance', icon: '⏰' },
-                 { id: 'payroll', label: 'Payroll', icon: '💰' },
-                 { id: 'reports', label: 'Reports', icon: '📈' },
-               ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                    activeTab === tab.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white/10 text-gray-300 hover:bg-white/20 hover:text-white'
-                  }`}
-                >
-                  <span className="mr-2">{tab.icon}</span>
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
             {/* Tab Content */}
             <div className="min-h-96">
               {activeTab === 'dashboard' && renderDashboard()}
@@ -1106,7 +1195,7 @@ const AdminPage = () => {
               {activeTab === 'reports' && renderReports()}
             </div>
           </div>
-        </div>
+        </main>
       </div>
 
              {/* Add Package Modal */}
@@ -1338,6 +1427,46 @@ const AdminPage = () => {
            </div>
          </div>
        )}
+
+      {/* Add Package Modal */}
+      {showAddPackage && (
+        <AddPackageModal 
+          onClose={() => setShowAddPackage(false)}
+          onPackageAdded={handlePackageAdded}
+        />
+      )}
+
+      {/* Edit Package Modal */}
+      {showEditPackage && selectedPackage && (
+        <EditPackageModal 
+          package={selectedPackage}
+          onClose={() => {
+            setShowEditPackage(false);
+            setSelectedPackage(null);
+          }}
+          onPackageUpdated={handlePackageUpdated}
+        />
+      )}
+
+      {/* Add Staff Modal */}
+      {showAddStaff && (
+        <AddStaffModal 
+          onClose={() => setShowAddStaff(false)}
+          onStaffAdded={handleStaffAdded}
+        />
+      )}
+
+      {/* Edit Staff Modal */}
+      {showEditStaff && selectedStaff && (
+        <EditStaffModal 
+          staff={selectedStaff}
+          onClose={() => {
+            setShowEditStaff(false);
+            setSelectedStaff(null);
+          }}
+          onStaffUpdated={handleStaffUpdated}
+        />
+      )}
     </div>
   );
 };
