@@ -45,12 +45,26 @@ const bookingSchema = new mongoose.Schema({
     enum: [
       'Pending',           // Initial state when booking is placed
       'Payment Confirmed', // Payment has been verified
+      'Driver Assigned',   // Driver has been assigned to the booking
       'Confirmed',         // Booking confirmed by staff
       'In Progress',       // Safari is currently happening
       'Completed',         // Safari completed successfully
       'Cancelled'          // Booking has been cancelled
     ], 
     default: 'Pending' 
+  },
+  driverId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff',
+    default: null
+  },
+  driverAccepted: {
+    type: Boolean,
+    default: false
+  },
+  driverAcceptedAt: {
+    type: Date,
+    default: null
   },
   paymentMethod: { 
     type: String, 

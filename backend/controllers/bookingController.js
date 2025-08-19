@@ -438,11 +438,206 @@ const updateBookingStatus = async (req, res) => {
     }
 };
 
+// Get pending bookings for drivers
+const getPendingBookingsForDriver = async (req, res) => {
+    try {
+        const driverId = req.user._id;
+        
+        // Verify the user is a driver
+        if (req.user.role !== 'driver') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only drivers can view pending bookings." 
+            });
+        }
+        
+        const pendingBookings = await Booking.find({ 
+            status: 'Payment Confirmed',
+            driverId: null
+        })
+        .populate('userId', 'firstName lastName email phone')
+        .populate('packageId', 'title location category duration')
+        .sort({ createdAt: -1 });
+        
+        res.json({ 
+            success: true, 
+            bookings: pendingBookings 
+        });
+    } catch (error) {
+        console.log("Get pending bookings for driver error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Get driver's accepted bookings
+const getDriverAcceptedBookings = async (req, res) => {
+    try {
+        const driverId = req.user._id;
+        
+        // Verify the user is a driver
+        if (req.user.role !== 'driver') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only drivers can view their bookings." 
+            });
+        }
+        
+        const acceptedBookings = await Booking.find({ 
+            driverId: driverId,
+            driverAccepted: true
+        })
+        .populate('userId', 'firstName lastName email phone')
+        .populate('packageId', 'title location category duration')
+        .sort({ startDate: 1 });
+        
+        res.json({ 
+            success: true, 
+            bookings: acceptedBookings 
+        });
+    } catch (error) {
+        console.log("Get driver accepted bookings error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Driver accepts a booking
+const acceptBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const driverId = req.user._id;
+        
+        // Verify the user is a driver
+        if (req.user.role !== 'driver') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only drivers can accept bookings." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking is available for assignment
+        if (booking.status !== 'Payment Confirmed' || booking.driverId !== null) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Booking is not available for assignment" 
+            });
+        }
+        
+        // Update booking with driver assignment
+        booking.driverId = driverId;
+        booking.driverAccepted = true;
+        booking.driverAcceptedAt = new Date();
+        booking.status = 'Driver Assigned';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Booking accepted successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Accept booking error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Driver completes a booking
+const completeBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const driverId = req.user._id;
+        
+        // Verify the user is a driver
+        if (req.user.role !== 'driver') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only drivers can complete bookings." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking belongs to this driver
+        if (booking.driverId.toString() !== driverId.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. You can only complete your own bookings." 
+            });
+        }
+        
+        // Update booking status to completed
+        booking.status = 'Completed';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Booking completed successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Complete booking error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Test endpoint to check driver authentication
+const testDriverAuth = async (req, res) => {
+    try {
+        console.log('Test driver auth - User:', req.user);
+        console.log('Test driver auth - User role:', req.user?.role);
+        
+        res.json({ 
+            success: true, 
+            message: "Driver authentication test",
+            user: req.user,
+            isDriver: req.user?.role === 'driver'
+        });
+    } catch (error) {
+        console.log("Test driver auth error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
 export { 
     createStripeCheckout, 
     verifyStripePayment, 
     getUserBookings, 
     getAllBookings, 
     getBookingDetails, 
-    updateBookingStatus 
+    updateBookingStatus,
+    getPendingBookingsForDriver,
+    getDriverAcceptedBookings,
+    acceptBooking,
+    completeBooking,
+    testDriverAuth
 };

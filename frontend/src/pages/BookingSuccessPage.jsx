@@ -125,8 +125,18 @@ const BookingSuccessPage = () => {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                  <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
                     <span className="text-xs font-bold">2</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-abeze font-medium">Driver Assignment</h3>
+                    <p className="text-gray-300 font-abeze text-sm">Your booking will be assigned to a qualified driver who will contact you with pickup details</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <div className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-xs font-bold">3</span>
                   </div>
                   <div>
                     <h3 className="text-white font-abeze font-medium">Pre-Trip Information</h3>
@@ -135,8 +145,8 @@ const BookingSuccessPage = () => {
                 </div>
                 
                 <div className="flex items-start space-x-3">
-                  <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-xs font-bold">3</span>
+                  <div className="bg-orange-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-xs font-bold">4</span>
                   </div>
                   <div>
                     <h3 className="text-white font-abeze font-medium">Contact Support</h3>
