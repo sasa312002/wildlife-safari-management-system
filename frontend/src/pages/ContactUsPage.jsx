@@ -7,6 +7,8 @@ import Footer from '../components/Footer';
 const ContactUsPage = () => {
   const { isAuthenticated, user } = useAuth();
   const loginTriggerRef = useRef(null);
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,6 +32,110 @@ const ContactUsPage = () => {
       }));
     }
   }, [isAuthenticated, user]);
+
+  // Initialize interactive map with safari/hiking/adventure locations
+  React.useEffect(() => {
+    const ensureLeaflet = () => new Promise((resolve, reject) => {
+      if (window.L) return resolve(window.L);
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.async = true;
+      script.onload = () => resolve(window.L);
+      script.onerror = () => reject(new Error('Failed to load Leaflet'));
+      document.body.appendChild(script);
+    });
+
+    const initMap = async () => {
+      try {
+        const L = await ensureLeaflet();
+        if (mapInstanceRef.current || !mapContainerRef.current) return;
+
+        const map = L.map(mapContainerRef.current);
+        mapInstanceRef.current = map;
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Inject CSS for pulsing office marker
+        const styleTag = document.createElement('style');
+        styleTag.innerHTML = `
+          .pulse-marker { position: relative; width: 18px; height: 18px; }
+          .pulse-marker .dot { width: 12px; height: 12px; background: #ef4444; border: 2px solid #fca5a5; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+          .pulse-marker .ring { position: absolute; top: 50%; left: 50%; width: 12px; height: 12px; border: 2px solid rgba(239, 68, 68, 0.6); border-radius: 50%; transform: translate(-50%, -50%); animation: pulse-ring 1.8s ease-out infinite; }
+          @keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; } 80% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; } 100% { opacity: 0; } }
+        `;
+        document.head.appendChild(styleTag);
+
+        // Points of interest across Sri Lanka with categories
+        const points = [
+          { coords: [6.3619, 81.5206], title: 'Yala National Park', category: 'safari', desc: 'Big cats and diverse wildlife' },
+          { coords: [8.4871, 80.1069], title: 'Wilpattu National Park', category: 'safari', desc: 'Largest national park' },
+          { coords: [8.0393, 80.8203], title: 'Minneriya National Park', category: 'safari', desc: 'Elephant gathering' },
+          { coords: [6.4108, 80.4580], title: 'Sinharaja Forest Reserve', category: 'adventure', desc: 'Rainforest biodiversity hotspot' },
+          { coords: [7.4653, 80.7782], title: 'Knuckles Mountain Range', category: 'hiking', desc: 'Scenic trails' },
+          { coords: [6.8667, 81.0465], title: 'Ella', category: 'hiking', desc: 'Little Adam\'s Peak & Nine Arches' },
+          { coords: [6.8097, 80.4990], title: 'Adam\'s Peak (Sri Pada)', category: 'hiking', desc: 'Sunrise pilgrimage hike' },
+          { coords: [6.8020, 80.7998], title: 'Horton Plains National Park', category: 'hiking', desc: 'World\'s End' }
+        ];
+
+        const categoryColors = {
+          safari: '#10B981',
+          hiking: '#3B82F6',
+          adventure: '#F59E0B'
+        };
+
+        const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+        const bounds = L.latLngBounds([]);
+
+        // Office marker in red with pulse animation
+        const officeLatLng = [6.9147, 79.8523];
+        const officeIcon = L.divIcon({
+          className: '',
+          html: '<div class="pulse-marker"><span class="ring"></span><span class="dot"></span></div>',
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+        const officeMarker = L.marker(officeLatLng, { icon: officeIcon }).addTo(map);
+        officeMarker.bindPopup('<strong>Office - Colombo 03</strong><br/>123 Wildlife Road, Colombo 03');
+        bounds.extend(officeLatLng);
+
+        // Category markers with tooltip showing name and category
+        points.forEach(p => {
+          const color = categoryColors[p.category] || '#22D3EE';
+          const marker = L.circleMarker(p.coords, {
+            radius: 7,
+            color,
+            weight: 2,
+            fillColor: color,
+            fillOpacity: 0.9
+          }).addTo(map);
+          marker.bindTooltip(`${p.title} • ${capitalize(p.category)}`, { direction: 'top', offset: [0, -8] });
+          marker.bindPopup(`<strong>${p.title}</strong><br/><em>Category: ${capitalize(p.category)}</em><br/>${p.desc}`);
+          bounds.extend(p.coords);
+        });
+
+        map.fitBounds(bounds, { padding: [30, 30] });
+      } catch (e) {
+        console.error('Map initialization failed:', e);
+      }
+    };
+
+    initMap();
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -366,11 +472,18 @@ const ContactUsPage = () => {
           <div className="mb-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               <h3 className="text-2xl font-abeze font-bold text-white mb-6 text-center">Find Us</h3>
-              <div className="bg-gray-800 rounded-lg h-64 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-6xl mb-4">🗺️</div>
-                  <p className="text-gray-300 font-abeze">Interactive Map Coming Soon</p>
-                  <p className="text-gray-400 font-abeze text-sm">123 Wildlife Road, Colombo 03, Sri Lanka</p>
+              <div className="bg-gray-800 rounded-lg overflow-hidden">
+                <div ref={mapContainerRef} className="w-full h-96" />
+                <div className="p-3 text-center">
+                  <a
+                    href="https://www.openstreetmap.org/#map=7/7.500/80.700"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-400 hover:text-green-300 font-abeze text-sm"
+                  >
+                    View on OpenStreetMap
+                  </a>
+                  <p className="text-gray-400 font-abeze text-xs mt-1">Explore safari, hiking, and adventure locations across Sri Lanka</p>
                 </div>
               </div>
             </div>
