@@ -46,6 +46,7 @@ const bookingSchema = new mongoose.Schema({
       'Pending',           // Initial state when booking is placed
       'Payment Confirmed', // Payment has been verified
       'Driver Assigned',   // Driver has been assigned to the booking
+      'Guide Assigned',    // Tour guide has been assigned to the booking
       'Confirmed',         // Booking confirmed by staff
       'In Progress',       // Safari is currently happening
       'Completed',         // Safari completed successfully
@@ -63,6 +64,19 @@ const bookingSchema = new mongoose.Schema({
     default: false
   },
   driverAcceptedAt: {
+    type: Date,
+    default: null
+  },
+  guideId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Staff',
+    default: null
+  },
+  guideAccepted: {
+    type: Boolean,
+    default: false
+  },
+  guideAcceptedAt: {
     type: Date,
     default: null
   },

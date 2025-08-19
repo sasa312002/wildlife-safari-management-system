@@ -184,6 +184,7 @@ export const staffLogin = async (req, res, next) => {
         role: staff.role,
         isActive: staff.isActive,
         profilePicture: staff.profilePicture,
+        basicSalary: staff.basicSalary,
         createdAt: staff.createdAt,
         updatedAt: staff.updatedAt
       };
