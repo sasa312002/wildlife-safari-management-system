@@ -439,6 +439,7 @@ const updateBookingStatus = async (req, res) => {
 };
 
 // Get pending bookings for drivers
+// Includes: (1) global available bookings (unassigned) and (2) bookings assigned by admin to this driver but not yet accepted
 const getPendingBookingsForDriver = async (req, res) => {
     try {
         const driverId = req.user._id;
@@ -452,8 +453,10 @@ const getPendingBookingsForDriver = async (req, res) => {
         }
         
         const pendingBookings = await Booking.find({ 
-            status: 'Payment Confirmed',
-            driverId: null
+            $or: [
+                { status: 'Payment Confirmed', driverId: null },
+                { status: 'Driver Assigned', driverId: driverId, driverAccepted: false }
+            ]
         })
         .populate('userId', 'firstName lastName email phone')
         .populate('packageId', 'title location category duration')
@@ -507,6 +510,9 @@ const getDriverAcceptedBookings = async (req, res) => {
 };
 
 // Driver accepts a booking
+// Supports two cases:
+// 1) Driver self-assigns an unassigned booking (Payment Confirmed, driverId null)
+// 2) Driver accepts an admin-assigned booking (Driver Assigned, driverId == driver, not yet accepted)
 const acceptBooking = async (req, res) => {
     try {
         const { bookingId } = req.params;
@@ -529,16 +535,26 @@ const acceptBooking = async (req, res) => {
             });
         }
         
-        // Check if booking is available for assignment
-        if (booking.status !== 'Payment Confirmed' || booking.driverId !== null) {
+        // Case 1: Unassigned, available booking
+        const canSelfAssign = booking.status === 'Payment Confirmed' && booking.driverId === null;
+        
+        // Case 2: Admin-assigned to this driver, not yet accepted
+        const isAssignedToThisDriver = booking.status === 'Driver Assigned' 
+            && booking.driverId 
+            && booking.driverId.toString() === driverId.toString() 
+            && !booking.driverAccepted;
+        
+        if (!canSelfAssign && !isAssignedToThisDriver) {
             return res.status(400).json({ 
                 success: false, 
-                message: "Booking is not available for assignment" 
+                message: "Booking is not available for you to accept" 
             });
         }
         
-        // Update booking with driver assignment
-        booking.driverId = driverId;
+        // Update booking with driver acceptance
+        if (canSelfAssign) {
+            booking.driverId = driverId;
+        }
         booking.driverAccepted = true;
         booking.driverAcceptedAt = new Date();
         booking.status = 'Driver Assigned';
@@ -629,6 +645,7 @@ const testDriverAuth = async (req, res) => {
 };
 
 // Get all available bookings for tour guides
+// Includes: (1) unassigned paid bookings, and (2) admin-assigned to this guide but not yet accepted
 const getAvailableBookingsForGuide = async (req, res) => {
     try {
         const guideId = req.user._id;
@@ -641,9 +658,11 @@ const getAvailableBookingsForGuide = async (req, res) => {
             });
         }
         
-        const availableBookings = await Booking.find({ 
-            status: 'Payment Confirmed',
-            guideId: null
+        const availableBookings = await Booking.find({
+            $or: [
+                { status: 'Payment Confirmed', guideId: null },
+                { status: 'Guide Assigned', guideId: guideId, guideAccepted: false }
+            ]
         })
         .populate('userId', 'firstName lastName email phone')
         .populate('packageId', 'title location category duration')
@@ -733,6 +752,9 @@ const getGuideCompletedBookings = async (req, res) => {
 };
 
 // Tour guide accepts a booking
+// Supports two cases:
+// 1) Self-assign unassigned paid booking
+// 2) Accept admin-assigned booking for this guide (not yet accepted)
 const acceptBookingAsGuide = async (req, res) => {
     try {
         const { bookingId } = req.params;
@@ -755,16 +777,22 @@ const acceptBookingAsGuide = async (req, res) => {
             });
         }
         
-        // Check if booking is available for assignment
-        if (booking.status !== 'Payment Confirmed' || booking.guideId !== null) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Booking is not available for assignment" 
+        const canSelfAssign = booking.status === 'Payment Confirmed' && booking.guideId === null;
+        const isAssignedToThisGuide = booking.status === 'Guide Assigned'
+            && booking.guideId
+            && booking.guideId.toString() === guideId.toString()
+            && !booking.guideAccepted;
+
+        if (!canSelfAssign && !isAssignedToThisGuide) {
+            return res.status(400).json({
+                success: false,
+                message: "Booking is not available for you to accept"
             });
         }
-        
-        // Update booking with guide assignment
-        booking.guideId = guideId;
+
+        if (canSelfAssign) {
+            booking.guideId = guideId;
+        }
         booking.guideAccepted = true;
         booking.guideAcceptedAt = new Date();
         booking.status = 'Guide Assigned';
@@ -866,6 +894,8 @@ const assignDriverToBooking = async (req, res) => {
         
         // Update booking with driver assignment
         booking.driverId = driverId;
+        booking.driverAccepted = false;
+        booking.driverAcceptedAt = null;
         booking.status = 'Driver Assigned';
         await booking.save();
         
@@ -916,6 +946,8 @@ const assignGuideToBooking = async (req, res) => {
         
         // Update booking with guide assignment
         booking.guideId = guideId;
+        booking.guideAccepted = false;
+        booking.guideAcceptedAt = null;
         booking.status = 'Guide Assigned';
         await booking.save();
         
