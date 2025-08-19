@@ -41,3 +41,44 @@ html {
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out;
 }
+
+/* Chatbot specific styles */
+.chatbot-message {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatbot-typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chatbot-typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6b7280;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.chatbot-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.chatbot-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes typing-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Ensure chatbot doesn't interfere with other elements */
+.chatbot-container {
+  pointer-events: auto;
+}
+
+.chatbot-container * {
+  pointer-events: auto;
+}
