@@ -155,7 +155,7 @@ const DriverDashboard = () => {
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
           <div className="flex items-center justify-between">
             <div>
@@ -212,19 +212,7 @@ const DriverDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-200 font-abeze text-sm">Rating</p>
-              <p className="text-3xl font-abeze font-bold text-white">{dashboardStats.averageRating}</p>
-            </div>
-            <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-              </svg>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       {/* Assigned Tasks */}
@@ -299,7 +287,9 @@ const DriverDashboard = () => {
               </tr>
             </thead>
             <tbody>
-                {pendingBookings.map((booking) => (
+                {pendingBookings
+                  .filter(booking => !(booking.driverId && !booking.driverAccepted))
+                  .map((booking) => (
                   <tr key={booking._id} className="border-b border-white/10">
                     <td className="py-3 px-4 text-white font-abeze">
                       {booking.userId?.firstName || 'N/A'} {booking.userId?.lastName || 'N/A'}
@@ -871,10 +861,10 @@ const DriverDashboard = () => {
       });
     }
 
-    // Calculate performance metrics
-    const averageRating = 4.8; // This could be calculated from actual ratings
     const totalTrips = completedBookings.length;
-    const onTimePercentage = 95; // This could be calculated from actual data
+    const formatCurrency = (value) => `Rs. ${Number(value || 0).toLocaleString()}`;
+    const maxMonthly = Math.max(1, ...monthlyData.map(d => d.earnings));
+    const hasAnyEarnings = monthlyData.some(d => d.earnings > 0);
 
     // Download functions
     const downloadCompletedTripsReport = () => {
@@ -910,19 +900,15 @@ const DriverDashboard = () => {
     const downloadSalaryReport = () => {
       const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       const baseSalary = 25000;
-      const tripBonus = totalEarnings;
       const totalSalary = baseSalary + monthlyEarnings;
 
       const reportData = {
         'Report Period': currentMonth,
         'Driver Name': `${user?.firstName || 'N/A'} ${user?.lastName || 'N/A'}`,
         'Base Salary (Rs.)': baseSalary.toLocaleString(),
-        'Trip Bonus (Rs.)': tripBonus.toLocaleString(),
         'Monthly Trip Bonus (Rs.)': monthlyEarnings.toLocaleString(),
         'Total Salary (Rs.)': totalSalary.toLocaleString(),
-        'Total Trips Completed': totalTrips,
-        'Average Rating': averageRating,
-        'On-time Performance': `${onTimePercentage}%`
+        'Total Trips Completed': totalTrips
       };
 
       const csvContent = [
@@ -944,12 +930,12 @@ const DriverDashboard = () => {
     return (
       <div className="space-y-6">
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-green-200 font-abeze text-sm">Total Earnings</p>
-                <p className="text-3xl font-abeze font-bold text-white">Rs. {totalEarnings.toLocaleString()}</p>
+                <p className="text-3xl font-abeze font-bold text-white">{formatCurrency(totalEarnings)}</p>
               </div>
               <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -963,7 +949,7 @@ const DriverDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-200 font-abeze text-sm">This Month</p>
-                <p className="text-3xl font-abeze font-bold text-white">Rs. {monthlyEarnings.toLocaleString()}</p>
+                <p className="text-3xl font-abeze font-bold text-white">{formatCurrency(monthlyEarnings)}</p>
               </div>
               <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -986,97 +972,36 @@ const DriverDashboard = () => {
               </div>
             </div>
           </div>
-
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-orange-200 font-abeze text-sm">Rating</p>
-                <p className="text-3xl font-abeze font-bold text-white">{averageRating}</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
-            </div>
-          </div>
         </div>
 
+        
+
         {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Monthly Earnings Chart */}
           <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
             <h3 className="text-xl font-abeze font-bold text-white mb-4">Monthly Earnings</h3>
-            <div className="space-y-4">
-              {monthlyData.map((data, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className="w-16 text-gray-300 font-abeze text-sm">{data.month}</div>
-                  <div className="flex-1 bg-gray-700 rounded-full h-4">
-                    <div 
-                      className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-500"
-                      style={{ 
-                        width: `${Math.max(10, (data.earnings / Math.max(...monthlyData.map(d => d.earnings))) * 100)}%` 
-                      }}
-                    ></div>
+            {hasAnyEarnings ? (
+              <div className="space-y-4">
+                {monthlyData.map((data, index) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <div className="w-16 text-gray-300 font-abeze text-sm">{data.month}</div>
+                    <div className="flex-1 bg-gray-700 rounded-full h-4">
+                      <div 
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 h-4 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(8, (data.earnings / maxMonthly) * 100)}%` }}
+                      ></div>
+                    </div>
+                    <div className="w-28 text-right text-white font-abeze text-sm">{formatCurrency(data.earnings)}</div>
                   </div>
-                  <div className="w-20 text-right text-white font-abeze text-sm">Rs. {data.earnings.toLocaleString()}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Performance Metrics */}
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-            <h3 className="text-xl font-abeze font-bold text-white mb-4">Performance Metrics</h3>
-            <div className="space-y-6">
-              {/* Rating */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-300 font-abeze">Customer Rating</span>
-                  <span className="text-white font-abeze font-medium">{averageRating}/5</span>
-                </div>
-                <div className="flex space-x-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg
-                      key={star}
-                      className={`w-5 h-5 ${star <= Math.floor(averageRating) ? 'text-yellow-400' : 'text-gray-600'}`}
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                </div>
+                ))}
               </div>
-
-              {/* On-time Percentage */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-300 font-abeze">On-time Performance</span>
-                  <span className="text-white font-abeze font-medium">{onTimePercentage}%</span>
-                </div>
-                <div className="bg-gray-700 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-green-500 to-green-400 h-3 rounded-full transition-all duration-500"
-                    style={{ width: `${onTimePercentage}%` }}
-                  ></div>
-                </div>
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-gray-300 font-abeze">No completed trips in the past 6 months.</p>
+                <p className="text-gray-400 font-abeze text-sm">Earnings will appear here once trips are completed.</p>
               </div>
-
-              {/* Trip Completion */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-300 font-abeze">Trip Completion Rate</span>
-                  <span className="text-white font-abeze font-medium">100%</span>
-                </div>
-                <div className="bg-gray-700 rounded-full h-3">
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-blue-400 h-3 rounded-full transition-all duration-500"
-                    style={{ width: '100%' }}
-                  ></div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
@@ -1110,6 +1035,10 @@ const DriverDashboard = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-gray-300 font-abeze text-sm">Trips: {completedBookings.length}</span>
+                <span className="text-gray-300 font-abeze text-sm">Total Earned: {formatCurrency(totalEarnings)}</span>
+              </div>
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/20">
