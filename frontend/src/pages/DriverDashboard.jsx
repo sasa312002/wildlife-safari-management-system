@@ -145,6 +145,13 @@ const DriverDashboard = () => {
     averageRating: 4.8 // This could be calculated from actual ratings if available
   };
 
+  // Get assigned but not yet accepted bookings
+  const getAssignedBookings = () => {
+    return pendingBookings.filter(booking => 
+      booking.driverId && !booking.driverAccepted
+    );
+  };
+
   const renderDashboard = () => (
     <div className="space-y-6">
       {/* Stats Cards */}
@@ -219,6 +226,53 @@ const DriverDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Assigned Tasks */}
+      {getAssignedBookings().length > 0 && (
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+          <h3 className="text-xl font-abeze font-bold text-white mb-4 flex items-center">
+            <svg className="w-5 h-5 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Assigned Tasks (Pending Acceptance)
+          </h3>
+          <div className="space-y-4">
+            {getAssignedBookings().map((booking) => (
+              <div key={booking._id} className="flex items-center justify-between p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-white font-abeze font-medium">
+                      {booking.userId?.firstName} {booking.userId?.lastName}
+                    </h4>
+                    <p className="text-gray-300 font-abeze text-sm">
+                      {booking.packageDetails?.title || booking.packageId?.title} • {new Date(booking.bookingDetails?.startDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-gray-400 font-abeze text-xs">
+                      {booking.bookingDetails?.numberOfPeople} guests • Assigned by Admin
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleAcceptBooking(booking._id)}
+                  disabled={acceptingBooking === booking._id}
+                  className={`px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                    acceptingBooking === booking._id
+                      ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
+                      : 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                  }`}
+                >
+                  {acceptingBooking === booking._id ? 'Accepting...' : 'Accept Assignment'}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Available Bookings */}
       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">

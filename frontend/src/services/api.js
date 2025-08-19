@@ -116,6 +116,10 @@ export const contactMessageApi = {
     const { data } = await api.put(`/api/contact-messages/${id}`, payload);
     return data;
   },
+  async replyToContactMessage(id, replyMessage) {
+    const { data } = await api.post(`/api/contact-messages/${id}/reply`, { replyMessage });
+    return data;
+  },
   async deleteContactMessage(id) {
     const { data } = await api.delete(`/api/contact-messages/${id}`);
     return data;
@@ -279,6 +283,19 @@ export const bookingApi = {
   },
   async completeTourAsGuide(bookingId) {
     const { data } = await api.post(`/api/bookings/guide/complete/${bookingId}`);
+    return data;
+  },
+  // Admin assignment functions
+  async assignDriverToBooking(bookingId, driverId) {
+    const { data } = await api.post(`/api/bookings/admin/assign-driver/${bookingId}`, { driverId });
+    return data;
+  },
+  async assignGuideToBooking(bookingId, guideId) {
+    const { data } = await api.post(`/api/bookings/admin/assign-guide/${bookingId}`, { guideId });
+    return data;
+  },
+  async completeBookingByAdmin(bookingId) {
+    const { data } = await api.post(`/api/bookings/admin/complete/${bookingId}`);
     return data;
   },
 };

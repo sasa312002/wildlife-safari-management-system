@@ -6,6 +6,9 @@ const ContactMessages = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [replyMessage, setReplyMessage] = useState('');
+  const [replying, setReplying] = useState(false);
   const [stats, setStats] = useState({});
   const [filters, setFilters] = useState({
     status: '',
@@ -92,6 +95,34 @@ const ContactMessages = () => {
       setShowModal(true);
     } catch (error) {
       console.error('Error loading message details:', error);
+    }
+  };
+
+  const openReplyModal = (message) => {
+    setSelectedMessage(message);
+    setReplyMessage('');
+    setShowReplyModal(true);
+  };
+
+  const handleReply = async () => {
+    if (!replyMessage.trim()) {
+      alert('Please enter a reply message');
+      return;
+    }
+
+    try {
+      setReplying(true);
+      await contactMessageApi.replyToContactMessage(selectedMessage._id, replyMessage);
+      setShowReplyModal(false);
+      setReplyMessage('');
+      loadMessages();
+      loadStats();
+      alert('Reply sent successfully!');
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Failed to send reply. Please try again.');
+    } finally {
+      setReplying(false);
     }
   };
 
@@ -315,6 +346,14 @@ const ContactMessages = () => {
                         >
                           View
                         </button>
+                        {message.status !== 'replied' && (
+                          <button
+                            onClick={() => openReplyModal(message)}
+                            className="px-3 py-1 bg-green-500/20 text-green-400 hover:bg-green-500/30 rounded text-xs font-abeze transition-colors"
+                          >
+                            Reply
+                          </button>
+                        )}
                         <button
                           onClick={() => handleDelete(message._id)}
                           className="px-3 py-1 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded text-xs font-abeze transition-colors"
@@ -415,9 +454,14 @@ const ContactMessages = () => {
                 </div>
                 
                 {selectedMessage.adminNotes && (
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
-                    <h4 className="font-medium text-green-200 font-abeze mb-2">Admin Notes</h4>
-                    <p className="text-white font-abeze">{selectedMessage.adminNotes}</p>
+                  <div className="bg-green-500/10 backdrop-blur-md rounded-xl p-4 border border-green-500/20">
+                    <h4 className="font-medium text-green-200 font-abeze mb-2">Admin Response</h4>
+                    <p className="text-green-200 font-abeze whitespace-pre-wrap">{selectedMessage.adminNotes}</p>
+                    {selectedMessage.repliedBy && (
+                      <p className="text-green-300 font-abeze text-sm mt-2">
+                        Replied by: {selectedMessage.repliedBy.firstName} {selectedMessage.repliedBy.lastName}
+                      </p>
+                    )}
                   </div>
                 )}
                 
@@ -427,6 +471,100 @@ const ContactMessages = () => {
                     <p className="text-white font-abeze">{formatDate(selectedMessage.repliedAt)}</p>
                   </div>
                 )}
+
+                {/* Reply Button */}
+                {!selectedMessage.adminNotes && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => {
+                        setShowModal(false);
+                        openReplyModal(selectedMessage);
+                      }}
+                      className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-abeze font-medium transition-colors"
+                    >
+                      Reply to Message
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reply Modal */}
+      {showReplyModal && selectedMessage && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full border border-gray-700">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-abeze font-bold text-white">Reply to Message</h3>
+                    <p className="text-gray-400 font-abeze">From: {selectedMessage.firstName} {selectedMessage.lastName}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowReplyModal(false)}
+                  className="text-gray-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Original Message */}
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+                  <h4 className="font-medium text-green-200 font-abeze mb-2">Original Message</h4>
+                  <p className="text-white font-abeze whitespace-pre-wrap">{selectedMessage.message}</p>
+                </div>
+
+                {/* Reply Form */}
+                <div>
+                  <label className="block text-green-200 font-abeze font-medium mb-2">
+                    Your Reply *
+                  </label>
+                  <textarea
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                    placeholder="Type your reply here..."
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:border-green-400 focus:outline-none transition-colors resize-none"
+                    rows={6}
+                    maxLength={500}
+                  />
+                  <div className="text-right mt-2">
+                    <span className="text-gray-400 text-sm font-abeze">
+                      {replyMessage.length}/500 characters
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => setShowReplyModal(false)}
+                  className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-abeze font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReply}
+                  disabled={replying || !replyMessage.trim()}
+                  className={`px-6 py-2 rounded-lg font-abeze font-medium transition-colors ${
+                    replying || !replyMessage.trim()
+                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700 text-white'
+                  }`}
+                >
+                  {replying ? 'Sending...' : 'Send Reply'}
+                </button>
               </div>
             </div>
           </div>

@@ -10,6 +10,7 @@ import EditStaffModal from '../components/EditStaffModal';
 import ContactMessages from '../components/ContactMessages';
 import Attendance from '../components/Attendance';
 import Payroll from '../components/Payroll';
+import AssignmentModal from '../components/AssignmentModal';
 
 const AdminPage = () => {
   const { user, logout } = useAuth();
@@ -37,6 +38,8 @@ const AdminPage = () => {
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showAssignmentModal, setShowAssignmentModal] = useState(false);
+  const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
 
   const handleLogout = () => {
     logout();
@@ -330,6 +333,19 @@ const AdminPage = () => {
       console.error('Failed to delete review', error);
       alert('Failed to delete review');
     }
+  };
+
+  const handleAssignStaff = (booking) => {
+    setSelectedBookingForAssignment(booking);
+    setShowAssignmentModal(true);
+  };
+
+  const handleAssignmentComplete = (updatedBooking) => {
+    // Update the booking in the local state
+    setBookings(prev => prev.map(b => 
+      b._id === updatedBooking._id ? updatedBooking : b
+    ));
+    setSelectedBookingForAssignment(null);
   };
 
   // Calculate dashboard stats from real data
@@ -930,6 +946,7 @@ const AdminPage = () => {
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Total Price</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Payment</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Staff Assignment</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Actions</th>
                 </tr>
               </thead>
@@ -982,18 +999,60 @@ const AdminPage = () => {
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      <select
-                        value={booking.status}
-                        onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
-                        className="bg-white/10 border border-white/20 text-white text-xs rounded px-2 py-1 font-abeze"
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Payment Confirmed">Payment Confirmed</option>
-                        <option value="Confirmed">Confirmed</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Cancelled">Cancelled</option>
-                      </select>
+                      <div className="space-y-1">
+                        {booking.driverId ? (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-blue-400 text-xs">🚗</span>
+                            <span className="text-white text-xs font-abeze">
+                              {booking.driverId?.firstName} {booking.driverId?.lastName}
+                            </span>
+                            <span className={`px-1 py-0.5 rounded text-xs ${
+                              booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {booking.driverAccepted ? 'Accepted' : 'Pending'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">No driver assigned</span>
+                        )}
+                        {booking.guideId ? (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-green-400 text-xs">👨‍💼</span>
+                            <span className="text-white text-xs font-abeze">
+                              {booking.guideId?.firstName} {booking.guideId?.lastName}
+                            </span>
+                            <span className={`px-1 py-0.5 rounded text-xs ${
+                              booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {booking.guideAccepted ? 'Accepted' : 'Pending'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 text-xs">No tour guide assigned</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="py-4 px-6">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => handleAssignStaff(booking)}
+                          className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-xs font-abeze transition-colors"
+                        >
+                          Assign Staff
+                        </button>
+                        <select
+                          value={booking.status}
+                          onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
+                          className="bg-white/10 border border-white/20 text-white text-xs rounded px-2 py-1 font-abeze"
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Payment Confirmed">Payment Confirmed</option>
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -1075,15 +1134,7 @@ const AdminPage = () => {
                 <p className="text-gray-400 text-xs">Administrator</p>
               </div>
             )}
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-colors"
-              title="Logout"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
+
           </div>
         </div>
       </div>
@@ -1101,7 +1152,7 @@ const AdminPage = () => {
                 Welcome back, {user?.firstName} {user?.lastName}
               </p>
             </div>
-            <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-4">
               {/* Mobile menu button */}
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -1112,12 +1163,15 @@ const AdminPage = () => {
                 </svg>
               </button>
               
-              {/* Notifications */}
-              <button className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white transition-colors relative">
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-colors"
+                title="Logout"
+              >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM4.19 4.19A4 4 0 014 6v6m0 0v6a4 4 0 004 4h6a4 4 0 004-4v-6m-8-4a4 4 0 00-4-4H6a4 4 0 00-4 4v6h8V6z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
               </button>
             </div>
           </div>
@@ -1465,6 +1519,19 @@ const AdminPage = () => {
             setSelectedStaff(null);
           }}
           onStaffUpdated={handleStaffUpdated}
+        />
+      )}
+
+      {/* Assignment Modal */}
+      {showAssignmentModal && selectedBookingForAssignment && (
+        <AssignmentModal
+          isOpen={showAssignmentModal}
+          onClose={() => {
+            setShowAssignmentModal(false);
+            setSelectedBookingForAssignment(null);
+          }}
+          booking={selectedBookingForAssignment}
+          onAssignmentComplete={handleAssignmentComplete}
         />
       )}
     </div>

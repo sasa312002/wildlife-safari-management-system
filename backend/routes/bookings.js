@@ -15,7 +15,10 @@ import {
     getGuideAcceptedBookings,
     getGuideCompletedBookings,
     acceptBookingAsGuide,
-    completeTourAsGuide
+    completeTourAsGuide,
+    assignDriverToBooking,
+    assignGuideToBooking,
+    completeBookingByAdmin
 } from '../controllers/bookingController.js';
 import { authenticateToken as auth } from '../middleware/auth.js';
 
@@ -44,5 +47,10 @@ bookingRouter.get('/guide/accepted', auth, getGuideAcceptedBookings);
 bookingRouter.get('/guide/completed', auth, getGuideCompletedBookings);
 bookingRouter.post('/guide/accept/:bookingId', auth, acceptBookingAsGuide);
 bookingRouter.post('/guide/complete/:bookingId', auth, completeTourAsGuide);
+
+// Admin routes (require authentication and admin role)
+bookingRouter.post('/admin/assign-driver/:bookingId', auth, assignDriverToBooking);
+bookingRouter.post('/admin/assign-guide/:bookingId', auth, assignGuideToBooking);
+bookingRouter.post('/admin/complete/:bookingId', auth, completeBookingByAdmin);
 
 export default bookingRouter;

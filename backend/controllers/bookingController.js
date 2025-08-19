@@ -833,6 +833,154 @@ const completeTourAsGuide = async (req, res) => {
     }
 };
 
+// Admin assigns driver to booking
+const assignDriverToBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const { driverId } = req.body;
+        
+        // Verify the user is an admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only admins can assign drivers." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking is in a state where driver can be assigned
+        if (booking.status !== 'Payment Confirmed' && booking.status !== 'Pending') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Booking is not in a state where driver can be assigned" 
+            });
+        }
+        
+        // Update booking with driver assignment
+        booking.driverId = driverId;
+        booking.status = 'Driver Assigned';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Driver assigned successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Assign driver error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Admin assigns guide to booking
+const assignGuideToBooking = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const { guideId } = req.body;
+        
+        // Verify the user is an admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only admins can assign guides." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking is in a state where guide can be assigned
+        if (booking.status !== 'Payment Confirmed' && booking.status !== 'Pending' && booking.status !== 'Driver Assigned') {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Booking is not in a state where guide can be assigned" 
+            });
+        }
+        
+        // Update booking with guide assignment
+        booking.guideId = guideId;
+        booking.status = 'Guide Assigned';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Guide assigned successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Assign guide error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Admin completes booking (only when both driver and guide have accepted)
+const completeBookingByAdmin = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        
+        // Verify the user is an admin
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only admins can complete bookings." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if both driver and guide have accepted
+        if (!booking.driverAccepted || !booking.guideAccepted) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Cannot complete booking. Both driver and guide must accept first." 
+            });
+        }
+        
+        // Update booking status to confirmed
+        booking.status = 'Confirmed';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Booking completed successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Complete booking by admin error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
 export { 
     createStripeCheckout, 
     verifyStripePayment, 
@@ -849,5 +997,8 @@ export {
     getGuideAcceptedBookings,
     getGuideCompletedBookings,
     acceptBookingAsGuide,
-    completeTourAsGuide
+    completeTourAsGuide,
+    assignDriverToBooking,
+    assignGuideToBooking,
+    completeBookingByAdmin
 };

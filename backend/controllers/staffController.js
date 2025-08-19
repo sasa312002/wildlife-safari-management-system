@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Staff from "../models/Staff.js";
 import { uploadToImgBB } from "../config/imgbb.js";
 import jwt from "jsonwebtoken";
@@ -74,8 +75,8 @@ export const createStaff = async (req, res, next) => {
       role,
       specialization,
       experience: Number(experience) || 0,
-      licenseNumber,
-      createdBy: req.user._id
+      licenseNumber
+      // createdBy field is optional and will be null by default
     });
 
     // Return staff data without password

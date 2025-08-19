@@ -158,6 +158,52 @@ const updateContactMessage = async (req, res) => {
   }
 };
 
+// Reply to a contact message (admin only)
+const replyToContactMessage = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { replyMessage } = req.body;
+
+    if (!replyMessage || replyMessage.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'Reply message is required'
+      });
+    }
+
+    const contactMessage = await ContactMessage.findByIdAndUpdate(
+      id,
+      {
+        adminNotes: replyMessage,
+        status: 'replied',
+        repliedAt: new Date(),
+        repliedBy: req.user.id
+      },
+      { new: true, runValidators: true }
+    ).populate('repliedBy', 'firstName lastName email');
+
+    if (!contactMessage) {
+      return res.status(404).json({
+        success: false,
+        message: 'Contact message not found'
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Reply sent successfully',
+      data: contactMessage
+    });
+  } catch (error) {
+    console.error('Error replying to contact message:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send reply',
+      error: error.message
+    });
+  }
+};
+
 // Delete a contact message
 const deleteContactMessage = async (req, res) => {
   try {
@@ -234,6 +280,8 @@ const getUserContactMessages = async (req, res) => {
     const { email } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
+    console.log('Fetching messages for email:', email);
+
     const options = {
       page: parseInt(page),
       limit: parseInt(limit),
@@ -242,7 +290,11 @@ const getUserContactMessages = async (req, res) => {
 
     const filter = { email: email.toLowerCase() };
 
+    console.log('Filter:', filter);
+
     const contactMessages = await ContactMessage.paginate(filter, options);
+
+    console.log('Found messages:', contactMessages.docs?.length || 0);
 
     res.status(200).json({
       success: true,
@@ -263,6 +315,7 @@ export {
   getAllContactMessages,
   getContactMessageById,
   updateContactMessage,
+  replyToContactMessage,
   deleteContactMessage,
   getContactMessageStats,
   getUserContactMessages

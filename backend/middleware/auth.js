@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 import User from "../models/User.js";
 import Staff from "../models/Staff.js";
 
@@ -20,9 +21,11 @@ export const authenticateToken = async (req, res, next) => {
     
     // Special handling for admin@mufasa.com
     if (decoded.email === 'admin@mufasa.com' && decoded.role === 'admin') {
+      // Create a proper ObjectId for admin user
+      const adminId = new mongoose.Types.ObjectId();
       req.user = {
-        _id: decoded.userId,
-        id: decoded.userId,
+        _id: adminId,
+        id: adminId,
         firstName: 'Admin',
         lastName: 'User',
         email: 'admin@mufasa.com',
