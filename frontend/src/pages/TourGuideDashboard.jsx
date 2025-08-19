@@ -1,12 +1,77 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-
+import { bookingApi } from '../services/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 const TourGuideDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [availableBookings, setAvailableBookings] = useState([]);
+  const [acceptedBookings, setAcceptedBookings] = useState([]);
+  const [completedBookings, setCompletedBookings] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
+
+  const loadDashboardData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [availableRes, acceptedRes, completedRes] = await Promise.all([
+        bookingApi.getAvailableBookingsForGuide(),
+        bookingApi.getGuideAcceptedBookings(),
+        bookingApi.getGuideCompletedBookings()
+      ]);
+
+      if (availableRes.success) setAvailableBookings(availableRes.bookings);
+      if (acceptedRes.success) setAcceptedBookings(acceptedRes.bookings);
+      if (completedRes.success) setCompletedBookings(completedRes.bookings);
+    } catch (err) {
+      setError('Failed to load dashboard data');
+      console.error('Dashboard data loading error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAcceptBooking = async (bookingId) => {
+    try {
+      setLoading(true);
+      const response = await bookingApi.acceptBookingAsGuide(bookingId);
+      if (response.success) {
+        // Reload data to reflect changes
+        await loadDashboardData();
+      }
+    } catch (err) {
+      setError('Failed to accept booking');
+      console.error('Accept booking error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompleteTour = async (bookingId) => {
+    try {
+      setLoading(true);
+      const response = await bookingApi.completeTourAsGuide(bookingId);
+      if (response.success) {
+        // Reload data to reflect changes
+        await loadDashboardData();
+      }
+    } catch (err) {
+      setError('Failed to complete tour');
+      console.error('Complete tour error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -17,32 +82,123 @@ const TourGuideDashboard = () => {
     setActiveTab(tab);
   };
 
-  // Mock data for demonstration
+  // Calculate dashboard statistics
   const dashboardStats = {
-    totalTours: 38,
-    completedTours: 35,
-    upcomingTours: 3,
-    totalGuests: 156,
-    averageRating: 4.9
+    totalTours: acceptedBookings.length + completedBookings.length,
+    completedTours: completedBookings.length,
+    upcomingTours: acceptedBookings.length,
+    totalGuests: [...acceptedBookings, ...completedBookings].reduce((sum, booking) => sum + booking.bookingDetails.numberOfPeople, 0),
+    averageRating: 4.9 // This would come from reviews in a real implementation
   };
 
-  const upcomingTours = [
-    { id: 1, customer: 'John Doe', destination: 'Yala National Park', date: '2024-01-15', time: '06:00 AM', guests: 4, status: 'Confirmed' },
-    { id: 2, customer: 'Jane Smith', destination: 'Wilpattu National Park', date: '2024-01-16', time: '05:30 AM', guests: 2, status: 'Confirmed' },
-    { id: 3, customer: 'Mike Johnson', destination: 'Udawalawe National Park', date: '2024-01-17', time: '07:00 AM', guests: 6, status: 'Pending' },
-  ];
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
-  const recentTours = [
-    { id: 1, customer: 'Sarah Wilson', destination: 'Yala National Park', date: '2024-01-14', guests: 3, rating: 5, feedback: 'Amazing wildlife sightings! Our guide was incredibly knowledgeable.' },
-    { id: 2, customer: 'David Brown', destination: 'Wilpattu National Park', date: '2024-01-13', guests: 2, rating: 5, feedback: 'Excellent tour guide, very informative about the wildlife.' },
-    { id: 3, customer: 'Lisa Davis', destination: 'Udawalawe National Park', date: '2024-01-12', guests: 4, rating: 5, feedback: 'Best safari experience ever! Great guide!' },
-  ];
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
-  const wildlifeSightings = [
-    { id: 1, animal: 'Leopard', location: 'Yala National Park', date: '2024-01-14', time: '08:30 AM', notes: 'Male leopard near waterhole' },
-    { id: 2, animal: 'Elephant Herd', location: 'Udawalawe National Park', date: '2024-01-13', time: '09:15 AM', notes: 'Family of 8 elephants' },
-    { id: 3, animal: 'Sloth Bear', location: 'Wilpattu National Park', date: '2024-01-12', time: '07:45 AM', notes: 'Solo bear foraging' },
-  ];
+  // Generate monthly chart data for the last 12 months
+  const generateMonthlyChartData = () => {
+    const months = [];
+    const currentDate = new Date();
+    
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      const year = date.getFullYear();
+      
+      // Count completed bookings for this month
+      const monthBookings = completedBookings.filter(booking => {
+        const completionDate = new Date(booking.updatedAt);
+        return completionDate.getMonth() === date.getMonth() && 
+               completionDate.getFullYear() === date.getFullYear();
+      });
+      
+      months.push({
+        month: `${monthName} ${year}`,
+        bookings: monthBookings.length,
+        guests: monthBookings.reduce((sum, booking) => sum + booking.bookingDetails.numberOfPeople, 0),
+        earnings: monthBookings.reduce((sum, booking) => sum + (booking.bookingDetails.numberOfPeople * 7500), 0) // Rs. 7500 per guest
+      });
+    }
+    
+    return months;
+  };
+
+  const downloadReport = () => {
+    const monthlyData = generateMonthlyChartData();
+    const currentMonth = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    
+    // Calculate current month statistics
+    const currentMonthData = monthlyData[monthlyData.length - 1];
+    const baseSalary = user?.basicSalary || 50000;
+    const commissionPerGuest = 7500; // Rs. 7500 per guest
+    const monthlyGuests = currentMonthData.guests;
+    const monthlyCommission = monthlyGuests * commissionPerGuest;
+    const totalMonthlySalary = baseSalary + monthlyCommission;
+
+    // Create report content
+    const reportContent = `
+TOUR GUIDE MONTHLY REPORT
+Generated on: ${new Date().toLocaleDateString()}
+Tour Guide: ${user?.firstName} ${user?.lastName}
+Email: ${user?.email}
+
+MONTHLY OVERVIEW - ${currentMonth}
+===========================================
+Total Tours Completed: ${currentMonthData.bookings}
+Total Guests: ${monthlyGuests}
+Base Salary: Rs. ${baseSalary.toLocaleString()}
+Commission (Rs. ${commissionPerGuest.toLocaleString()} per guest): Rs. ${monthlyCommission.toLocaleString()}
+Total Monthly Salary: Rs. ${totalMonthlySalary.toLocaleString()}
+
+MONTHLY TREND (Last 12 Months)
+===========================================
+${monthlyData.map(data => 
+  `${data.month}: ${data.bookings} tours, ${data.guests} guests, Rs. ${data.earnings.toLocaleString()} earnings`
+).join('\n')}
+
+DETAILED TOUR BREAKDOWN - ${currentMonth}
+===========================================
+${completedBookings
+  .filter(booking => {
+    const completionDate = new Date(booking.updatedAt);
+    const currentDate = new Date();
+    return completionDate.getMonth() === currentDate.getMonth() && 
+           completionDate.getFullYear() === currentDate.getFullYear();
+  })
+  .map((booking, index) => 
+    `${index + 1}. ${booking.userId.firstName} ${booking.userId.lastName}
+     Package: ${booking.packageId.title}
+     Date: ${formatDate(booking.bookingDetails.startDate)}
+     Guests: ${booking.bookingDetails.numberOfPeople}
+     Commission: Rs. ${(booking.bookingDetails.numberOfPeople * commissionPerGuest).toLocaleString()}`
+  ).join('\n\n')}
+
+---
+Report generated by Wildlife Safari Management System
+    `;
+
+    // Create and download file
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tour-guide-report-${currentMonth.replace(' ', '-')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  };
 
   const renderDashboard = () => (
     <div className="space-y-6">
@@ -65,12 +221,12 @@ const TourGuideDashboard = () => {
         <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-blue-200 font-abeze text-sm">Completed</p>
-              <p className="text-3xl font-abeze font-bold text-white">{dashboardStats.completedTours}</p>
+              <p className="text-blue-200 font-abeze text-sm">Upcoming</p>
+              <p className="text-3xl font-abeze font-bold text-white">{dashboardStats.upcomingTours}</p>
             </div>
             <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
@@ -79,12 +235,12 @@ const TourGuideDashboard = () => {
         <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-yellow-200 font-abeze text-sm">Upcoming</p>
-              <p className="text-3xl font-abeze font-bold text-white">{dashboardStats.upcomingTours}</p>
+              <p className="text-yellow-200 font-abeze text-sm">Completed</p>
+              <p className="text-3xl font-abeze font-bold text-white">{dashboardStats.completedTours}</p>
             </div>
             <div className="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center">
               <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
           </div>
@@ -119,116 +275,348 @@ const TourGuideDashboard = () => {
         </div>
       </div>
 
-      {/* Upcoming Tours */}
+      {/* Available Bookings */}
       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-abeze font-bold text-white mb-4">Upcoming Tours</h3>
+        <h3 className="text-xl font-abeze font-bold text-white mb-4">Available Bookings</h3>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+            <p className="text-gray-300 mt-4">Loading available bookings...</p>
+          </div>
+        ) : availableBookings.length === 0 ? (
+          <p className="text-gray-300 text-center py-8">No available bookings at the moment.</p>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/20">
                 <th className="text-left py-3 px-4 text-green-200 font-abeze">Customer</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Destination</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Date</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Time</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Package</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Start Date</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">End Date</th>
                 <th className="text-left py-3 px-4 text-green-200 font-abeze">Guests</th>
-                <th className="text-left py-3 px-4 text-green-200 font-abeze">Status</th>
+                  <th className="text-left py-3 px-4 text-green-200 font-abeze">Action</th>
               </tr>
             </thead>
             <tbody>
-              {upcomingTours.map((tour) => (
-                <tr key={tour.id} className="border-b border-white/10">
-                  <td className="py-3 px-4 text-white font-abeze">{tour.customer}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{tour.destination}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{tour.date}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{tour.time}</td>
-                  <td className="py-3 px-4 text-white font-abeze">{tour.guests}</td>
+                {availableBookings.map((booking) => (
+                  <tr key={booking._id} className="border-b border-white/10">
+                    <td className="py-3 px-4 text-white font-abeze">
+                      {booking.userId.firstName} {booking.userId.lastName}
+                    </td>
+                    <td className="py-3 px-4 text-white font-abeze">{booking.packageId.title}</td>
+                    <td className="py-3 px-4 text-white font-abeze">{formatDate(booking.bookingDetails.startDate)}</td>
+                    <td className="py-3 px-4 text-white font-abeze">{formatDate(booking.bookingDetails.endDate)}</td>
+                    <td className="py-3 px-4 text-white font-abeze">{booking.bookingDetails.numberOfPeople}</td>
                   <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                      tour.status === 'Confirmed' 
-                        ? 'bg-green-500/20 text-green-400' 
-                        : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {tour.status}
-                    </span>
+                      <button
+                        onClick={() => handleAcceptBooking(booking._id)}
+                        disabled={loading}
+                        className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+                      >
+                        Accept
+                      </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
-      {/* Recent Tours */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-abeze font-bold text-white mb-4">Recent Tours</h3>
-        <div className="space-y-4">
-          {recentTours.map((tour) => (
-            <div key={tour.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div>
-                  <h4 className="text-white font-abeze font-medium">{tour.customer}</h4>
-                  <p className="text-gray-300 font-abeze text-sm">{tour.destination} • {tour.date} • {tour.guests} guests</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <span className="text-yellow-400">★</span>
-                  <span className="text-white font-abeze">{tour.rating}</span>
-                </div>
-                <div className="text-gray-300 font-abeze text-sm max-w-xs truncate">
-                  "{tour.feedback}"
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-xl p-4">
+          <p className="text-red-400 font-abeze">{error}</p>
         </div>
-      </div>
-
-      {/* Recent Wildlife Sightings */}
-      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-        <h3 className="text-xl font-abeze font-bold text-white mb-4">Recent Wildlife Sightings</h3>
-        <div className="space-y-4">
-          {wildlifeSightings.map((sighting) => (
-            <div key={sighting.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <h4 className="text-white font-abeze font-medium">{sighting.animal}</h4>
-                  <p className="text-gray-300 font-abeze text-sm">{sighting.location} • {sighting.date} at {sighting.time}</p>
-                  <p className="text-gray-400 font-abeze text-xs">{sighting.notes}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 
   const renderSchedule = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Tour Schedule</h3>
-      <p className="text-gray-300 font-abeze">Tour schedule management functionality will be implemented here.</p>
+    <div className="space-y-6">
+      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <h3 className="text-xl font-abeze font-bold text-white mb-4">My Tour Schedule</h3>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+            <p className="text-gray-300 mt-4">Loading schedule...</p>
+          </div>
+        ) : acceptedBookings.length === 0 ? (
+          <p className="text-gray-300 text-center py-8">No upcoming tours scheduled.</p>
+        ) : (
+        <div className="space-y-4">
+            {acceptedBookings.map((booking) => (
+              <div key={booking._id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+              <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                <div>
+                    <h4 className="text-white font-abeze font-medium">
+                      {booking.userId.firstName} {booking.userId.lastName}
+                    </h4>
+                    <p className="text-gray-300 font-abeze text-sm">
+                      {booking.packageId.title} • {formatDate(booking.bookingDetails.startDate)} - {formatDate(booking.bookingDetails.endDate)}
+                    </p>
+                    <p className="text-gray-400 font-abeze text-xs">
+                      {booking.bookingDetails.numberOfPeople} guests • {booking.packageId.location}
+                    </p>
+                </div>
+              </div>
+                <button
+                  onClick={() => handleCompleteTour(booking._id)}
+                  disabled={loading}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+                >
+                  Complete Tour
+                </button>
+            </div>
+          ))}
+          </div>
+        )}
+        </div>
+      </div>
+  );
+
+  const renderCompleted = () => (
+    <div className="space-y-6">
+      <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+        <h3 className="text-xl font-abeze font-bold text-white mb-4">Completed Tours</h3>
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+            <p className="text-gray-300 mt-4">Loading completed tours...</p>
+          </div>
+        ) : completedBookings.length === 0 ? (
+          <p className="text-gray-300 text-center py-8">No completed tours yet.</p>
+        ) : (
+        <div className="space-y-4">
+            {completedBookings.map((booking) => (
+              <div key={booking._id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                    <h4 className="text-white font-abeze font-medium">
+                      {booking.userId.firstName} {booking.userId.lastName}
+                    </h4>
+                    <p className="text-gray-300 font-abeze text-sm">
+                      {booking.packageId.title} • {formatDate(booking.bookingDetails.startDate)} - {formatDate(booking.bookingDetails.endDate)}
+                    </p>
+                    <p className="text-gray-400 font-abeze text-xs">
+                      {booking.bookingDetails.numberOfPeople} guests • {booking.packageId.location}
+                    </p>
+                </div>
+              </div>
+                <div className="text-right">
+                  <span className="text-green-400 font-abeze text-sm">Completed</span>
+                  <p className="text-gray-400 font-abeze text-xs">
+                    {formatDate(booking.updatedAt)}
+                  </p>
+                </div>
+            </div>
+          ))}
+        </div>
+        )}
+      </div>
     </div>
   );
 
-  const renderKnowledge = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Knowledge Base</h3>
-      <p className="text-gray-300 font-abeze">Wildlife knowledge and tour guide resources will be implemented here.</p>
-    </div>
-  );
+  const renderReports = () => {
+    // Calculate monthly statistics
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    const monthlyCompletedBookings = completedBookings.filter(booking => {
+      const completionDate = new Date(booking.updatedAt);
+      return completionDate.getMonth() === currentMonth && completionDate.getFullYear() === currentYear;
+    });
 
-  const renderReports = () => (
+    const monthlyGuests = monthlyCompletedBookings.reduce((sum, booking) => 
+      sum + booking.bookingDetails.numberOfPeople, 0
+    );
+
+    // Calculate salary in Sri Lankan Rupees
+    const commissionPerGuest = 7500; // Rs. 7500 per guest
+    const monthlySalary = monthlyGuests * commissionPerGuest;
+    const baseSalary = (user?.basicSalary || 50000) * 3.5; // Convert to LKR (assuming 1 USD = 350 LKR)
+    const totalMonthlySalary = baseSalary + monthlySalary;
+
+    const chartData = generateMonthlyChartData();
+
+    return (
+      <div className="space-y-6">
+        {/* Download Report Button */}
+        <div className="flex justify-end">
+          <button
+            onClick={downloadReport}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Download Report</span>
+          </button>
+        </div>
+
+        {/* Monthly Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-blue-200 font-abeze text-sm">Monthly Tours</p>
+                <p className="text-3xl font-abeze font-bold text-white">{monthlyCompletedBookings.length}</p>
+              </div>
+              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-200 font-abeze text-sm">Monthly Guests</p>
+                <p className="text-3xl font-abeze font-bold text-white">{monthlyGuests}</p>
+              </div>
+              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-purple-200 font-abeze text-sm">Monthly Salary</p>
+                <p className="text-3xl font-abeze font-bold text-white">Rs. {totalMonthlySalary.toLocaleString()}</p>
+              </div>
+              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Monthly Chart */}
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+          <h3 className="text-xl font-abeze font-bold text-white mb-4">Monthly Completed Tours Trend</h3>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis 
+                  dataKey="month" 
+                  stroke="#9CA3AF"
+                  fontSize={12}
+                  tick={{ fill: '#9CA3AF' }}
+                />
+                <YAxis 
+                  stroke="#9CA3AF"
+                  fontSize={12}
+                  tick={{ fill: '#9CA3AF' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#1F2937', 
+                    border: '1px solid #374151',
+                    borderRadius: '8px',
+                    color: '#F9FAFB'
+                  }}
+                  labelStyle={{ color: '#F9FAFB' }}
+                />
+                <Bar dataKey="bookings" fill="#10B981" name="Completed Tours" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Salary Breakdown */}
     <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Tour Reports</h3>
-      <p className="text-gray-300 font-abeze">Tour reports and feedback analysis will be implemented here.</p>
+          <h3 className="text-xl font-abeze font-bold text-white mb-4">Salary Breakdown</h3>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center p-4 bg-white/5 rounded-lg">
+              <div>
+                <p className="text-white font-abeze font-medium">Base Salary</p>
+                <p className="text-gray-400 font-abeze text-sm">Monthly fixed salary</p>
+              </div>
+              <p className="text-white font-abeze font-bold">Rs. {baseSalary.toLocaleString()}</p>
+            </div>
+            
+            <div className="flex justify-between items-center p-4 bg-white/5 rounded-lg">
+              <div>
+                <p className="text-white font-abeze font-medium">Commission</p>
+                <p className="text-gray-400 font-abeze text-sm">Rs. {commissionPerGuest.toLocaleString()} per guest × {monthlyGuests} guests</p>
+              </div>
+              <p className="text-white font-abeze font-bold">Rs. {monthlySalary.toLocaleString()}</p>
+            </div>
+            
+            <div className="flex justify-between items-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+              <div>
+                <p className="text-green-200 font-abeze font-medium">Total Monthly Salary</p>
+                <p className="text-green-400 font-abeze text-sm">Base + Commission</p>
+              </div>
+              <p className="text-green-200 font-abeze font-bold text-2xl">Rs. {totalMonthlySalary.toLocaleString()}</p>
+            </div>
+          </div>
+    </div>
+
+        {/* Monthly Completed Tours */}
+    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+          <h3 className="text-xl font-abeze font-bold text-white mb-4">
+            Monthly Completed Tours - {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </h3>
+          {monthlyCompletedBookings.length === 0 ? (
+            <p className="text-gray-300 text-center py-8">No tours completed this month yet.</p>
+          ) : (
+            <div className="space-y-4">
+              {monthlyCompletedBookings.map((booking) => (
+                <div key={booking._id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 className="text-white font-abeze font-medium">
+                        {booking.userId.firstName} {booking.userId.lastName}
+                      </h4>
+                      <p className="text-gray-300 font-abeze text-sm">
+                        {booking.packageId.title} • {formatDate(booking.bookingDetails.startDate)}
+                      </p>
+                      <p className="text-gray-400 font-abeze text-xs">
+                        {booking.bookingDetails.numberOfPeople} guests
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-green-400 font-abeze font-medium">
+                      Rs. {(booking.bookingDetails.numberOfPeople * commissionPerGuest).toLocaleString()}
+                    </p>
+                    <p className="text-gray-400 font-abeze text-xs">Commission</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
     </div>
   );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
@@ -264,7 +652,7 @@ const TourGuideDashboard = () => {
               {[
                 { id: 'dashboard', label: 'Dashboard', icon: '📊' },
                 { id: 'schedule', label: 'Schedule', icon: '📅' },
-                { id: 'knowledge', label: 'Knowledge', icon: '📚' },
+                { id: 'completed', label: 'Completed', icon: '✅' },
                 { id: 'reports', label: 'Reports', icon: '📈' },
               ].map((tab) => (
                 <button
@@ -286,7 +674,7 @@ const TourGuideDashboard = () => {
             <div className="min-h-96">
               {activeTab === 'dashboard' && renderDashboard()}
               {activeTab === 'schedule' && renderSchedule()}
-              {activeTab === 'knowledge' && renderKnowledge()}
+              {activeTab === 'completed' && renderCompleted()}
               {activeTab === 'reports' && renderReports()}
             </div>
           </div>

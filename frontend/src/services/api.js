@@ -260,6 +260,27 @@ export const bookingApi = {
     const { data } = await api.get('/api/bookings/driver/test-auth');
     return data;
   },
+  // Tour Guide booking management
+  async getAvailableBookingsForGuide() {
+    const { data } = await api.get('/api/bookings/guide/available');
+    return data;
+  },
+  async getGuideAcceptedBookings() {
+    const { data } = await api.get('/api/bookings/guide/accepted');
+    return data;
+  },
+  async getGuideCompletedBookings() {
+    const { data } = await api.get('/api/bookings/guide/completed');
+    return data;
+  },
+  async acceptBookingAsGuide(bookingId) {
+    const { data } = await api.post(`/api/bookings/guide/accept/${bookingId}`);
+    return data;
+  },
+  async completeTourAsGuide(bookingId) {
+    const { data } = await api.post(`/api/bookings/guide/complete/${bookingId}`);
+    return data;
+  },
 };
 
 export const reviewApi = {

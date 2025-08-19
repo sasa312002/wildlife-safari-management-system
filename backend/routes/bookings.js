@@ -10,7 +10,12 @@ import {
     getDriverAcceptedBookings,
     acceptBooking,
     completeBooking,
-    testDriverAuth
+    testDriverAuth,
+    getAvailableBookingsForGuide,
+    getGuideAcceptedBookings,
+    getGuideCompletedBookings,
+    acceptBookingAsGuide,
+    completeTourAsGuide
 } from '../controllers/bookingController.js';
 import { authenticateToken as auth } from '../middleware/auth.js';
 
@@ -18,19 +23,26 @@ const bookingRouter = express.Router();
 
 // User routes (require authentication)
 bookingRouter.post('/stripe-checkout', auth, createStripeCheckout);
-bookingRouter.post('/verify-payment', verifyStripePayment); // No auth required for Stripe redirect
+bookingRouter.post('/verify-payment', verifyStripePayment);
 bookingRouter.get('/user', auth, getUserBookings);
 bookingRouter.get('/details/:bookingId', auth, getBookingDetails);
-
-// Driver routes (require authentication)
-bookingRouter.get('/driver/test-auth', auth, testDriverAuth);
-bookingRouter.get('/driver/pending', auth, getPendingBookingsForDriver);
-bookingRouter.get('/driver/accepted', auth, getDriverAcceptedBookings);
-bookingRouter.post('/driver/accept/:bookingId', auth, acceptBooking);
-bookingRouter.post('/driver/complete/:bookingId', auth, completeBooking);
 
 // Admin/Staff routes (require authentication)
 bookingRouter.get('/all', auth, getAllBookings);
 bookingRouter.put('/status/:bookingId', auth, updateBookingStatus);
+
+// Driver routes (require authentication and driver role)
+bookingRouter.get('/driver/pending', auth, getPendingBookingsForDriver);
+bookingRouter.get('/driver/accepted', auth, getDriverAcceptedBookings);
+bookingRouter.post('/driver/accept/:bookingId', auth, acceptBooking);
+bookingRouter.post('/driver/complete/:bookingId', auth, completeBooking);
+bookingRouter.get('/driver/test-auth', auth, testDriverAuth);
+
+// Tour Guide routes (require authentication and tour_guide role)
+bookingRouter.get('/guide/available', auth, getAvailableBookingsForGuide);
+bookingRouter.get('/guide/accepted', auth, getGuideAcceptedBookings);
+bookingRouter.get('/guide/completed', auth, getGuideCompletedBookings);
+bookingRouter.post('/guide/accept/:bookingId', auth, acceptBookingAsGuide);
+bookingRouter.post('/guide/complete/:bookingId', auth, completeTourAsGuide);
 
 export default bookingRouter;

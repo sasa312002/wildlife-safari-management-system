@@ -628,6 +628,211 @@ const testDriverAuth = async (req, res) => {
     }
 };
 
+// Get all available bookings for tour guides
+const getAvailableBookingsForGuide = async (req, res) => {
+    try {
+        const guideId = req.user._id;
+        
+        // Verify the user is a tour guide
+        if (req.user.role !== 'tour_guide') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only tour guides can view available bookings." 
+            });
+        }
+        
+        const availableBookings = await Booking.find({ 
+            status: 'Payment Confirmed',
+            guideId: null
+        })
+        .populate('userId', 'firstName lastName email phone')
+        .populate('packageId', 'title location category duration')
+        .sort({ startDate: 1 });
+        
+        res.json({ 
+            success: true, 
+            bookings: availableBookings 
+        });
+    } catch (error) {
+        console.log("Get available bookings for guide error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Get tour guide's accepted bookings
+const getGuideAcceptedBookings = async (req, res) => {
+    try {
+        const guideId = req.user._id;
+        
+        // Verify the user is a tour guide
+        if (req.user.role !== 'tour_guide') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only tour guides can view their bookings." 
+            });
+        }
+        
+        const acceptedBookings = await Booking.find({ 
+            guideId: guideId,
+            guideAccepted: true,
+            status: { $nin: ['Completed', 'Cancelled'] }
+        })
+        .populate('userId', 'firstName lastName email phone')
+        .populate('packageId', 'title location category duration')
+        .sort({ startDate: 1 });
+        
+        res.json({ 
+            success: true, 
+            bookings: acceptedBookings 
+        });
+    } catch (error) {
+        console.log("Get guide accepted bookings error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Get tour guide's completed bookings
+const getGuideCompletedBookings = async (req, res) => {
+    try {
+        const guideId = req.user._id;
+        
+        // Verify the user is a tour guide
+        if (req.user.role !== 'tour_guide') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only tour guides can view their completed bookings." 
+            });
+        }
+        
+        const completedBookings = await Booking.find({ 
+            guideId: guideId,
+            guideAccepted: true,
+            status: 'Completed'
+        })
+        .populate('userId', 'firstName lastName email phone')
+        .populate('packageId', 'title location category duration')
+        .sort({ endDate: -1 });
+        
+        res.json({ 
+            success: true, 
+            bookings: completedBookings 
+        });
+    } catch (error) {
+        console.log("Get guide completed bookings error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Tour guide accepts a booking
+const acceptBookingAsGuide = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const guideId = req.user._id;
+        
+        // Verify the user is a tour guide
+        if (req.user.role !== 'tour_guide') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only tour guides can accept bookings." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking is available for assignment
+        if (booking.status !== 'Payment Confirmed' || booking.guideId !== null) {
+            return res.status(400).json({ 
+                success: false, 
+                message: "Booking is not available for assignment" 
+            });
+        }
+        
+        // Update booking with guide assignment
+        booking.guideId = guideId;
+        booking.guideAccepted = true;
+        booking.guideAcceptedAt = new Date();
+        booking.status = 'Guide Assigned';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Booking accepted successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Accept booking as guide error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
+// Tour guide completes a tour
+const completeTourAsGuide = async (req, res) => {
+    try {
+        const { bookingId } = req.params;
+        const guideId = req.user._id;
+        
+        // Verify the user is a tour guide
+        if (req.user.role !== 'tour_guide') {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. Only tour guides can complete tours." 
+            });
+        }
+        
+        const booking = await Booking.findById(bookingId);
+        
+        if (!booking) {
+            return res.status(404).json({ 
+                success: false, 
+                message: "Booking not found" 
+            });
+        }
+        
+        // Check if booking belongs to this guide
+        if (booking.guideId.toString() !== guideId.toString()) {
+            return res.status(403).json({ 
+                success: false, 
+                message: "Access denied. You can only complete your own tours." 
+            });
+        }
+        
+        // Update booking status to completed
+        booking.status = 'Completed';
+        await booking.save();
+        
+        res.json({ 
+            success: true, 
+            message: "Tour completed successfully",
+            booking: booking 
+        });
+    } catch (error) {
+        console.log("Complete tour as guide error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
+    }
+};
+
 export { 
     createStripeCheckout, 
     verifyStripePayment, 
@@ -639,5 +844,10 @@ export {
     getDriverAcceptedBookings,
     acceptBooking,
     completeBooking,
-    testDriverAuth
+    testDriverAuth,
+    getAvailableBookingsForGuide,
+    getGuideAcceptedBookings,
+    getGuideCompletedBookings,
+    acceptBookingAsGuide,
+    completeTourAsGuide
 };
