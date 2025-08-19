@@ -84,6 +84,11 @@ const UserAccountPage = () => {
     checkBookings();
   }, []);
 
+  // Ensure user reviews are available for button state in bookings list
+  useEffect(() => {
+    loadUserReviews();
+  }, []);
+
   // Load bookings when bookings tab is selected
   useEffect(() => {
     if (activeTab === 'bookings' && bookings.length === 0) {
@@ -746,10 +751,8 @@ const UserAccountPage = () => {
              await reviewApi.createReview(showReviewForBookingId, formData);
              setShowReviewForBookingId(null);
              setShowReviewSuccess(true);
-             // Refresh reviews if we're on the reviews tab
-             if (activeTab === 'reviews') {
-               loadUserReviews();
-             }
+             // Refresh user reviews so booking buttons update immediately
+             loadUserReviews();
              // Hide success message after 3 seconds
              setTimeout(() => setShowReviewSuccess(false), 3000);
            }}

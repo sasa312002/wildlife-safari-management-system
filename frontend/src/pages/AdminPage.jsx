@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { packageApi, userApi, staffApi, safariRequestApi, bookingApi, reviewApi } from '../services/api';
+import { packageApi, userApi, staffApi, safariRequestApi, bookingApi, reviewApi, donationApi } from '../services/api';
 
 import AddPackageModal from '../components/AddPackageModal';
 import EditPackageModal from '../components/EditPackageModal';
@@ -38,6 +38,8 @@ const AdminPage = () => {
   const [bookingsLoading, setBookingsLoading] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [donations, setDonations] = useState([]);
+  const [donationsLoading, setDonationsLoading] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
 
@@ -60,6 +62,7 @@ const AdminPage = () => {
     { id: 'contact-messages', label: 'Contact Messages', icon: '💬', color: 'pink' },
     { id: 'bookings', label: 'Bookings', icon: '📅', color: 'indigo' },
     { id: 'reviews', label: 'Reviews', icon: '⭐', color: 'amber' },
+    { id: 'donations', label: 'Donations', icon: '💝', color: 'rose' },
     { id: 'attendance', label: 'Attendance', icon: '⏰', color: 'cyan' },
     { id: 'payroll', label: 'Payroll', icon: '💰', color: 'emerald' },
     { id: 'reports', label: 'Reports', icon: '📈', color: 'rose' },
@@ -79,6 +82,8 @@ const AdminPage = () => {
       loadBookings();
     } else if (activeTab === 'reviews') {
       loadReviews();
+    } else if (activeTab === 'donations') {
+      loadDonations();
     }
   }, [activeTab]);
 
@@ -321,6 +326,23 @@ const AdminPage = () => {
       setReviews([]);
     } finally {
       setReviewsLoading(false);
+    }
+  };
+
+  const loadDonations = async () => {
+    setDonationsLoading(true);
+    try {
+      const data = await donationApi.getAllDonations();
+      if (data && Array.isArray(data.donations)) {
+        setDonations(data.donations);
+      } else {
+        setDonations([]);
+      }
+    } catch (error) {
+      console.error('Error loading donations:', error);
+      setDonations([]);
+    } finally {
+      setDonationsLoading(false);
     }
   };
 
@@ -1235,6 +1257,66 @@ const AdminPage = () => {
                                   >
                                     Delete
                                   </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              {activeTab === 'donations' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xl font-abeze font-bold text-white">Donations</h3>
+                    <div className="text-sm text-gray-300 font-abeze">Total: {donations.length}</div>
+                  </div>
+                  {donationsLoading ? (
+                    <div className="text-center py-8">
+                      <div className="text-gray-300 font-abeze">Loading donations...</div>
+                    </div>
+                  ) : (
+                    <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-white/20">
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Donor</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Email</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Amount</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Country</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Date</th>
+                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Anonymous</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {donations.map((donation) => (
+                              <tr key={donation._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                                <td className="py-4 px-6 text-white font-abeze">
+                                  {donation.isAnonymous ? 'Anonymous' : `${donation.firstName} ${donation.lastName}`}
+                                </td>
+                                <td className="py-4 px-6 text-white font-abeze text-sm">{donation.email}</td>
+                                <td className="py-4 px-6 text-white font-abeze font-semibold">
+                                  {donation.currency} {donation.amount.toFixed(2)}
+                                </td>
+                                <td className="py-4 px-6 text-white font-abeze text-sm">{donation.country}</td>
+                                <td className="py-4 px-6">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-abeze font-medium ${
+                                    donation.paymentStatus === 'completed' ? 'bg-green-500/20 text-green-400' :
+                                    donation.paymentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {donation.paymentStatus}
+                                  </span>
+                                </td>
+                                <td className="py-4 px-6 text-white font-abeze text-sm">
+                                  {new Date(donation.createdAt).toLocaleDateString()}
+                                </td>
+                                <td className="py-4 px-6 text-white font-abeze">
+                                  {donation.isAnonymous ? 'Yes' : 'No'}
                                 </td>
                               </tr>
                             ))}

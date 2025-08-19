@@ -337,6 +337,21 @@ export const reviewApi = {
   },
 };
 
+export const donationApi = {
+  async createStripeCheckout(payload) {
+    const { data } = await api.post('/api/donations/stripe-checkout', payload);
+    return data;
+  },
+  async verifyPayment(sessionId) {
+    const { data } = await api.post('/api/donations/verify-payment', { session_id: sessionId });
+    return data;
+  },
+  async getAllDonations() {
+    const { data } = await api.get('/api/donations/all');
+    return data;
+  },
+};
+
 export const attendanceApi = {
   async getAllAttendance() {
     const { data } = await api.get('/api/attendance');
