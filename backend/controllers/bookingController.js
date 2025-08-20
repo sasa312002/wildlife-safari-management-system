@@ -454,8 +454,10 @@ const getPendingBookingsForDriver = async (req, res) => {
         
         const pendingBookings = await Booking.find({ 
             $or: [
+                // Unassigned, paid bookings (self-assignable)
                 { status: 'Payment Confirmed', driverId: null },
-                { status: 'Driver Assigned', driverId: driverId, driverAccepted: false }
+                // Admin-assigned to this driver and not yet accepted (regardless of status)
+                { driverId: driverId, driverAccepted: false }
             ]
         })
         .populate('userId', 'firstName lastName email phone')
@@ -539,8 +541,7 @@ const acceptBooking = async (req, res) => {
         const canSelfAssign = booking.status === 'Payment Confirmed' && booking.driverId === null;
         
         // Case 2: Admin-assigned to this driver, not yet accepted
-        const isAssignedToThisDriver = booking.status === 'Driver Assigned' 
-            && booking.driverId 
+        const isAssignedToThisDriver = booking.driverId 
             && booking.driverId.toString() === driverId.toString() 
             && !booking.driverAccepted;
         
@@ -660,8 +661,10 @@ const getAvailableBookingsForGuide = async (req, res) => {
         
         const availableBookings = await Booking.find({
             $or: [
+                // Unassigned, paid bookings (self-assignable)
                 { status: 'Payment Confirmed', guideId: null },
-                { status: 'Guide Assigned', guideId: guideId, guideAccepted: false }
+                // Admin-assigned to this guide and not yet accepted (regardless of status)
+                { guideId: guideId, guideAccepted: false }
             ]
         })
         .populate('userId', 'firstName lastName email phone')
@@ -778,8 +781,7 @@ const acceptBookingAsGuide = async (req, res) => {
         }
         
         const canSelfAssign = booking.status === 'Payment Confirmed' && booking.guideId === null;
-        const isAssignedToThisGuide = booking.status === 'Guide Assigned'
-            && booking.guideId
+        const isAssignedToThisGuide = booking.guideId
             && booking.guideId.toString() === guideId.toString()
             && !booking.guideAccepted;
 
