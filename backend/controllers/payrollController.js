@@ -2,6 +2,46 @@ import Payroll from '../models/Payroll.js';
 import Staff from '../models/Staff.js';
 import Attendance from '../models/Attendance.js';
 
+// Staff can fetch their own payroll (latest or by month/year)
+const getMyPayroll = async (req, res) => {
+  try {
+    const staffId = req.user.id || req.user._id;
+    const { month, year } = req.query;
+
+    // Ensure only staff or tour_guide/driver can access
+    if (!['driver', 'tour_guide', 'staff', 'admin'].includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    let query = { staffId };
+    if (month && year) {
+      query.month = parseInt(month);
+      query.year = parseInt(year);
+    }
+
+    let payroll;
+    if (month && year) {
+      payroll = await Payroll.findOne(query)
+        .populate('staffId', 'firstName lastName email role')
+        .populate('approvedBy', 'firstName lastName');
+    } else {
+      payroll = await Payroll.findOne({ staffId })
+        .populate('staffId', 'firstName lastName email role')
+        .populate('approvedBy', 'firstName lastName')
+        .sort({ year: -1, month: -1 });
+    }
+
+    if (!payroll) {
+      return res.json(null);
+    }
+
+    res.json(payroll);
+  } catch (error) {
+    console.error('Error fetching my payroll:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // Get all payroll records
 const getAllPayroll = async (req, res) => {
   try {
@@ -531,5 +571,6 @@ export {
   deletePayroll,
   getPayrollStats,
   recalculatePayroll,
-  refreshPayrollForMonth
+  refreshPayrollForMonth,
+  getMyPayroll
 };

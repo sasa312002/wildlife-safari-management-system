@@ -12,11 +12,16 @@ import {
   refreshPayrollForMonth
 } from '../controllers/payrollController.js';
 import { authenticateToken, requireAdmin } from '../middleware/auth.js';
+import { getMyPayroll } from '../controllers/payrollController.js';
 
 const router = express.Router();
 
 // Apply authentication middleware to all routes
 router.use(authenticateToken);
+// Public staff access route must be defined before admin-only guard
+router.get('/me', getMyPayroll);
+
+// Admin-only routes
 router.use(requireAdmin);
 
 // Get all payroll records

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { bookingApi, vehicleApi } from '../services/api';
+import { bookingApi, vehicleApi, payrollApi } from '../services/api';
 import AddVehicleModal from '../components/AddVehicleModal';
+import { ResponsiveContainer, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Bar } from 'recharts';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const DriverDashboard = () => {
   const { user, logout } = useAuth();
@@ -15,6 +18,7 @@ const DriverDashboard = () => {
   const [acceptingBooking, setAcceptingBooking] = useState(null);
   const [completingBooking, setCompletingBooking] = useState(null);
   const [showAddVehicle, setShowAddVehicle] = useState(false);
+  const [payroll, setPayroll] = useState(null);
 
   useEffect(() => {
     if (user) {
@@ -38,10 +42,15 @@ const DriverDashboard = () => {
         console.error('Driver auth test failed:', authError);
       }
       
-      const [pendingResponse, acceptedResponse, vehiclesResponse] = await Promise.all([
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+
+      const [pendingResponse, acceptedResponse, vehiclesResponse, payrollResponse] = await Promise.all([
         bookingApi.getPendingBookingsForDriver(),
         bookingApi.getDriverAcceptedBookings(),
-        vehicleApi.getDriverVehicles()
+        vehicleApi.getDriverVehicles(),
+        payrollApi.getMyPayroll(currentMonth, currentYear)
       ]);
 
       // Debug: Log API responses
@@ -69,6 +78,8 @@ const DriverDashboard = () => {
         console.error('Failed to load vehicles:', vehiclesResponse.message);
         setVehicles([]);
       }
+
+      setPayroll(payrollResponse || null);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
       // Set empty arrays to prevent further errors
@@ -831,6 +842,221 @@ const DriverDashboard = () => {
     </div>
   );
 
+  const renderReportsSimple = () => {
+    const now = new Date();
+    const monthIdx = now.getMonth();
+    const year = now.getFullYear();
+
+    const isSameMonth = (dateStr) => {
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      return d.getMonth() === monthIdx && d.getFullYear() === year;
+    };
+
+    const monthlyCompleted = acceptedBookings
+      .filter(b => b.status === 'Completed' && (isSameMonth(b.updatedAt) || isSameMonth(b.bookingDetails?.endDate)));
+
+    const downloadMonthlyCompletedReport = () => {
+      const doc = new jsPDF();
+      const fileMonth = String(monthIdx + 1).padStart(2, '0');
+      doc.setFontSize(14);
+      doc.text(`Monthly Completed Bookings - ${now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`, 14, 18);
+      const rows = monthlyCompleted.map(b => [
+        `${b.userId?.firstName || ''} ${b.userId?.lastName || ''}`.trim(),
+        b.packageId?.title || b.packageDetails?.title || '',
+        b.bookingDetails?.startDate ? new Date(b.bookingDetails.startDate).toLocaleDateString() : '-',
+        b.bookingDetails?.endDate ? new Date(b.bookingDetails.endDate).toLocaleDateString() : '-',
+        b.bookingDetails?.numberOfPeople ?? '-',
+        b.updatedAt ? new Date(b.updatedAt).toLocaleDateString() : '-'
+      ]);
+      autoTable(doc, {
+        startY: 24,
+        head: [['Customer', 'Package', 'Trip Start', 'Trip End', 'Guests', 'Completed']],
+        body: rows,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [16, 185, 129] }
+      });
+      doc.save(`driver-monthly-completed-bookings-${year}-${fileMonth}.pdf`);
+    };
+
+    const downloadPayrollReport = () => {
+      if (!payroll) return;
+      const doc = new jsPDF();
+      const fileMonth = String(monthIdx + 1).padStart(2, '0');
+      doc.setFontSize(14);
+      doc.text(`Payroll - ${payroll.monthYear || `${fileMonth}/${year}`}`, 14, 18);
+      const rows = [
+        ['Basic Salary (Rs.)', Number(payroll.basicSalary || 0).toLocaleString()],
+        ['Regular Pay (Rs.)', Number(payroll.regularPay || 0).toLocaleString()],
+        ['Overtime Pay (Rs.)', Number(payroll.overtimePay || 0).toLocaleString()],
+        ['Allowances (Rs.)', Number(payroll.allowances || 0).toLocaleString()],
+        ['Bonuses (Rs.)', Number(payroll.bonuses || 0).toLocaleString()],
+        ['Deductions (Rs.)', Number(payroll.deductions || 0).toLocaleString()],
+        ['Gross Pay (Rs.)', Number(payroll.grossPay || 0).toLocaleString()],
+        ['Net Pay (Rs.)', Number(payroll.netPay || 0).toLocaleString()],
+        ['Working Days', Number(payroll.totalWorkingDays || 0)],
+        ['Working Hours', Number(payroll.totalWorkingHours || 0)],
+        ['Status', payroll.statusFormatted || payroll.status || '']
+      ];
+      autoTable(doc, {
+        startY: 24,
+        head: [['Field', 'Value']],
+        body: rows,
+        styles: { fontSize: 10 },
+        headStyles: { fillColor: [59, 130, 246] }
+      });
+      doc.save(`driver-payroll-${year}-${fileMonth}.pdf`);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-abeze font-bold text-white">Monthly Completed Bookings - {now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+            <button
+              onClick={downloadMonthlyCompletedReport}
+              disabled={monthlyCompleted.length === 0}
+              className={`px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                monthlyCompleted.length === 0 ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
+            >
+              Download Report
+            </button>
+          </div>
+          {/* Monthly Completed Bookings Chart (last 12 months) */}
+          <div className="bg-white/5 rounded-lg p-4 border border-white/10 mb-6">
+            <h4 className="text-white font-abeze font-medium mb-3">Completed Bookings - Last 12 Months</h4>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={Array.from({ length: 12 }, (_, i) => {
+                    const d = new Date(year, monthIdx - (11 - i), 1);
+                    const m = d.getMonth();
+                    const y = d.getFullYear();
+                    const count = acceptedBookings.filter(b => {
+                      if (b.status !== 'Completed') return false;
+                      const doneAt = b.updatedAt ? new Date(b.updatedAt) : null;
+                      return doneAt && doneAt.getMonth() === m && doneAt.getFullYear() === y;
+                    }).length;
+                    return { month: d.toLocaleDateString('en-US', { month: 'short' }), count };
+                  })}
+                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="month" tick={{ fill: '#9CA3AF' }} stroke="#9CA3AF" />
+                  <YAxis allowDecimals={false} tick={{ fill: '#9CA3AF' }} stroke="#9CA3AF" />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: 8, color: '#F9FAFB' }}
+                    labelStyle={{ color: '#F9FAFB' }}
+                  />
+                  <Bar dataKey="count" fill="#10B981" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="text-gray-300 font-abeze">Loading completed bookings...</div>
+            </div>
+          ) : monthlyCompleted.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-gray-300 font-abeze">No completed bookings this month</div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/20">
+                    <th className="text-left py-3 px-4 text-blue-200 font-abeze">Customer</th>
+                    <th className="text-left py-3 px-4 text-blue-200 font-abeze">Package</th>
+                    <th className="text-left py-3 px-4 text-blue-200 font-abeze">Trip Dates</th>
+                    <th className="text-left py-3 px-4 text-blue-200 font-abeze">Guests</th>
+                    <th className="text-left py-3 px-4 text-blue-200 font-abeze">Completed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {monthlyCompleted
+                    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+                    .map((booking) => (
+                    <tr key={booking._id} className="border-b border-white/10">
+                      <td className="py-3 px-4 text-white font-abeze">
+                        {booking.userId?.firstName || 'N/A'} {booking.userId?.lastName || 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-white font-abeze">
+                        {booking.packageId?.title || booking.packageDetails?.title || 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-white font-abeze">
+                        {booking.bookingDetails?.startDate && booking.bookingDetails?.endDate
+                          ? `${new Date(booking.bookingDetails.startDate).toLocaleDateString()} - ${new Date(booking.bookingDetails.endDate).toLocaleDateString()}`
+                          : 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-white font-abeze">
+                        {booking.bookingDetails?.numberOfPeople || 'N/A'}
+                      </td>
+                      <td className="py-3 px-4 text-white font-abeze">
+                        {booking.updatedAt ? new Date(booking.updatedAt).toLocaleDateString() : 'N/A'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-abeze font-bold text-white">Payroll </h3>
+            <button
+              onClick={downloadPayrollReport}
+              disabled={!payroll}
+              className={`px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                !payroll ? 'bg-gray-600 text-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              Download Payroll
+            </button>
+          </div>
+          {!payroll ? (
+            <div className="text-gray-300 font-abeze">No payroll record found for this month yet.</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Basic Salary</h4>
+                <p className="text-2xl font-abeze font-bold text-white">Rs. {Number(payroll.basicSalary || 0).toLocaleString()}</p>
+                <p className="text-gray-400 font-abeze text-xs">{payroll.monthYear || ''}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Regular + Overtime</h4>
+                <p className="text-white font-abeze">Regular: Rs. {Number(payroll.regularPay || 0).toLocaleString()}</p>
+                <p className="text-white font-abeze">Overtime: Rs. {Number(payroll.overtimePay || 0).toLocaleString()}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Net Pay</h4>
+                <p className="text-2xl font-abeze font-bold text-white">Rs. {Number(payroll.netPay || 0).toLocaleString()}</p>
+                <p className="text-gray-400 font-abeze text-xs">Status: {payroll.statusFormatted || payroll.status}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Allowances & Bonuses</h4>
+                <p className="text-white font-abeze">Allowances: Rs. {Number(payroll.allowances || 0).toLocaleString()}</p>
+                <p className="text-white font-abeze">Bonuses: Rs. {Number(payroll.bonuses || 0).toLocaleString()}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Deductions</h4>
+                <p className="text-white font-abeze">Rs. {Number(payroll.deductions || 0).toLocaleString()}</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-4">
+                <h4 className="text-gray-300 font-abeze text-sm mb-2">Hours</h4>
+                <p className="text-white font-abeze">Working Days: {Number(payroll.totalWorkingDays || 0)}</p>
+                <p className="text-white font-abeze">Working Hours: {Number(payroll.totalWorkingHours || 0)}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderReports = () => {
     // Calculate report data
     const completedBookings = acceptedBookings.filter(booking => booking.status === 'Completed');
@@ -1104,7 +1330,7 @@ const DriverDashboard = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white/5 rounded-lg p-4">
               <h4 className="text-gray-300 font-abeze text-sm mb-2">Base Salary</h4>
-              <p className="text-2xl font-abeze font-bold text-white">Rs. 25,000</p>
+              <p className="text-2xl font-abeze font-bold text-white">Rs. 75,000</p>
               <p className="text-gray-400 font-abeze text-xs">Per month</p>
             </div>
             <div className="bg-white/5 rounded-lg p-4">
@@ -1114,7 +1340,7 @@ const DriverDashboard = () => {
             </div>
             <div className="bg-white/5 rounded-lg p-4">
               <h4 className="text-gray-300 font-abeze text-sm mb-2">This Month</h4>
-              <p className="text-2xl font-abeze font-bold text-white">Rs. {(25000 + monthlyEarnings).toLocaleString()}</p>
+              <p className="text-2xl font-abeze font-bold text-white">Rs. {(75000 + monthlyEarnings).toLocaleString()}</p>
               <p className="text-gray-400 font-abeze text-xs">Total salary</p>
             </div>
           </div>
@@ -1202,7 +1428,7 @@ const DriverDashboard = () => {
               {activeTab === 'schedule' && renderSchedule()}
                   {activeTab === 'completed' && renderCompletedBookings()}
               {activeTab === 'vehicle' && renderVehicle()}
-              {activeTab === 'reports' && renderReports()}
+              {activeTab === 'reports' && renderReportsSimple()}
             </div>
           </div>
         </div>

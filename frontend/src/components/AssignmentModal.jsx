@@ -101,6 +101,55 @@ const AssignmentModal = ({ isOpen, onClose, booking, onAssignmentComplete }) => 
     }
   };
 
+  const handleAssignStaff = async () => {
+    const currentDriverId = booking.driverId && (booking.driverId._id || booking.driverId);
+    const currentGuideId = booking.guideId && (booking.guideId._id || booking.guideId);
+
+    const needsAssignDriver = !!selectedDriver && selectedDriver !== currentDriverId;
+    const needsAssignGuide = !!selectedGuide && selectedGuide !== currentGuideId;
+
+    if (!needsAssignDriver && !needsAssignGuide) {
+      setError('Please select at least one staff member to assign or change.');
+      return;
+    }
+
+    try {
+      setAssigning(true);
+      setError('');
+
+      const actions = [];
+      if (needsAssignDriver) {
+        actions.push(bookingApi.assignDriverToBooking(booking._id, selectedDriver));
+      }
+      if (needsAssignGuide) {
+        actions.push(bookingApi.assignGuideToBooking(booking._id, selectedGuide));
+      }
+
+      await Promise.all(actions);
+
+      const updatedBooking = {
+        ...booking,
+        driverId: needsAssignDriver
+          ? drivers.find(d => d._id === selectedDriver)
+          : booking.driverId,
+        guideId: needsAssignGuide
+          ? guides.find(g => g._id === selectedGuide)
+          : booking.guideId,
+        status: needsAssignGuide
+          ? 'Guide Assigned'
+          : 'Driver Assigned'
+      };
+
+      onAssignmentComplete(updatedBooking);
+      onClose();
+    } catch (error) {
+      console.error('Error assigning staff:', error);
+      setError(error.response?.data?.message || 'Failed to assign staff');
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   const handleCompleteBooking = async () => {
     try {
       setAssigning(true);
@@ -246,17 +295,7 @@ const AssignmentModal = ({ isOpen, onClose, booking, onAssignmentComplete }) => 
                   </div>
                 )}
                 
-                <button
-                  onClick={handleAssignDriver}
-                  disabled={!selectedDriver || assigning}
-                  className={`w-full px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                    !selectedDriver || assigning
-                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
-                  }`}
-                >
-                  {assigning ? 'Assigning...' : 'Assign Driver'}
-                </button>
+                {/* Assignment handled by single button in footer */}
               </div>
             )}
           </div>
@@ -305,17 +344,7 @@ const AssignmentModal = ({ isOpen, onClose, booking, onAssignmentComplete }) => 
                   </div>
                 )}
                 
-                <button
-                  onClick={handleAssignGuide}
-                  disabled={!selectedGuide || assigning}
-                  className={`w-full px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                    !selectedGuide || assigning
-                      ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
-                  }`}
-                >
-                  {assigning ? 'Assigning...' : 'Assign Tour Guide'}
-                </button>
+                {/* Assignment handled by single button in footer */}
               </div>
             )}
           </div>
@@ -348,12 +377,23 @@ const AssignmentModal = ({ isOpen, onClose, booking, onAssignmentComplete }) => 
         </div>
 
         {/* Modal Footer */}
-        <div className="p-6 border-t border-gray-700 flex justify-end">
+        <div className="p-6 border-t border-gray-700 flex justify-end space-x-3">
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300"
           >
-            Close
+            Cancel
+          </button>
+          <button
+            onClick={handleAssignStaff}
+            disabled={assigning || (!selectedDriver && !selectedGuide)}
+            className={`px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+              assigning || (!selectedDriver && !selectedGuide)
+                ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
+            {assigning ? 'Assigning...' : 'Assign Staff'}
           </button>
         </div>
       </div>
