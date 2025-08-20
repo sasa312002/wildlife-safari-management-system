@@ -167,10 +167,23 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:outline-none focus:border-green-400 transition-colors"
+                  className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:outline-none focus:border-green-400 transition-colors"
+                  style={{
+                    color: 'white',
+                    backgroundColor: '#1f2937'
+                  }}
                 >
                   {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
+                    <option 
+                      key={category} 
+                      value={category}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        color: 'white'
+                      }}
+                    >
+                      {category}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -264,10 +277,23 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                   name="difficulty"
                   value={formData.difficulty}
                   onChange={handleInputChange}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:outline-none focus:border-green-400 transition-colors"
+                  className="w-full bg-gray-800 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:outline-none focus:border-green-400 transition-colors"
+                  style={{
+                    color: 'white',
+                    backgroundColor: '#1f2937'
+                  }}
                 >
                   {difficulties.map(difficulty => (
-                    <option key={difficulty} value={difficulty}>{difficulty}</option>
+                    <option 
+                      key={difficulty} 
+                      value={difficulty}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        color: 'white'
+                      }}
+                    >
+                      {difficulty}
+                    </option>
                   ))}
                 </select>
               </div>
