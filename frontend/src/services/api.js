@@ -427,6 +427,13 @@ export const payrollApi = {
     const { data } = await api.get('/api/payroll');
     return data;
   },
+  async getMyPayroll(month, year) {
+    const params = new URLSearchParams();
+    if (month) params.append('month', month);
+    if (year) params.append('year', year);
+    const { data } = await api.get(`/api/payroll/me${params.toString() ? `?${params}` : ''}`);
+    return data;
+  },
   async getPayrollByStaff(staffId, year) {
     const params = new URLSearchParams();
     if (year) params.append('year', year);
