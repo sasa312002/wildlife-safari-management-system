@@ -2,10 +2,12 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const EditProfileModal = ({ onClose, user }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   
   // Country to phone code mapping with max digits
   const countryPhoneCodes = {
@@ -85,19 +87,19 @@ const EditProfileModal = ({ onClose, user }) => {
     const errors = [];
     
     if (password.length < minLength) {
-      errors.push(`At least ${minLength} characters`);
+      errors.push(t('editProfile.validation.passwordRequirements.minLength', { length: minLength }));
     }
     if (!hasUpperCase) {
-      errors.push('At least one uppercase letter');
+      errors.push(t('editProfile.validation.passwordRequirements.uppercase'));
     }
     if (!hasLowerCase) {
-      errors.push('At least one lowercase letter');
+      errors.push(t('editProfile.validation.passwordRequirements.lowercase'));
     }
     if (!hasNumbers) {
-      errors.push('At least one number');
+      errors.push(t('editProfile.validation.passwordRequirements.number'));
     }
     if (!hasSpecialChar) {
-      errors.push('At least one special character');
+      errors.push(t('editProfile.validation.passwordRequirements.specialChar'));
     }
     
     return {
@@ -126,13 +128,13 @@ const EditProfileModal = ({ onClose, user }) => {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file');
+      alert(t('editProfile.fileValidation.imageOnly'));
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      alert(t('editProfile.fileValidation.sizeLimit'));
       return;
     }
 
@@ -164,7 +166,7 @@ const EditProfileModal = ({ onClose, user }) => {
     } catch (err) {
       console.error('Upload error:', err);
       console.error('Error response:', err.response);
-      const msg = err?.response?.data?.message || 'Upload failed';
+      const msg = err?.response?.data?.message || t('editProfile.fileValidation.uploadFailed');
       alert(msg);
     } finally {
       setIsUploadingPicture(false);
@@ -177,47 +179,47 @@ const EditProfileModal = ({ onClose, user }) => {
 
     // First Name validation
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = t('editProfile.validation.firstNameRequired');
     } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
+      newErrors.firstName = t('editProfile.validation.firstNameMinLength');
     }
 
     // Last Name validation
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = t('editProfile.validation.lastNameRequired');
     } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.lastName = t('editProfile.validation.lastNameMinLength');
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('editProfile.validation.emailRequired');
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('editProfile.validation.emailInvalid');
     }
 
     // Country validation
     if (!formData.country) {
-      newErrors.country = 'Please select your country';
+      newErrors.country = t('editProfile.validation.countryRequired');
     }
 
     // Phone validation (only if country is selected)
     if (formData.country && formData.country !== 'Other') {
       const phoneData = countryPhoneCodes[formData.country];
       if (!formData.phone.trim()) {
-        newErrors.phone = 'Phone number is required';
+        newErrors.phone = t('editProfile.validation.phoneRequired');
       } else if (!/^\d+$/.test(formData.phone.trim())) {
-        newErrors.phone = 'Phone number should contain only numbers';
+        newErrors.phone = t('editProfile.validation.phoneNumbersOnly');
       } else if (formData.phone.trim().length !== phoneData.maxDigits) {
-        newErrors.phone = `Phone number should be ${phoneData.maxDigits} digits`;
+        newErrors.phone = t('editProfile.validation.phoneExactDigits', { digits: phoneData.maxDigits });
       }
     }
 
     // Password validation (only if new password is provided)
     if (formData.newPassword) {
       if (!formData.currentPassword) {
-        newErrors.currentPassword = 'Current password is required to change password';
+        newErrors.currentPassword = t('editProfile.validation.currentPasswordRequired');
       }
       
       const passwordValidation = validatePassword(formData.newPassword);
@@ -226,9 +228,9 @@ const EditProfileModal = ({ onClose, user }) => {
       }
       
       if (!formData.confirmNewPassword) {
-        newErrors.confirmNewPassword = 'Please confirm your new password';
+        newErrors.confirmNewPassword = t('editProfile.validation.confirmPasswordRequired');
       } else if (formData.newPassword !== formData.confirmNewPassword) {
-        newErrors.confirmNewPassword = 'Passwords do not match';
+        newErrors.confirmNewPassword = t('editProfile.validation.passwordsDoNotMatch');
       }
     }
 
@@ -303,7 +305,7 @@ const EditProfileModal = ({ onClose, user }) => {
       login(updatedUser, localStorage.getItem('auth_token'));
       
       // Show success message
-      const message = formData.newPassword ? 'Profile and password updated successfully!' : 'Profile updated successfully!';
+      const message = formData.newPassword ? t('editProfile.success.profileAndPasswordUpdated') : t('editProfile.success.profileUpdated');
       setSuccessMessage(message);
       setShowSuccessMessage(true);
       
@@ -315,7 +317,7 @@ const EditProfileModal = ({ onClose, user }) => {
       }, 3000);
       
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Update failed';
+      const msg = err?.response?.data?.message || t('editProfile.fileValidation.uploadFailed');
       alert(msg);
     } finally {
       setIsSubmitting(false);
@@ -330,10 +332,10 @@ const EditProfileModal = ({ onClose, user }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Edit Profile
+            {t('editProfile.title')}
           </h2>
           <p className="text-gray-300 font-abeze">
-            Update your account information
+            {t('editProfile.subtitle')}
           </p>
         </div>
 
@@ -358,7 +360,7 @@ const EditProfileModal = ({ onClose, user }) => {
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="font-abeze text-sm">Profile picture updated successfully!</span>
+                    <span className="font-abeze text-sm">{t('editProfile.profilePicture.uploadSuccess')}</span>
                   </div>
                 </div>
               )}
@@ -370,13 +372,13 @@ const EditProfileModal = ({ onClose, user }) => {
                {user?.profilePicture?.url ? (
                  <img 
                    src={user.profilePicture.url} 
-                   alt="Profile" 
+                   alt={t('userAccount.common.profileImageAlt')} 
                    className="w-full h-full object-cover"
                  />
                ) : (
                  <div className="w-full h-full bg-green-500 flex items-center justify-center">
                    <span className="text-xl font-abeze font-bold text-white">
-                     {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                     {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || t('userAccount.common.defaultUser').charAt(0).toUpperCase()}
                    </span>
                  </div>
                )}
@@ -391,7 +393,7 @@ const EditProfileModal = ({ onClose, user }) => {
                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                      </svg>
                    )}
-                   <p className="text-xs text-white mt-1 font-abeze">Change Photo</p>
+                   <p className="text-xs text-white mt-1 font-abeze">{t('editProfile.profilePicture.changePhoto')}</p>
                  </div>
                </div>
              </div>
@@ -406,7 +408,7 @@ const EditProfileModal = ({ onClose, user }) => {
              />
              
              <p className="text-sm text-gray-300 font-abeze">
-               Click to upload profile picture
+               {t('editProfile.profilePicture.clickToUpload')}
              </p>
            </div>
 
@@ -414,7 +416,7 @@ const EditProfileModal = ({ onClose, user }) => {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                First Name *
+                {t('editProfile.form.firstName')}
               </label>
               <input
                 type="text"
@@ -424,7 +426,7 @@ const EditProfileModal = ({ onClose, user }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                   errors.firstName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Your first name"
+                placeholder={t('editProfile.form.firstNamePlaceholder')}
               />
               {errors.firstName && (
                 <p className="text-red-400 text-sm mt-1 font-abeze">{errors.firstName}</p>
@@ -432,7 +434,7 @@ const EditProfileModal = ({ onClose, user }) => {
             </div>
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Last Name *
+                {t('editProfile.form.lastName')}
               </label>
               <input
                 type="text"
@@ -442,7 +444,7 @@ const EditProfileModal = ({ onClose, user }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                   errors.lastName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Your last name"
+                placeholder={t('editProfile.form.lastNamePlaceholder')}
               />
               {errors.lastName && (
                 <p className="text-red-400 text-sm mt-1 font-abeze">{errors.lastName}</p>
@@ -453,7 +455,7 @@ const EditProfileModal = ({ onClose, user }) => {
           {/* Email */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Email Address *
+              {t('editProfile.form.email')}
             </label>
             <input
               type="email"
@@ -463,7 +465,7 @@ const EditProfileModal = ({ onClose, user }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="your.email@example.com"
+              placeholder={t('editProfile.form.emailPlaceholder')}
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
@@ -473,7 +475,7 @@ const EditProfileModal = ({ onClose, user }) => {
           {/* Country */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Country *
+              {t('editProfile.form.country')}
             </label>
             <select
               name="country"
@@ -483,7 +485,7 @@ const EditProfileModal = ({ onClose, user }) => {
                 errors.country ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
             >
-              <option value="" className="bg-gray-800 text-white">Select your country</option>
+              <option value="" className="bg-gray-800 text-white">{t('editProfile.form.countryPlaceholder')}</option>
               {countries.map((country, index) => (
                 <option key={index} value={country} className="bg-gray-800 text-white">{country}</option>
               ))}
@@ -497,7 +499,7 @@ const EditProfileModal = ({ onClose, user }) => {
           {formData.country && (
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Phone Number {formData.country !== 'Other' ? '*' : ''}
+                {formData.country !== 'Other' ? t('editProfile.form.phoneRequired') : t('editProfile.form.phone')}
               </label>
               <div className="flex">
                 {/* Country Code Display */}
@@ -519,8 +521,8 @@ const EditProfileModal = ({ onClose, user }) => {
                     errors.phone ? 'border-red-400' : 'focus:border-green-400'
                   }`}
                   placeholder={formData.country !== 'Other' 
-                    ? `e.g., 77 123 456 (${countryPhoneCodes[formData.country].maxDigits} digits)` 
-                    : "Enter your phone number"
+                    ? t('editProfile.form.phonePlaceholder', { digits: countryPhoneCodes[formData.country].maxDigits })
+                    : t('editProfile.form.phonePlaceholderOther')
                   }
                 />
               </div>
@@ -529,7 +531,7 @@ const EditProfileModal = ({ onClose, user }) => {
               )}
               {formData.country !== 'Other' && formData.phone && (
                 <p className="text-gray-400 text-sm mt-1 font-abeze">
-                  {formData.phone.length}/{countryPhoneCodes[formData.country].maxDigits} digits
+                  {t('editProfile.form.phoneDigits', { current: formData.phone.length, max: countryPhoneCodes[formData.country].maxDigits })}
                 </p>
               )}
             </div>
@@ -538,13 +540,13 @@ const EditProfileModal = ({ onClose, user }) => {
            {/* Password Change Section */}
            <div className="border-t border-white/20 pt-6">
              <h3 className="text-xl font-abeze font-bold text-white mb-4">
-               Change Password (Optional)
+               {t('editProfile.form.passwordSection.title')}
              </h3>
              
              {/* Current Password */}
              <div className="mb-4">
                <label className="block text-white font-abeze font-medium mb-2">
-                 Current Password
+                 {t('editProfile.form.currentPassword')}
                </label>
                <div className="relative">
                  <input
@@ -555,7 +557,7 @@ const EditProfileModal = ({ onClose, user }) => {
                    className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                      errors.currentPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                    }`}
-                   placeholder="Enter current password"
+                   placeholder={t('editProfile.form.currentPasswordPlaceholder')}
                  />
                  <button
                    type="button"
@@ -582,7 +584,7 @@ const EditProfileModal = ({ onClose, user }) => {
              {/* New Password */}
              <div className="mb-4">
                <label className="block text-white font-abeze font-medium mb-2">
-                 New Password
+                 {t('editProfile.form.newPassword')}
                </label>
                <div className="relative">
                  <input
@@ -593,7 +595,7 @@ const EditProfileModal = ({ onClose, user }) => {
                    className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                      errors.newPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                    }`}
-                   placeholder="Enter new password"
+                   placeholder={t('editProfile.form.newPasswordPlaceholder')}
                  />
                  <button
                    type="button"
@@ -627,7 +629,7 @@ const EditProfileModal = ({ onClose, user }) => {
                )}
                {formData.newPassword && !errors.newPassword && (
                  <p className={`text-sm mt-1 font-abeze ${getPasswordStrengthColor()}`}>
-                   ✓ Strong password
+                   {t('editProfile.form.strongPassword')}
                  </p>
                )}
              </div>
@@ -635,7 +637,7 @@ const EditProfileModal = ({ onClose, user }) => {
              {/* Confirm New Password */}
              <div className="mb-4">
                <label className="block text-white font-abeze font-medium mb-2">
-                 Confirm New Password
+                 {t('editProfile.form.confirmPassword')}
                </label>
                <div className="relative">
                  <input
@@ -646,7 +648,7 @@ const EditProfileModal = ({ onClose, user }) => {
                    className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                      errors.confirmNewPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                    }`}
-                   placeholder="Confirm new password"
+                   placeholder={t('editProfile.form.confirmPasswordPlaceholder')}
                  />
                  <button
                    type="button"
@@ -689,7 +691,7 @@ const EditProfileModal = ({ onClose, user }) => {
              disabled={isSubmitting}
              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
            >
-             {isSubmitting ? 'Updating Profile...' : 'Update Profile'}
+             {isSubmitting ? t('editProfile.form.updatingButton') : t('editProfile.form.updateButton')}
            </button>
         </form>
       </div>

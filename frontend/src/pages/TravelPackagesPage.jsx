@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { packageApi, safariRequestApi } from '../services/api';
@@ -8,6 +9,7 @@ import { packageApi, safariRequestApi } from '../services/api';
 const TravelPackagesPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, setRedirectPath, redirectAfterLogin } = useAuth();
+  const { t } = useLanguage();
   const [activeFilter, setActiveFilter] = useState('All');
   const [packages, setPackages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,7 +110,7 @@ const TravelPackagesPage = () => {
     setIsSubmittingRequest(true);
     try {
       await safariRequestApi.createSafariRequest(requestFormData);
-      alert('Safari request submitted successfully! We will contact you soon.');
+      alert(t('packages.requestForm.success'));
       setRequestFormData({
         name: '',
         email: '',
@@ -123,7 +125,7 @@ const TravelPackagesPage = () => {
       });
       setShowRequestForm(false);
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || 'Failed to submit request. Please try again.';
+      const errorMessage = error?.response?.data?.message || t('packages.requestForm.error');
       alert(errorMessage);
     } finally {
       setIsSubmittingRequest(false);
@@ -139,10 +141,10 @@ const TravelPackagesPage = () => {
           {/* Page Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              Safari <span className="text-green-400">Packages</span>
+              {t('packages.title')} <span className="text-green-400">Packages</span>
             </h1>
             <p className="text-gray-300 font-abeze text-lg max-w-3xl mx-auto">
-              Discover the perfect wildlife adventure with our carefully curated safari packages across Sri Lanka's most pristine national parks.
+              {t('packages.subtitle')}
             </p>
           </div>
 
@@ -154,7 +156,7 @@ const TravelPackagesPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-green-400 font-abeze text-lg">
-                  Please login to continue with your booking
+                  {t('packages.loginToContinue')}
                 </p>
               </div>
             </div>
@@ -173,7 +175,7 @@ const TravelPackagesPage = () => {
                       : 'bg-white/10 text-gray-300 hover:bg-white/20'
                   }`}
                 >
-                  {filter}
+                  {t(`packages.filters.${filter.toLowerCase()}`)}
                 </button>
               ))}
             </div>
@@ -182,11 +184,11 @@ const TravelPackagesPage = () => {
           {/* Packages Grid */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-gray-300 font-abeze">Loading packages...</div>
+              <div className="text-gray-300 font-abeze">{t('packages.loading')}</div>
             </div>
           ) : filteredPackages.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-gray-300 font-abeze">No packages found for the selected category.</div>
+              <div className="text-gray-300 font-abeze">{t('packages.noPackagesFound')}</div>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
@@ -228,7 +230,7 @@ const TravelPackagesPage = () => {
                       </h3>
                       {pkg.isPopular && (
                         <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-abeze font-bold">
-                          Popular
+                          {t('packages.popular')}
                         </span>
                       )}
                     </div>
@@ -255,7 +257,7 @@ const TravelPackagesPage = () => {
                         </span>
                         {pkg.reviews && (
                           <span className="text-gray-400 font-abeze text-sm">
-                            ({pkg.reviews} reviews)
+                            ({pkg.reviews} {t('packages.reviews')})
                           </span>
                         )}
                       </div>
@@ -281,7 +283,7 @@ const TravelPackagesPage = () => {
                           <svg className="w-3 h-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                           </svg>
-                          <span className="text-gray-300 font-abeze">Max {pkg.maxGroupSize} people</span>
+                          <span className="text-gray-300 font-abeze">{t('packages.maxPeople', { count: pkg.maxGroupSize })}</span>
                         </div>
                       )}
                     </div>
@@ -289,7 +291,7 @@ const TravelPackagesPage = () => {
                     {/* Highlights */}
                     {pkg.highlights && pkg.highlights.length > 0 && (
                       <div className="space-y-3 mb-6">
-                        <h4 className="text-green-400 font-abeze font-medium text-base">Highlights:</h4>
+                        <h4 className="text-green-400 font-abeze font-medium text-base">{t('packages.highlights')}</h4>
                         <div className="space-y-2">
                           {pkg.highlights.slice(0, 4).map((highlight, index) => (
                             <div key={index} className="flex items-center space-x-3">
@@ -306,7 +308,7 @@ const TravelPackagesPage = () => {
                     {/* Features */}
                     {pkg.features && pkg.features.length > 0 && (
                       <div className="space-y-3 mb-6">
-                        <h4 className="text-blue-400 font-abeze font-medium text-base">Features:</h4>
+                        <h4 className="text-blue-400 font-abeze font-medium text-base">{t('packages.features')}</h4>
                         <div className="space-y-2">
                           {pkg.features.slice(0, 3).map((feature, index) => (
                             <div key={index} className="flex items-center space-x-3">
@@ -323,7 +325,7 @@ const TravelPackagesPage = () => {
                     <div className="flex items-center justify-between mb-6">
                       <div>
                         <span className="text-3xl font-abeze font-bold text-green-400">LKR {pkg.price?.toLocaleString()}</span>
-                        <span className="text-gray-400 font-abeze text-sm">/person</span>
+                        <span className="text-gray-400 font-abeze text-sm">{t('packages.perPerson')}</span>
                       </div>
                     </div>
                     
@@ -331,7 +333,7 @@ const TravelPackagesPage = () => {
                       onClick={() => handleBookNow(pkg._id)}
                       className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-abeze font-bold transition-colors duration-300"
                     >
-                      Book Now
+                      {t('packages.bookNow')}
                     </button>
                   </div>
                 </div>
@@ -343,20 +345,20 @@ const TravelPackagesPage = () => {
           <div className="text-center mb-16">
             <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-8 border border-green-400/30">
               <h3 className="text-2xl font-abeze font-bold text-white mb-4">
-                Can't Find the Perfect Package?
+                {t('packages.customPackage.title')}
               </h3>
               <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-                Let us create a custom safari experience tailored to your preferences. Our expert team will design the perfect wildlife adventure just for you.
+                {t('packages.customPackage.description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button 
                   onClick={() => setShowRequestForm(!showRequestForm)}
                   className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
                 >
-                  {showRequestForm ? 'Hide Request Form' : 'Request Safari'}
+                  {showRequestForm ? t('packages.customPackage.hideForm') : t('packages.customPackage.requestSafari')}
                 </button>
                 <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
-                  Contact Us
+                  {t('packages.customPackage.contactUs')}
                 </button>
               </div>
             </div>
@@ -368,10 +370,10 @@ const TravelPackagesPage = () => {
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
                 <div className="text-center mb-8">
                   <h3 className="text-3xl font-abeze font-bold text-white mb-2">
-                    Request Custom Safari
+                    {t('packages.requestForm.title')}
                   </h3>
                   <p className="text-gray-300 font-abeze">
-                    Tell us about your dream safari and we'll create a personalized experience for you
+                    {t('packages.requestForm.subtitle')}
                   </p>
                 </div>
 
@@ -379,11 +381,11 @@ const TravelPackagesPage = () => {
                   <div className="grid md:grid-cols-2 gap-6">
                     {/* Personal Information */}
                     <div className="space-y-4">
-                      <h4 className="text-xl font-abeze font-bold text-white mb-4">Personal Information</h4>
+                      <h4 className="text-xl font-abeze font-bold text-white mb-4">{t('packages.requestForm.personalInfo')}</h4>
                       
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Full Name *
+                          {t('packages.requestForm.fullName')}
                         </label>
                         <input
                           type="text"
@@ -393,7 +395,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.name ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="John Doe"
+                          placeholder={t('packages.requestForm.placeholders.name')}
                         />
                         {requestFormErrors.name && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.name}</p>
@@ -402,7 +404,7 @@ const TravelPackagesPage = () => {
 
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Email Address *
+                          {t('packages.requestForm.email')}
                         </label>
                         <input
                           type="email"
@@ -412,7 +414,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="john.doe@example.com"
+                          placeholder={t('packages.requestForm.placeholders.email')}
                         />
                         {requestFormErrors.email && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.email}</p>
@@ -421,7 +423,7 @@ const TravelPackagesPage = () => {
 
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Phone Number *
+                          {t('packages.requestForm.phone')}
                         </label>
                         <input
                           type="tel"
@@ -431,7 +433,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.phone ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="+94 71 123 4567"
+                          placeholder={t('packages.requestForm.placeholders.phone')}
                         />
                         {requestFormErrors.phone && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.phone}</p>
@@ -441,11 +443,11 @@ const TravelPackagesPage = () => {
 
                     {/* Safari Details */}
                     <div className="space-y-4">
-                      <h4 className="text-xl font-abeze font-bold text-white mb-4">Safari Details</h4>
+                      <h4 className="text-xl font-abeze font-bold text-white mb-4">{t('packages.requestForm.safariDetails')}</h4>
                       
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Preferred Dates *
+                          {t('packages.requestForm.preferredDates')}
                         </label>
                         <input
                           type="text"
@@ -455,7 +457,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.preferredDates ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="e.g., March 15-20, 2024"
+                          placeholder={t('packages.requestForm.placeholders.dates')}
                         />
                         {requestFormErrors.preferredDates && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.preferredDates}</p>
@@ -464,7 +466,7 @@ const TravelPackagesPage = () => {
 
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Group Size *
+                          {t('packages.requestForm.groupSize')}
                         </label>
                         <input
                           type="text"
@@ -474,7 +476,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.groupSize ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="e.g., 4 adults, 2 children"
+                          placeholder={t('packages.requestForm.placeholders.group')}
                         />
                         {requestFormErrors.groupSize && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.groupSize}</p>
@@ -483,7 +485,7 @@ const TravelPackagesPage = () => {
 
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Duration *
+                          {t('packages.requestForm.duration')}
                         </label>
                         <input
                           type="text"
@@ -493,7 +495,7 @@ const TravelPackagesPage = () => {
                           className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                             requestFormErrors.duration ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                           }`}
-                          placeholder="e.g., 5 days, 4 nights"
+                          placeholder={t('packages.requestForm.placeholders.duration')}
                         />
                         {requestFormErrors.duration && (
                           <p className="text-red-400 text-sm mt-1 font-abeze">{requestFormErrors.duration}</p>
@@ -504,12 +506,12 @@ const TravelPackagesPage = () => {
 
                   {/* Additional Information */}
                   <div className="space-y-4">
-                    <h4 className="text-xl font-abeze font-bold text-white mb-4">Additional Information</h4>
+                    <h4 className="text-xl font-abeze font-bold text-white mb-4">{t('packages.requestForm.additionalInfo')}</h4>
                     
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Budget Range
+                          {t('packages.requestForm.budget')}
                         </label>
                         <input
                           type="text"
@@ -517,13 +519,13 @@ const TravelPackagesPage = () => {
                           value={requestFormData.budget}
                           onChange={handleRequestFormChange}
                           className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                          placeholder="e.g., LKR 50,000 - 100,000 per person"
+                          placeholder={t('packages.requestForm.placeholders.budget')}
                         />
                       </div>
 
                       <div>
                         <label className="block text-white font-abeze font-medium mb-2">
-                          Preferred Locations
+                          {t('packages.requestForm.preferredLocations')}
                         </label>
                         <input
                           type="text"
@@ -531,14 +533,14 @@ const TravelPackagesPage = () => {
                           value={requestFormData.preferredLocations}
                           onChange={handleRequestFormChange}
                           className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                          placeholder="e.g., Yala, Udawalawe, Wilpattu"
+                          placeholder={t('packages.requestForm.placeholders.locations')}
                         />
                       </div>
                     </div>
 
                     <div>
                       <label className="block text-white font-abeze font-medium mb-2">
-                        Wildlife Interests
+                        {t('packages.requestForm.wildlifeInterests')}
                       </label>
                       <input
                         type="text"
@@ -546,13 +548,13 @@ const TravelPackagesPage = () => {
                         value={requestFormData.wildlifeInterests}
                         onChange={handleRequestFormChange}
                         className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                        placeholder="e.g., Elephants, Leopards, Birds, Photography"
+                        placeholder={t('packages.requestForm.placeholders.interests')}
                       />
                     </div>
 
                     <div>
                       <label className="block text-white font-abeze font-medium mb-2">
-                        Special Requirements
+                        {t('packages.requestForm.specialRequirements')}
                       </label>
                       <textarea
                         name="specialRequirements"
@@ -560,8 +562,8 @@ const TravelPackagesPage = () => {
                         onChange={handleRequestFormChange}
                         rows="4"
                         className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors resize-none"
-                        placeholder="Any special requirements, accessibility needs, dietary restrictions, or specific experiences you're looking for..."
-                      />
+                        placeholder={t('packages.requestForm.placeholders.requirements')}
+                      ></textarea>
                     </div>
                   </div>
 
@@ -572,14 +574,14 @@ const TravelPackagesPage = () => {
                       onClick={() => setShowRequestForm(false)}
                       className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300"
                     >
-                      Cancel
+                      {t('packages.requestForm.cancel')}
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmittingRequest}
                       className="px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg font-abeze font-bold transition-colors duration-300"
                     >
-                      {isSubmittingRequest ? 'Submitting...' : 'Submit Request'}
+                      {isSubmittingRequest ? t('packages.requestForm.submitting') : t('packages.requestForm.submit')}
                     </button>
                   </div>
                 </form>

@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const SafariPackages = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const navigateToTravelPackages = () => {
     navigate('/travel-packages');
@@ -16,16 +18,16 @@ const SafariPackages = () => {
         <div className="text-center mt-12">
           <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30">
             <h3 className="text-2xl font-abeze font-bold text-white mb-4">
-              Explore Our Complete Collection
+              {t('safariPackages.exploreCollection')}
             </h3>
             <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-              Discover more wildlife experiences including photography tours, bird watching, hiking adventures, and custom adventure packages.
+              {t('safariPackages.discoverMore')}
             </p>
             <button 
               onClick={navigateToTravelPackages}
               className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
             >
-              See All Packages
+              {t('safariPackages.seeAllPackages')}
             </button>
           </div>
         </div>

@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import Login from './Login';
 import Signup from './Signup';
 import StaffLogin from './StaffLogin';
+import LanguageSwitcher from './LanguageSwitcher';
 import logo from '../assets/logo.png';
 
 const Header = ({ triggerLogin = null }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, user, redirectAfterLogin } = useAuth();
+  const { t } = useLanguage();
   const [showLogin, setShowLogin] = useState(false);
   const [showSignup, setShowSignup] = useState(false);
   const [showStaffLogin, setShowStaffLogin] = useState(false);
@@ -172,13 +175,13 @@ const Header = ({ triggerLogin = null }) => {
                   location.pathname === '/' ? 'text-green-400' : 'text-white hover:text-green-400'
                 }`}
               >
-                HOME
+                {t('nav.home')}
               </button>
               <button 
                 onClick={scrollToAwareness}
                 className="text-white font-abeze font-medium hover:text-green-400 transition-colors"
               >
-                AWARENESS
+                {t('nav.awareness')}
               </button>
               <button 
                 onClick={navigateToTravelPackages}
@@ -186,7 +189,7 @@ const Header = ({ triggerLogin = null }) => {
                   location.pathname === '/travel-packages' ? 'text-green-400' : 'text-white hover:text-green-400'
                 }`}
               >
-                PACKAGES
+                {t('nav.packages')}
               </button>
               <button 
                 onClick={navigateToGallery}
@@ -194,7 +197,7 @@ const Header = ({ triggerLogin = null }) => {
                   location.pathname === '/gallery' ? 'text-green-400' : 'text-white hover:text-green-400'
                 }`}
               >
-                GALLERY
+                {t('nav.gallery')}
               </button>
               <button 
                 onClick={navigateToAbout}
@@ -202,7 +205,7 @@ const Header = ({ triggerLogin = null }) => {
                   location.pathname === '/about' ? 'text-green-400' : 'text-white hover:text-green-400'
                 }`}
               >
-                ABOUT US
+                {t('nav.about')}
               </button>
               <button 
                 onClick={navigateToContact}
@@ -210,25 +213,28 @@ const Header = ({ triggerLogin = null }) => {
                   location.pathname === '/contact' ? 'text-green-400' : 'text-white hover:text-green-400'
                 }`}
               >
-                CONTACT
+                {t('nav.contact')}
               </button>
             </nav>
 
             {/* Login/Account Button */}
             <div className="flex items-center space-x-4">
+              {/* Language Switcher */}
+              <LanguageSwitcher />
+              
               {isAuthenticated ? (
                 <button 
                   onClick={navigateToAccount}
                   className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-full font-abeze font-medium transition-colors duration-300"
                 >
-                  {user?.role === 'admin' ? 'ADMIN' : 'MY ACCOUNT'}
+                  {user?.role === 'admin' ? t('nav.admin') : t('nav.myAccount')}
                 </button>
               ) : (
                 <button 
                   onClick={handleLoginClick}
                   className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-full font-abeze font-medium transition-colors duration-300 text-sm"
                 >
-                  LOGIN
+                  {t('nav.login')}
                 </button>
               )}
               
@@ -274,13 +280,13 @@ const Header = ({ triggerLogin = null }) => {
                     location.pathname === '/' ? 'text-green-400' : 'text-white hover:text-green-400'
                   }`}
                 >
-                  HOME
+                  {t('nav.home')}
                 </button>
                 <button 
                   onClick={scrollToAwareness}
                   className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
                 >
-                  AWARENESS
+                  {t('nav.awareness')}
                 </button>
                 <button 
                   onClick={navigateToTravelPackages}
@@ -288,7 +294,7 @@ const Header = ({ triggerLogin = null }) => {
                     location.pathname === '/travel-packages' ? 'text-green-400' : 'text-white hover:text-green-400'
                   }`}
                 >
-                  PACKAGES
+                  {t('nav.packages')}
                 </button>
                 <button 
                   onClick={navigateToGallery}
@@ -296,7 +302,7 @@ const Header = ({ triggerLogin = null }) => {
                     location.pathname === '/gallery' ? 'text-green-400' : 'text-white hover:text-green-400'
                   }`}
                 >
-                  GALLERY
+                  {t('nav.gallery')}
                 </button>
                 <button 
                   onClick={navigateToAbout}
@@ -304,7 +310,7 @@ const Header = ({ triggerLogin = null }) => {
                     location.pathname === '/about' ? 'text-green-400' : 'text-white hover:text-green-400'
                   }`}
                 >
-                  ABOUT US
+                  {t('nav.about')}
                 </button>
                 <button 
                   onClick={navigateToContact}
@@ -312,21 +318,21 @@ const Header = ({ triggerLogin = null }) => {
                     location.pathname === '/contact' ? 'text-green-400' : 'text-white hover:text-green-400'
                   }`}
                 >
-                  CONTACT
+                  {t('nav.contact')}
                 </button>
                 {isAuthenticated ? (
                   <button 
                     onClick={navigateToAccount}
                     className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
                   >
-                    {user?.role === 'admin' ? 'ADMIN' : 'MY ACCOUNT'}
+                    {user?.role === 'admin' ? t('nav.admin') : t('nav.myAccount')}
                   </button>
                 ) : (
                   <button 
                     onClick={handleLoginClick}
                     className="text-left text-white font-abeze font-medium hover:text-green-400 transition-colors"
                   >
-                    LOGIN
+                    {t('nav.login')}
                   </button>
                 )}
               </nav>

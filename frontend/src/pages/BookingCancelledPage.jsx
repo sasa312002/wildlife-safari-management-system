@@ -1,10 +1,12 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const BookingCancelledPage = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
@@ -22,24 +24,24 @@ const BookingCancelledPage = () => {
 
             {/* Cancelled Message */}
             <h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-6">
-              Payment <span className="text-yellow-400">Cancelled</span>
+              {t('bookingCancelled.title').split(' ').slice(0, -1).join(' ')} <span className="text-yellow-400">{t('bookingCancelled.title').split(' ').pop()}</span>
             </h1>
             
             <p className="text-gray-300 font-abeze text-lg mb-8">
-              Your payment was cancelled. Don't worry, your booking details are safe and you can complete the payment anytime.
+              {t('bookingCancelled.message')}
             </p>
 
             {/* What Happened */}
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 mb-8">
-              <h2 className="text-2xl font-abeze font-bold text-white mb-4">What Happened?</h2>
+              <h2 className="text-2xl font-abeze font-bold text-white mb-4">{t('bookingCancelled.whatHappened')}</h2>
               <div className="space-y-4 text-left">
                 <div className="flex items-start space-x-3">
                   <div className="bg-yellow-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 mt-1">
                     <span className="text-xs font-bold">!</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-abeze font-medium">Payment Cancelled</h3>
-                    <p className="text-gray-300 font-abeze text-sm">You cancelled the payment process or it was interrupted</p>
+                    <h3 className="text-white font-abeze font-medium">{t('bookingCancelled.paymentCancelled')}</h3>
+                    <p className="text-gray-300 font-abeze text-sm">{t('bookingCancelled.paymentCancelledDesc')}</p>
                   </div>
                 </div>
                 
@@ -48,8 +50,8 @@ const BookingCancelledPage = () => {
                     <span className="text-xs font-bold">!</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-abeze font-medium">Booking Saved</h3>
-                    <p className="text-gray-300 font-abeze text-sm">Your booking details are safely stored in your account</p>
+                    <h3 className="text-white font-abeze font-medium">{t('bookingCancelled.bookingSaved')}</h3>
+                    <p className="text-gray-300 font-abeze text-sm">{t('bookingCancelled.bookingSavedDesc')}</p>
                   </div>
                 </div>
                 
@@ -58,8 +60,8 @@ const BookingCancelledPage = () => {
                     <span className="text-xs font-bold">!</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-abeze font-medium">Complete Later</h3>
-                    <p className="text-gray-300 font-abeze text-sm">You can complete the payment anytime from your account</p>
+                    <h3 className="text-white font-abeze font-medium">{t('bookingCancelled.completeLater')}</h3>
+                    <p className="text-gray-300 font-abeze text-sm">{t('bookingCancelled.completeLaterDesc')}</p>
                   </div>
                 </div>
               </div>
@@ -71,22 +73,22 @@ const BookingCancelledPage = () => {
                 onClick={() => navigate('/account')}
                 className="bg-green-600 hover:bg-green-700 text-white py-4 px-8 rounded-lg font-abeze font-bold transition-colors duration-300"
               >
-                Go to My Account
+                {t('bookingCancelled.goToAccount')}
               </button>
               
               <button
                 onClick={() => navigate('/travel-packages')}
                 className="bg-transparent hover:bg-white/10 text-white py-4 px-8 rounded-lg font-abeze font-bold border border-white/20 transition-colors duration-300"
               >
-                Browse Packages
+                {t('bookingCancelled.browsePackages')}
               </button>
             </div>
 
             {/* Help Section */}
             <div className="mt-12 text-center">
-              <p className="text-gray-400 font-abeze text-sm mb-2">Need help with your booking?</p>
-              <p className="text-green-400 font-abeze font-medium">+94 71 123 4567 | support@safari.com</p>
-              <p className="text-gray-400 font-abeze text-xs mt-2">Our team is here to help you complete your safari adventure</p>
+              <p className="text-gray-400 font-abeze text-sm mb-2">{t('bookingCancelled.needHelp')}</p>
+              <p className="text-green-400 font-abeze font-medium">{t('bookingCancelled.contactInfo')}</p>
+              <p className="text-gray-400 font-abeze text-xs mt-2">{t('bookingCancelled.helpMessage')}</p>
             </div>
           </div>
         </div>
