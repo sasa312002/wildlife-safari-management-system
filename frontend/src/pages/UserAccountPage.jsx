@@ -661,15 +661,31 @@ const UserAccountPage = () => {
                             {/* Download PDF Button */}
                             <button
                               onClick={() => handleDownloadPDF(booking)}
-                              className="group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border-blue-400/30"
+                              disabled={downloadingPDF}
+                              className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
+                                downloadingPDF 
+                                  ? 'bg-gray-500 cursor-not-allowed border-gray-400/30' 
+                                  : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border-blue-400/30'
+                              }`}
                             >
                               <div className="flex items-center space-x-2">
-                                <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                <span>Download PDF</span>
+                                {downloadingPDF ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    <span>Generating...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span>Download PDF</span>
+                                  </>
+                                )}
                               </div>
-                              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                              {!downloadingPDF && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                              )}
                             </button>
 
                             {/* Review Button - Only show for completed bookings */}
