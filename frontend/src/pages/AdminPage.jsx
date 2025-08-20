@@ -1200,8 +1200,8 @@ The Wildlife Safari Team`);
                <span>{sortOrder === 'asc' ? 'Ascending' : 'Descending'}</span>
              </button>
            </div>
-        </div>
-      </div>
+         </div>
+       </div>
 
       {/* Bookings List */}
       {bookingsLoading ? (
@@ -1235,16 +1235,16 @@ The Wildlife Safari Team`);
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                        </div>
-                      <div>
+                  </div>
+                  <div>
                     <h4 className="text-lg font-abeze font-bold text-white">
                       Booking #{booking._id.slice(-6).toUpperCase()}
                     </h4>
                     <p className="text-gray-400 font-abeze text-sm">
                       Created on {new Date(booking.createdAt).toLocaleDateString()}
                     </p>
-                      </div>
-                      </div>
+                  </div>
+                </div>
                 <div className="flex items-center space-x-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
                     booking.status === 'Payment Confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
@@ -1253,14 +1253,14 @@ The Wildlife Safari Team`);
                     booking.status === 'Completed' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
                     booking.status === 'Cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                     'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                      }`}>
-                        {booking.status}
-                      </span>
+                  }`}>
+                    {booking.status}
+                  </span>
                   <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
                     booking.payment ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
                   }`}>
                     {booking.payment ? 'Paid' : 'Payment Pending'}
-                      </span>
+                  </span>
                 </div>
               </div>
 
@@ -1276,7 +1276,7 @@ The Wildlife Safari Team`);
                     </div>
                     <h5 className="font-abeze font-semibold text-white">Customer</h5>
                   </div>
-                      <div className="space-y-1">
+                  <div className="space-y-1">
                     <p className="text-white font-abeze font-medium">
                       {booking.userId?.firstName} {booking.userId?.lastName}
                     </p>
@@ -1360,18 +1360,18 @@ The Wildlife Safari Team`);
                     </div>
                     <div className="flex-1">
                       <p className="text-white font-abeze font-medium">Driver</p>
-                        {booking.driverId ? (
-                          <div className="flex items-center space-x-2">
+                      {booking.driverId ? (
+                        <div className="flex items-center space-x-2">
                           <span className="text-white font-abeze text-sm">
-                              {booking.driverId?.firstName} {booking.driverId?.lastName}
-                            </span>
+                            {booking.driverId?.firstName} {booking.driverId?.lastName}
+                          </span>
                           <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                              booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {booking.driverAccepted ? 'Accepted' : 'Pending'}
-                            </span>
-                          </div>
-                        ) : (
+                            booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {booking.driverAccepted ? 'Accepted' : 'Pending'}
+                          </span>
+                        </div>
+                      ) : (
                         <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
                       )}
                     </div>
@@ -1384,21 +1384,21 @@ The Wildlife Safari Team`);
                     </div>
                     <div className="flex-1">
                       <p className="text-white font-abeze font-medium">Tour Guide</p>
-                        {booking.guideId ? (
-                          <div className="flex items-center space-x-2">
+                      {booking.guideId ? (
+                        <div className="flex items-center space-x-2">
                           <span className="text-white font-abeze text-sm">
-                              {booking.guideId?.firstName} {booking.guideId?.lastName}
-                            </span>
+                            {booking.guideId?.firstName} {booking.guideId?.lastName}
+                          </span>
                           <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                              booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {booking.guideAccepted ? 'Accepted' : 'Pending'}
-                            </span>
-                          </div>
-                        ) : (
+                            booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {booking.guideAccepted ? 'Accepted' : 'Pending'}
+                          </span>
+                        </div>
+                      ) : (
                         <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
-                        )}
-                      </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1406,32 +1406,32 @@ The Wildlife Safari Team`);
               {/* Actions Section */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-3">
-                        <button
-                          onClick={() => handleAssignStaff(booking)}
+                  <button
+                    onClick={() => handleAssignStaff(booking)}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
-                        >
+                  >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     <span>Assign Staff</span>
-                        </button>
+                  </button>
                 </div>
                 <div className="flex items-center space-x-3">
                   <label className="text-white font-abeze text-sm">Update Status:</label>
-                        <select
-                          value={booking.status}
-                          onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
+                  <select
+                    value={booking.status}
+                    onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
                     className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 font-abeze focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Payment Confirmed">Payment Confirmed</option>
-                          <option value="Confirmed">Confirmed</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </div>
-          </div>
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Payment Confirmed">Payment Confirmed</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -2278,7 +2278,7 @@ The Wildlife Safari Team`);
              </div>
            </div>
          </div>
-       )}
+      )}
     </div>
   );
 };
