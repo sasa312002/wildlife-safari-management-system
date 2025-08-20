@@ -811,8 +811,9 @@ const Attendance = () => {
       {/* Add Attendance Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
-                         <div className="p-6 border-b border-gray-700">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] border border-gray-700 flex flex-col">
+            {/* Modal Header - Fixed */}
+            <div className="p-6 border-b border-gray-700 flex-shrink-0">
                <h3 className="text-xl font-abeze font-bold text-white">Add Attendance Record</h3>
                {isFormDisabled() && (
                  <div className="mt-2 p-2 bg-red-900/20 border border-red-500/50 rounded-lg">
@@ -827,6 +828,9 @@ const Attendance = () => {
                  </div>
                )}
              </div>
+            
+            {/* Modal Form - Scrollable */}
+            <div className="flex-1 overflow-y-auto">
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
                              <div>
                  <label className="block text-gray-300 font-abeze text-sm mb-2">Staff Member</label>
@@ -1050,9 +1054,13 @@ const Attendance = () => {
                   rows="3"
                   placeholder="Optional notes..."
                 />
+                </div>
+              </form>
               </div>
               
-              <div className="flex space-x-3 pt-4">
+            {/* Modal Footer - Fixed */}
+            <div className="p-6 border-t border-gray-700 flex-shrink-0">
+              <div className="flex space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -1063,6 +1071,7 @@ const Attendance = () => {
                                  <button
                    type="submit"
                    disabled={isFormDisabled()}
+                  onClick={handleSubmit}
                    className={`flex-1 px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
                      isFormDisabled()
                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
@@ -1072,7 +1081,7 @@ const Attendance = () => {
                    Add Record
                  </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
@@ -1082,10 +1091,14 @@ const Attendance = () => {
       {/* Edit Modal */}
       {showEditModal && selectedAttendance && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
-            <div className="p-6 border-b border-gray-700">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] border border-gray-700 flex flex-col">
+            {/* Modal Header - Fixed */}
+            <div className="p-6 border-b border-gray-700 flex-shrink-0">
               <h3 className="text-xl font-abeze font-bold text-white">Edit Attendance Record</h3>
             </div>
+            
+            {/* Modal Form - Scrollable */}
+            <div className="flex-1 overflow-y-auto">
             <form onSubmit={handleUpdate} className="p-6 space-y-4">
                              <div>
                  <label className="block text-gray-300 font-abeze text-sm mb-2">Staff Member</label>
@@ -1288,9 +1301,13 @@ const Attendance = () => {
                   rows="3"
                   placeholder="Optional notes..."
                 />
+                </div>
+              </form>
               </div>
               
-              <div className="flex space-x-3 pt-4">
+            {/* Modal Footer - Fixed */}
+            <div className="p-6 border-t border-gray-700 flex-shrink-0">
+              <div className="flex space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowEditModal(false)}
@@ -1300,12 +1317,13 @@ const Attendance = () => {
                 </button>
                 <button
                   type="submit"
+                  onClick={handleUpdate}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
                 >
                   Update Record
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
