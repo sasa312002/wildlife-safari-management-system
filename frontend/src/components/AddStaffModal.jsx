@@ -360,12 +360,25 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                   name="role"
                   value={formData.role}
                   onChange={handleRoleChange}
-                  className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                  className={`w-full bg-gray-800 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
                     errors.role ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
+                  style={{
+                    color: 'white',
+                    backgroundColor: '#1f2937'
+                  }}
                 >
                   {roles.map(role => (
-                    <option key={role.value} value={role.value}>{role.label}</option>
+                    <option 
+                      key={role.value} 
+                      value={role.value}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        color: 'white'
+                      }}
+                    >
+                      {role.label}
+                    </option>
                   ))}
                 </select>
                 {errors.role && (
