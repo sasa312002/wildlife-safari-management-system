@@ -176,18 +176,18 @@ const UserAccountPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700">
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <Header />
       
       {/* Main Content */}
-      <div className="pt-24 pb-16">
+      <div className="pt-30 pb-16">
         <div className="container mx-auto px-6">
           {/* Page Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
+          <div className="text-center mb-16">
+            <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
               {t('userAccount.pageTitle')}
             </h1>
-            <p className="text-green-200 font-abeze text-lg">
+            <p className="text-gray-300 font-abeze text-lg max-w-3xl mx-auto">
               {t('userAccount.pageSubtitle')}
             </p>
           </div>
@@ -195,43 +195,43 @@ const UserAccountPage = () => {
           {/* Account Content */}
           <div className="max-w-4xl mx-auto">
             {/* Tab Navigation */}
-            <div className="flex flex-wrap justify-center mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20">
+            <div className="flex flex-wrap justify-center mb-8 bg-white/10 backdrop-blur-sm rounded-2xl p-2 border border-white/20">
               <button
                 onClick={() => handleTabChange('profile')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                className={`px-6 py-3 rounded-full font-abeze font-medium transition-all duration-300 ${
                   activeTab === 'profile'
                     ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/20'
                 }`}
               >
                 {t('userAccount.tabs.profile')}
               </button>
               <button
                 onClick={() => handleTabChange('bookings')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                className={`px-6 py-3 rounded-full font-abeze font-medium transition-all duration-300 ${
                   activeTab === 'bookings'
                     ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/20'
                 }`}
               >
                 {t('userAccount.tabs.bookings')}
               </button>
               <button
                 onClick={() => handleTabChange('messages')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                className={`px-6 py-3 rounded-full font-abeze font-medium transition-all duration-300 ${
                   activeTab === 'messages'
                     ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/20'
                 }`}
               >
                 {t('userAccount.tabs.messages')}
               </button>
               <button
                 onClick={() => handleTabChange('reviews')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                className={`px-6 py-3 rounded-full font-abeze font-medium transition-all duration-300 ${
                   activeTab === 'reviews'
                     ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                    : 'text-gray-300 hover:text-white hover:bg-white/20'
                 }`}
               >
                 {t('userAccount.myReviews')}
@@ -243,7 +243,7 @@ const UserAccountPage = () => {
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Profile Card */}
                 <div className="md:col-span-1">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-green-400/50 transition-all duration-300">
                     <div className="text-center mb-6">
                       <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-white/20">
                         {user?.profilePicture?.url ? (
@@ -253,7 +253,7 @@ const UserAccountPage = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-green-500 flex items-center justify-center">
+                          <div className="w-full h-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
                             <span className="text-2xl font-abeze font-bold text-white">
                               {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                             </span>
@@ -263,7 +263,7 @@ const UserAccountPage = () => {
                       <h2 className="text-xl font-abeze font-bold text-white">
                         {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.firstName || t('userAccount.common.defaultUser')}
                       </h2>
-                      <p className="text-green-200 font-abeze">
+                      <p className="text-gray-300 font-abeze">
                         {user?.email}
                       </p>
                     </div>
@@ -271,13 +271,13 @@ const UserAccountPage = () => {
                     <div className="space-y-4">
                       <button
                         onClick={handleEditProfile}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-full font-abeze font-medium transition-all duration-300 transform hover:scale-105"
                       >
                         {t('userAccount.profile.editProfile')}
                       </button>
                       <button
                         onClick={handleLogout}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-full font-abeze font-medium transition-all duration-300 transform hover:scale-105"
                       >
                         {t('userAccount.profile.logout')}
                       </button>
@@ -287,71 +287,71 @@ const UserAccountPage = () => {
 
                 {/* Account Details */}
                 <div className="md:col-span-2">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-green-400/50 transition-all duration-300">
                     <h3 className="text-2xl font-abeze font-bold text-white mb-6">
                       {t('userAccount.profile.accountInformation')}
                     </h3>
                     
                     <div className="space-y-6">
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.firstName')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.firstName || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.lastName')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.lastName || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.emailAddress')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.email}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.phoneNumber')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.phone || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.country')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.country || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.memberSince')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : t('userAccount.profile.recentlyJoined')}
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                        <label className="block text-gray-300 font-abeze font-medium mb-2">
                           {t('userAccount.profile.lastUpdated')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
                           {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : t('userAccount.profile.never')}
                         </div>
                       </div>
@@ -359,7 +359,7 @@ const UserAccountPage = () => {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                  <div className="mt-8 bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-green-400/50 transition-all duration-300">
                     <h3 className="text-2xl font-abeze font-bold text-white mb-6">
                       {t('userAccount.profile.quickActions')}
                     </h3>
@@ -367,7 +367,7 @@ const UserAccountPage = () => {
                     <div className="grid md:grid-cols-2 gap-4">
                       <button
                         onClick={() => handleTabChange('bookings')}
-                        className="bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2"
+                        className="bg-green-600 hover:bg-green-700 text-white py-4 rounded-full font-abeze font-medium transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -377,7 +377,7 @@ const UserAccountPage = () => {
                       
                       <button
                         onClick={() => navigate('/travel-packages')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2"
+                        className="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-full font-abeze font-medium transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -397,7 +397,7 @@ const UserAccountPage = () => {
 
             {/* Reviews Tab Content */}
             {activeTab === 'reviews' && (
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-green-400/50 transition-all duration-300">
                 <h3 className="text-2xl font-abeze font-bold text-white mb-6">
                   {t('userAccount.myReviews')}
                 </h3>
@@ -405,7 +405,7 @@ const UserAccountPage = () => {
                 {loadingReviews ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
-                    <p className="text-green-200 font-abeze">{t('userAccount.loadingReviews')}</p>
+                    <p className="text-gray-300 font-abeze">{t('userAccount.loadingReviews')}</p>
                   </div>
                 ) : reviews.length === 0 ? (
                   <div className="text-center py-8">
@@ -514,11 +514,11 @@ const UserAccountPage = () => {
                      {/* Reviews Pagination */}
                      {totalReviewsPages > 1 && (
                        <div className="mt-8 flex justify-center">
-                         <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
+                         <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-xl p-2 border border-white/20">
                            <button
                              onClick={() => handleReviewsPageChange(currentReviewsPage - 1)}
                              disabled={currentReviewsPage === 1}
-                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                             className="px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-white/20"
                            >
                              {t('userAccount.reviews.previous')}
                            </button>
@@ -529,10 +529,10 @@ const UserAccountPage = () => {
                                <button
                                  key={pageNumber}
                                  onClick={() => handleReviewsPageChange(pageNumber)}
-                                 className={`px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                                 className={`px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 ${
                                    currentReviewsPage === pageNumber
                                      ? 'bg-green-600 text-white'
-                                     : 'text-green-200 hover:text-white hover:bg-white/10'
+                                     : 'text-gray-300 hover:text-white hover:bg-white/20'
                                  }`}
                                >
                                  {pageNumber}
@@ -543,7 +543,7 @@ const UserAccountPage = () => {
                            <button
                              onClick={() => handleReviewsPageChange(currentReviewsPage + 1)}
                              disabled={currentReviewsPage === totalReviewsPages}
-                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
+                             className="px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-white/20"
                            >
                              {t('userAccount.reviews.next')}
                            </button>
@@ -557,7 +557,7 @@ const UserAccountPage = () => {
 
             {/* Bookings Tab Content */}
             {activeTab === 'bookings' && (
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 hover:border-green-400/50 transition-all duration-300">
                 <h3 className="text-2xl font-abeze font-bold text-white mb-6">
                   {t('userAccount.bookings.title')}
                 </h3>
@@ -565,7 +565,7 @@ const UserAccountPage = () => {
                 {loadingBookings ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
-                    <p className="text-green-200 font-abeze">{t('userAccount.bookings.loading')}</p>
+                    <p className="text-gray-300 font-abeze">{t('userAccount.bookings.loading')}</p>
                   </div>
                 ) : bookingsError ? (
                   <div className="text-center py-8">
@@ -577,7 +577,7 @@ const UserAccountPage = () => {
                     <p className="text-red-400 font-abeze mb-4">{bookingsError}</p>
                     <button
                       onClick={handleViewBookings}
-                      className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-abeze font-medium transition-colors duration-300"
+                      className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-full font-abeze font-medium transition-all duration-300"
                     >
                       {t('userAccount.bookings.tryAgain')}
                     </button>
@@ -592,67 +592,67 @@ const UserAccountPage = () => {
                     <p className="text-gray-300 font-abeze mb-4">{t('userAccount.bookings.noBookings')}</p>
                     <button
                       onClick={() => navigate('/travel-packages')}
-                      className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-abeze font-medium transition-colors duration-300"
+                      className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-full font-abeze font-medium transition-all duration-300"
                     >
                       {t('userAccount.bookings.bookFirstSafari')}
                     </button>
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {currentBookings.map((booking) => (
-                      <div key={booking._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
+                      <div key={booking._id} className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 hover:border-green-400/50 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1">
-                            <h4 className="text-lg font-abeze font-bold text-white mb-2">
-                                                                 {booking.packageDetails?.title || t('userAccount.defaultPackageTitle')}
+                            <h4 className="text-xl font-abeze font-bold text-white mb-3">
+                              {booking.packageDetails?.title || t('userAccount.defaultPackageTitle')}
                             </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.location')}</span>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.location')}</span>
                                 <p className="text-white font-abeze">{booking.packageDetails?.location || t('userAccount.common.notAvailable')}</p>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.duration')}</span>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.duration')}</span>
                                 <p className="text-white font-abeze">{booking.packageDetails?.duration || t('userAccount.common.notAvailable')}</p>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.people')}</span>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.people')}</span>
                                 <p className="text-white font-abeze">{booking.bookingDetails?.numberOfPeople || t('userAccount.common.notAvailable')}</p>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.totalPrice')}</span>
-                                <p className="text-white font-abeze">LKR {booking.totalPrice?.toLocaleString() || t('userAccount.common.notAvailable')}</p>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.totalPrice')}</span>
+                                <p className="text-white font-abeze font-bold">LKR {booking.totalPrice?.toLocaleString() || t('userAccount.common.notAvailable')}</p>
                               </div>
                             </div>
-                            <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.startDate')}</span>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.startDate')}</span>
                                 <p className="text-white font-abeze">
                                   {booking.bookingDetails?.startDate ? new Date(booking.bookingDetails.startDate).toLocaleDateString() : t('userAccount.common.notAvailable')}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.endDate')}</span>
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.endDate')}</span>
                                 <p className="text-white font-abeze">
                                   {booking.bookingDetails?.endDate ? new Date(booking.bookingDetails.endDate).toLocaleDateString() : t('userAccount.common.notAvailable')}
                                 </p>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.status')}</span>
-                                <span className={`inline-block px-2 py-1 rounded-full text-xs font-abeze font-medium ${
-                                  booking.status === 'Payment Confirmed' ? 'bg-green-600/20 text-green-400' :
-                                  booking.status === 'Confirmed' ? 'bg-blue-600/20 text-blue-400' :
-                                  booking.status === 'In Progress' ? 'bg-yellow-600/20 text-yellow-400' :
-                                  booking.status === 'Completed' ? 'bg-purple-600/20 text-purple-400' :
-                                  'bg-gray-600/20 text-gray-400'
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.status')}</span>
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-abeze font-medium ${
+                                  booking.status === 'Payment Confirmed' ? 'bg-green-600/20 text-green-400 border border-green-400/30' :
+                                  booking.status === 'Confirmed' ? 'bg-blue-600/20 text-blue-400 border border-blue-400/30' :
+                                  booking.status === 'In Progress' ? 'bg-yellow-600/20 text-yellow-400 border border-yellow-400/30' :
+                                  booking.status === 'Completed' ? 'bg-purple-600/20 text-purple-400 border border-purple-400/30' :
+                                  'bg-gray-600/20 text-gray-400 border border-gray-400/30'
                                 }`}>
                                   {booking.status}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-green-200 font-abeze">{t('userAccount.bookings.payment')}</span>
-                                <span className={`inline-block px-2 py-1 rounded-full text-xs font-abeze font-medium ${
-                                  booking.payment ? 'bg-green-600/20 text-green-400' : 'bg-red-600/20 text-green-400'
+                                <span className="text-gray-300 font-abeze font-medium">{t('userAccount.bookings.payment')}</span>
+                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-abeze font-medium ${
+                                  booking.payment ? 'bg-green-600/20 text-green-400 border border-green-400/30' : 'bg-red-600/20 text-red-400 border border-red-400/30'
                                 }`}>
                                   {booking.payment ? t('userAccount.bookings.paid') : t('userAccount.bookings.pending')}
                                 </span>
@@ -729,14 +729,14 @@ const UserAccountPage = () => {
                     {/* Bookings Pagination */}
                     {totalBookingsPages > 1 && (
                       <div className="mt-8 flex justify-center">
-                        <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
-                                                     <button
-                             onClick={() => handleBookingsPageChange(currentBookingsPage - 1)}
-                             disabled={currentBookingsPage === 1}
-                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
-                           >
-                             {t('userAccount.bookings.previous')}
-                           </button>
+                        <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-xl p-2 border border-white/20">
+                          <button
+                            onClick={() => handleBookingsPageChange(currentBookingsPage - 1)}
+                            disabled={currentBookingsPage === 1}
+                            className="px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-white/20"
+                          >
+                            {t('userAccount.bookings.previous')}
+                          </button>
                           
                           {[...Array(totalBookingsPages)].map((_, index) => {
                             const pageNumber = index + 1;
@@ -744,10 +744,10 @@ const UserAccountPage = () => {
                               <button
                                 key={pageNumber}
                                 onClick={() => handleBookingsPageChange(pageNumber)}
-                                className={`px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 ${
+                                className={`px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 ${
                                   currentBookingsPage === pageNumber
                                     ? 'bg-green-600 text-white'
-                                    : 'text-green-200 hover:text-white hover:bg-white/10'
+                                    : 'text-gray-300 hover:text-white hover:bg-white/20'
                                 }`}
                               >
                                 {pageNumber}
@@ -755,13 +755,13 @@ const UserAccountPage = () => {
                             );
                           })}
                           
-                                                     <button
-                             onClick={() => handleBookingsPageChange(currentBookingsPage + 1)}
-                             disabled={currentBookingsPage === totalBookingsPages}
-                             className="px-3 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-green-200 hover:text-white hover:bg-white/10"
-                           >
-                             {t('userAccount.bookings.next')}
-                           </button>
+                          <button
+                            onClick={() => handleBookingsPageChange(currentBookingsPage + 1)}
+                            disabled={currentBookingsPage === totalBookingsPages}
+                            className="px-3 py-2 rounded-full font-abeze font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-gray-300 hover:text-white hover:bg-white/20"
+                          >
+                            {t('userAccount.bookings.next')}
+                          </button>
                         </div>
                       </div>
                     )}
@@ -806,16 +806,16 @@ const UserAccountPage = () => {
        {/* Review Success Message */}
        {showReviewSuccess && (
          <div className="fixed top-20 right-6 z-50 animate-slide-in-right">
-           <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-green-400/30 backdrop-blur-sm">
+           <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-2xl border border-green-400/30">
              <div className="flex items-center space-x-3">
                <div className="animate-bounce">
-                 <svg className="w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                 <svg className="w-8 h-8 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                  </svg>
                </div>
                <div>
                  <h4 className="font-abeze font-bold text-lg">{t('userAccount.reviews.reviewSubmitted')}</h4>
-                 <p className="text-green-100 text-sm">{t('userAccount.reviews.thankYouMessage')}</p>
+                 <p className="text-green-200 text-sm">{t('userAccount.reviews.thankYouMessage')}</p>
                </div>
              </div>
            </div>
@@ -825,16 +825,16 @@ const UserAccountPage = () => {
        {/* Already Reviewed Message */}
        {showAlreadyReviewedMessage && (
          <div className="fixed top-20 right-6 z-50 animate-slide-in-right">
-           <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl border border-blue-400/30 backdrop-blur-sm">
+           <div className="bg-gradient-to-r from-blue-600/20 to-blue-400/20 backdrop-blur-sm text-white px-6 py-4 rounded-2xl shadow-2xl border border-blue-400/30">
              <div className="flex items-center space-x-3">
                <div className="animate-pulse">
-                 <svg className="w-8 h-8 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <svg className="w-8 h-8 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                  </svg>
                </div>
                <div>
                  <h4 className="font-abeze font-bold text-lg">{t('userAccount.reviews.alreadyReviewedTitle')}</h4>
-                 <p className="text-blue-100 text-sm">{t('userAccount.reviews.alreadyReviewedMessage')}</p>
+                 <p className="text-blue-200 text-sm">{t('userAccount.reviews.alreadyReviewedMessage')}</p>
                </div>
              </div>
            </div>

@@ -136,12 +136,12 @@ const TravelPackagesPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <Header triggerLogin={loginTriggerRef} />
       
-      <div className="pt-20">
+      <div className="pt-30">
         <div className="container mx-auto px-6">
           {/* Page Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              {t('packages.title')} <span className="text-green-400">Packages</span>
+              {t('Safari')} <span className="text-green-400">Packages</span>
             </h1>
             <p className="text-gray-300 font-abeze text-lg max-w-3xl mx-auto">
               {t('packages.subtitle')}
