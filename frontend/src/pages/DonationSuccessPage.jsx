@@ -55,7 +55,7 @@ const DonationSuccessPage = () => {
 					<>
 						<div className="text-green-400 font-abeze font-bold text-2xl mb-2">Thank You for Your Donation! 🎉</div>
 						<p className="text-gray-300 font-abeze mb-6">
-							Your contribution has been received successfully. A receipt has been sent to your email.
+							Your contribution has been received successfully.
 						</p>
 						{result && (
 							<div className="text-sm text-green-200 font-abeze mb-6">

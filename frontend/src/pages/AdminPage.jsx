@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { packageApi, userApi, staffApi, safariRequestApi, bookingApi, reviewApi, donationApi } from '../services/api';
+import { sendThankYouEmail, sendCustomEmail, testEmailConfiguration, debugEmailJS } from '../services/emailService';
 
 import AddPackageModal from '../components/AddPackageModal';
 import EditPackageModal from '../components/EditPackageModal';
@@ -44,6 +45,11 @@ const AdminPage = () => {
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [selectedDonation, setSelectedDonation] = useState(null);
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -421,6 +427,126 @@ const AdminPage = () => {
     } else {
       setSortBy(newSortBy);
       setSortOrder('desc');
+    }
+  };
+
+  const handleSendEmail = (donation) => {
+    setSelectedDonation(donation);
+    setEmailSubject(`Thank you for your donation - Wildlife Safari`);
+    setEmailMessage(`Dear ${donation.isAnonymous ? 'Valued Donor' : donation.firstName},
+
+Thank you so much for your generous donation of ${donation.currency} ${donation.amount?.toLocaleString()} to our wildlife conservation efforts.
+
+Your contribution will help us:
+• Protect endangered wildlife species
+• Maintain and preserve natural habitats
+• Support our conservation programs
+• Educate communities about wildlife protection
+
+We are truly grateful for your support in helping us make a difference in wildlife conservation.
+
+Best regards,
+The Wildlife Safari Team`);
+    setShowEmailModal(true);
+  };
+
+  const handleSendThankYouEmail = async () => {
+    if (!selectedDonation) return;
+    
+    setSendingEmail(true);
+    try {
+      const result = await sendThankYouEmail(selectedDonation);
+      
+      if (result.success) {
+        alert('Thank you email sent successfully!');
+        setShowEmailModal(false);
+        setSelectedDonation(null);
+        setEmailSubject('');
+        setEmailMessage('');
+        // Refresh donations to show updated email status
+        loadDonations();
+      } else {
+        alert(result.error || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send email. Please try again.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleSendCustomEmail = async () => {
+    if (!selectedDonation || !emailSubject.trim() || !emailMessage.trim()) {
+      alert('Please fill in both subject and message.');
+      return;
+    }
+    
+    setSendingEmail(true);
+    try {
+      const result = await sendCustomEmail(
+        selectedDonation,
+        emailSubject.trim(),
+        emailMessage.trim()
+      );
+      
+      if (result.success) {
+        alert('Custom email sent successfully!');
+        setShowEmailModal(false);
+        setSelectedDonation(null);
+        setEmailSubject('');
+        setEmailMessage('');
+        // Refresh donations to show updated email status
+        loadDonations();
+      } else {
+        alert(result.error || 'Failed to send email');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send email. Please try again.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleCloseEmailModal = () => {
+    setShowEmailModal(false);
+    setSelectedDonation(null);
+    setEmailSubject('');
+    setEmailMessage('');
+    setSendingEmail(false);
+  };
+
+  const handleTestEmailConfiguration = async () => {
+    try {
+      console.log('Testing EmailJS configuration...');
+      const result = await testEmailConfiguration();
+      
+      if (result.success) {
+        alert('EmailJS test successful! Check console for details.');
+      } else {
+        alert(`EmailJS test failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Test error:', error);
+      alert('Test failed. Check console for details.');
+    }
+  };
+
+  const handleDebugEmailJS = async () => {
+    try {
+      console.log('Debugging EmailJS configuration...');
+      const result = await debugEmailJS();
+      
+      if (result.success) {
+        alert(`EmailJS debug successful! Working parameters found. Check console for details.`);
+        console.log('Working parameters:', result.workingParams);
+      } else {
+        alert(`EmailJS debug failed: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Debug error:', error);
+      alert('Debug failed. Check console for details.');
     }
   };
 
@@ -1074,8 +1200,8 @@ const AdminPage = () => {
                <span>{sortOrder === 'asc' ? 'Ascending' : 'Descending'}</span>
              </button>
            </div>
-         </div>
-       </div>
+        </div>
+      </div>
 
       {/* Bookings List */}
       {bookingsLoading ? (
@@ -1109,16 +1235,16 @@ const AdminPage = () => {
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
-                  </div>
-                  <div>
+                        </div>
+                      <div>
                     <h4 className="text-lg font-abeze font-bold text-white">
                       Booking #{booking._id.slice(-6).toUpperCase()}
                     </h4>
                     <p className="text-gray-400 font-abeze text-sm">
                       Created on {new Date(booking.createdAt).toLocaleDateString()}
                     </p>
-                  </div>
-                </div>
+                      </div>
+                      </div>
                 <div className="flex items-center space-x-3">
                   <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
                     booking.status === 'Payment Confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
@@ -1127,14 +1253,14 @@ const AdminPage = () => {
                     booking.status === 'Completed' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
                     booking.status === 'Cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                     'bg-gray-500/20 text-gray-400 border border-gray-500/30'
-                  }`}>
-                    {booking.status}
-                  </span>
+                      }`}>
+                        {booking.status}
+                      </span>
                   <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
                     booking.payment ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
                   }`}>
                     {booking.payment ? 'Paid' : 'Payment Pending'}
-                  </span>
+                      </span>
                 </div>
               </div>
 
@@ -1150,7 +1276,7 @@ const AdminPage = () => {
                     </div>
                     <h5 className="font-abeze font-semibold text-white">Customer</h5>
                   </div>
-                  <div className="space-y-1">
+                      <div className="space-y-1">
                     <p className="text-white font-abeze font-medium">
                       {booking.userId?.firstName} {booking.userId?.lastName}
                     </p>
@@ -1234,18 +1360,18 @@ const AdminPage = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-white font-abeze font-medium">Driver</p>
-                      {booking.driverId ? (
-                        <div className="flex items-center space-x-2">
+                        {booking.driverId ? (
+                          <div className="flex items-center space-x-2">
                           <span className="text-white font-abeze text-sm">
-                            {booking.driverId?.firstName} {booking.driverId?.lastName}
-                          </span>
+                              {booking.driverId?.firstName} {booking.driverId?.lastName}
+                            </span>
                           <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                            booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                          }`}>
-                            {booking.driverAccepted ? 'Accepted' : 'Pending'}
-                          </span>
-                        </div>
-                      ) : (
+                              booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {booking.driverAccepted ? 'Accepted' : 'Pending'}
+                            </span>
+                          </div>
+                        ) : (
                         <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
                       )}
                     </div>
@@ -1258,21 +1384,21 @@ const AdminPage = () => {
                     </div>
                     <div className="flex-1">
                       <p className="text-white font-abeze font-medium">Tour Guide</p>
-                      {booking.guideId ? (
-                        <div className="flex items-center space-x-2">
+                        {booking.guideId ? (
+                          <div className="flex items-center space-x-2">
                           <span className="text-white font-abeze text-sm">
-                            {booking.guideId?.firstName} {booking.guideId?.lastName}
-                          </span>
+                              {booking.guideId?.firstName} {booking.guideId?.lastName}
+                            </span>
                           <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                            booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                          }`}>
-                            {booking.guideAccepted ? 'Accepted' : 'Pending'}
-                          </span>
-                        </div>
-                      ) : (
+                              booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                            }`}>
+                              {booking.guideAccepted ? 'Accepted' : 'Pending'}
+                            </span>
+                          </div>
+                        ) : (
                         <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
-                      )}
-                    </div>
+                        )}
+                      </div>
                   </div>
                 </div>
               </div>
@@ -1280,32 +1406,32 @@ const AdminPage = () => {
               {/* Actions Section */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => handleAssignStaff(booking)}
+                        <button
+                          onClick={() => handleAssignStaff(booking)}
                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
-                  >
+                        >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     <span>Assign Staff</span>
-                  </button>
+                        </button>
                 </div>
                 <div className="flex items-center space-x-3">
                   <label className="text-white font-abeze text-sm">Update Status:</label>
-                  <select
-                    value={booking.status}
-                    onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
+                        <select
+                          value={booking.status}
+                          onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
                     className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 font-abeze focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Payment Confirmed">Payment Confirmed</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
+                        >
+                          <option value="Pending">Pending</option>
+                          <option value="Payment Confirmed">Payment Confirmed</option>
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="In Progress">In Progress</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
+          </div>
             </div>
           ))}
         </div>
@@ -1497,60 +1623,219 @@ const AdminPage = () => {
               )}
               {activeTab === 'donations' && (
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-xl font-abeze font-bold text-white">Donations</h3>
-                    <div className="text-sm text-gray-300 font-abeze">Total: {donations.length}</div>
+                   {/* Enhanced Header with Stats */}
+                   <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+                       <div>
+                         <h3 className="text-2xl font-abeze font-bold text-white">Donation Management</h3>
+                         <p className="text-gray-300 font-abeze mt-1">Track and manage all wildlife conservation donations</p>
                   </div>
+                       <div className="flex flex-wrap gap-4 text-sm">
+                         <button
+                           onClick={handleTestEmailConfiguration}
+                           className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+                         >
+                           Test EmailJS
+                         </button>
+                         <button
+                           onClick={handleDebugEmailJS}
+                           className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+                         >
+                           Debug EmailJS
+                         </button>
+                         <div className="bg-blue-500/20 px-3 py-2 rounded-lg">
+                           <span className="text-blue-300 font-abeze">Total: </span>
+                           <span className="text-white font-bold">{donations.length}</span>
+                         </div>
+                         <div className="bg-green-500/20 px-3 py-2 rounded-lg">
+                           <span className="text-green-300 font-abeze">Completed: </span>
+                           <span className="text-white font-bold">
+                             {donations.filter(d => d.paymentStatus === 'completed').length}
+                           </span>
+                         </div>
+                         <div className="bg-yellow-500/20 px-3 py-2 rounded-lg">
+                           <span className="text-yellow-300 font-abeze">Pending: </span>
+                           <span className="text-white font-bold">
+                             {donations.filter(d => d.paymentStatus === 'pending').length}
+                           </span>
+                         </div>
+                         <div className="bg-purple-500/20 px-3 py-2 rounded-lg">
+                           <span className="text-purple-300 font-abeze">Total Amount: </span>
+                           <span className="text-white font-bold">
+                             LKR {donations
+                               .filter(d => d.paymentStatus === 'completed')
+                               .reduce((sum, d) => sum + (d.amount || 0), 0)
+                               .toLocaleString()}
+                           </span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+
+                   {/* Donations List */}
                   {donationsLoading ? (
-                    <div className="text-center py-8">
-                      <div className="text-gray-300 font-abeze">Loading donations...</div>
+                     <div className="text-center py-12">
+                       <div className="inline-flex items-center space-x-2 text-gray-300 font-abeze">
+                         <svg className="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                         <span>Loading donations...</span>
+                       </div>
+                     </div>
+                   ) : donations.length === 0 ? (
+                     <div className="text-center py-12">
+                       <div className="w-24 h-24 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center">
+                         <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                         </svg>
+                       </div>
+                       <h3 className="text-xl font-abeze font-bold text-white mb-2">No Donations Found</h3>
+                       <p className="text-gray-400 font-abeze">There are no donations to display at the moment.</p>
                     </div>
                   ) : (
-                    <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="border-b border-white/20">
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Donor</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Email</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Amount</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Country</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Date</th>
-                              <th className="text-left py-4 px-6 text-green-200 font-abeze">Anonymous</th>
-                            </tr>
-                          </thead>
-                          <tbody>
+                     <div className="space-y-4">
                             {donations.map((donation) => (
-                              <tr key={donation._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                                <td className="py-4 px-6 text-white font-abeze">
-                                  {donation.isAnonymous ? 'Anonymous' : `${donation.firstName} ${donation.lastName}`}
-                                </td>
-                                <td className="py-4 px-6 text-white font-abeze text-sm">{donation.email}</td>
-                                <td className="py-4 px-6 text-white font-abeze font-semibold">
-                                  {donation.currency} {donation.amount.toFixed(2)}
-                                </td>
-                                <td className="py-4 px-6 text-white font-abeze text-sm">{donation.country}</td>
-                                <td className="py-4 px-6">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-abeze font-medium ${
-                                    donation.paymentStatus === 'completed' ? 'bg-green-500/20 text-green-400' :
-                                    donation.paymentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                                    'bg-red-500/20 text-red-400'
+                         <div key={donation._id} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 hover:bg-white/15 transition-all duration-300">
+                           {/* Donation Header */}
+                           <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 space-y-3 lg:space-y-0">
+                             <div className="flex items-center space-x-4">
+                               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+                                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                 </svg>
+                               </div>
+                               <div>
+                                 <h4 className="text-lg font-abeze font-bold text-white">
+                                   Donation #{donation._id.slice(-6).toUpperCase()}
+                                 </h4>
+                                 <p className="text-gray-400 font-abeze text-sm">
+                                   Received on {new Date(donation.createdAt).toLocaleDateString()}
+                                 </p>
+                               </div>
+                             </div>
+                             <div className="flex items-center space-x-3">
+                               <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
+                                 donation.paymentStatus === 'completed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                 donation.paymentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                                 'bg-red-500/20 text-red-400 border border-red-500/30'
                                   }`}>
                                     {donation.paymentStatus}
                                   </span>
-                                </td>
-                                <td className="py-4 px-6 text-white font-abeze text-sm">
-                                  {new Date(donation.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="py-4 px-6 text-white font-abeze">
-                                  {donation.isAnonymous ? 'Yes' : 'No'}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                               {donation.isAnonymous && (
+                                 <span className="px-3 py-1 rounded-full text-sm font-abeze font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                                   Anonymous
+                                 </span>
+                               )}
                       </div>
+                           </div>
+
+                           {/* Donation Details Grid */}
+                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                             {/* Donor Information */}
+                             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                               <div className="flex items-center space-x-3 mb-3">
+                                 <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                                   <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                   </svg>
+                                 </div>
+                                 <h5 className="font-abeze font-semibold text-white">Donor</h5>
+                               </div>
+                               <div className="space-y-1">
+                                 <p className="text-white font-abeze font-medium">
+                                   {donation.isAnonymous ? 'Anonymous Donor' : `${donation.firstName} ${donation.lastName}`}
+                                 </p>
+                                 <p className="text-gray-400 font-abeze text-sm">{donation.email}</p>
+                               </div>
+                             </div>
+
+                             {/* Amount Information */}
+                             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                               <div className="flex items-center space-x-3 mb-3">
+                                 <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                                   <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                   </svg>
+                                 </div>
+                                 <h5 className="font-abeze font-semibold text-white">Amount</h5>
+                               </div>
+                               <div className="space-y-1">
+                                 <p className="text-white font-abeze font-bold text-lg">
+                                   {donation.currency} {donation.amount?.toLocaleString()}
+                                 </p>
+                                 <p className="text-gray-400 font-abeze text-sm">Donation Amount</p>
+                               </div>
+                             </div>
+
+                             {/* Location Information */}
+                             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                               <div className="flex items-center space-x-3 mb-3">
+                                 <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                                   <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                   </svg>
+                                 </div>
+                                 <h5 className="font-abeze font-semibold text-white">Location</h5>
+                               </div>
+                               <div className="space-y-1">
+                                 <p className="text-white font-abeze font-medium">{donation.country}</p>
+                                 <p className="text-gray-400 font-abeze text-sm">Donor's Country</p>
+                               </div>
+                             </div>
+
+                             {/* Payment Information */}
+                             <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                               <div className="flex items-center space-x-3 mb-3">
+                                 <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                   <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                   </svg>
+                                 </div>
+                                 <h5 className="font-abeze font-semibold text-white">Payment</h5>
+                               </div>
+                               <div className="space-y-1">
+                                 <p className={`font-abeze font-medium ${
+                                   donation.paymentStatus === 'completed' ? 'text-green-400' : 
+                                   donation.paymentStatus === 'pending' ? 'text-yellow-400' : 'text-red-400'
+                                 }`}>
+                                   {donation.paymentStatus}
+                                 </p>
+                                 <p className="text-gray-400 font-abeze text-sm">Payment Status</p>
+                               </div>
+                             </div>
+                           </div>
+
+                                                       {/* Additional Information */}
+                            {donation.message && (
+                              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mb-6">
+                                <div className="flex items-center space-x-3 mb-3">
+                                  <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                                    <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                    </svg>
+                                  </div>
+                                  <h5 className="font-abeze font-semibold text-white">Donor Message</h5>
+                                </div>
+                                <p className="text-white font-abeze text-sm italic">"{donation.message}"</p>
+                              </div>
+                            )}
+
+                            {/* Email Actions */}
+                            <div className="flex items-center justify-end space-x-3">
+                              <button
+                                onClick={() => handleSendEmail(donation)}
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <span>Send Email</span>
+                              </button>
+                            </div>
+                         </div>
+                       ))}
                     </div>
                   )}
                 </div>
@@ -1844,6 +2129,156 @@ const AdminPage = () => {
           onAssignmentComplete={handleAssignmentComplete}
         />
       )}
+
+       {/* Email Modal */}
+       {showEmailModal && selectedDonation && (
+         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+           <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-700">
+             {/* Modal Header */}
+             <div className="p-6 border-b border-gray-700">
+               <div className="flex items-center justify-between">
+                 <div className="flex items-center space-x-3">
+                   <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
+                     <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                     </svg>
+                   </div>
+                   <div>
+                     <h2 className="text-2xl font-abeze font-bold text-white">Send Email to Donor</h2>
+                     <p className="text-gray-400 font-abeze">
+                       {selectedDonation.isAnonymous ? 'Anonymous Donor' : `${selectedDonation.firstName} ${selectedDonation.lastName}`}
+                     </p>
+                   </div>
+                 </div>
+                 <button
+                   onClick={handleCloseEmailModal}
+                   className="text-gray-400 hover:text-white transition-colors"
+                 >
+                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                   </svg>
+                 </button>
+               </div>
+             </div>
+
+             {/* Modal Content */}
+             <div className="p-6 space-y-6">
+               {/* Donation Summary */}
+               <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+                 <h3 className="text-lg font-abeze font-bold text-white mb-3">Donation Summary</h3>
+                 <div className="grid grid-cols-2 gap-4 text-sm">
+                   <div>
+                     <span className="text-gray-400 font-abeze">Amount:</span>
+                     <p className="text-white font-abeze font-semibold">
+                       {selectedDonation.currency} {selectedDonation.amount?.toLocaleString()}
+                     </p>
+                   </div>
+                   <div>
+                     <span className="text-gray-400 font-abeze">Date:</span>
+                     <p className="text-white font-abeze">
+                       {new Date(selectedDonation.createdAt).toLocaleDateString()}
+                     </p>
+                   </div>
+                   <div>
+                     <span className="text-gray-400 font-abeze">Email:</span>
+                     <p className="text-white font-abeze">{selectedDonation.email}</p>
+                   </div>
+                   <div>
+                     <span className="text-gray-400 font-abeze">Status:</span>
+                     <span className={`px-2 py-1 rounded-full text-xs font-abeze font-medium ${
+                       selectedDonation.paymentStatus === 'completed' ? 'bg-green-500/20 text-green-400' :
+                       selectedDonation.paymentStatus === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                       'bg-red-500/20 text-red-400'
+                     }`}>
+                       {selectedDonation.paymentStatus}
+                     </span>
+                   </div>
+                 </div>
+               </div>
+
+               {/* Email Form */}
+               <div className="space-y-4">
+                 <div>
+                   <label className="block text-white font-abeze font-medium mb-2">Email Subject</label>
+                   <input
+                     type="text"
+                     value={emailSubject}
+                     onChange={(e) => setEmailSubject(e.target.value)}
+                     className="w-full bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-4 py-3 font-abeze focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                     placeholder="Enter email subject..."
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-white font-abeze font-medium mb-2">Email Message</label>
+                   <textarea
+                     value={emailMessage}
+                     onChange={(e) => setEmailMessage(e.target.value)}
+                     rows={8}
+                     className="w-full bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-4 py-3 font-abeze focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                     placeholder="Enter your email message..."
+                   />
+                 </div>
+               </div>
+             </div>
+
+             {/* Modal Footer */}
+             <div className="p-6 border-t border-gray-700 flex items-center justify-between">
+               <button
+                 onClick={handleCloseEmailModal}
+                 className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300"
+               >
+                 Cancel
+               </button>
+               <div className="flex space-x-3">
+                 <button
+                   onClick={handleSendThankYouEmail}
+                   disabled={sendingEmail}
+                   className="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+                 >
+                   {sendingEmail ? (
+                     <>
+                       <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                       </svg>
+                       <span>Sending...</span>
+                     </>
+                   ) : (
+                     <>
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                       </svg>
+                       <span>Send Thank You</span>
+                     </>
+                   )}
+                 </button>
+                 <button
+                   onClick={handleSendCustomEmail}
+                   disabled={sendingEmail || !emailSubject.trim() || !emailMessage.trim()}
+                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+                 >
+                   {sendingEmail ? (
+                     <>
+                       <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                       </svg>
+                       <span>Sending...</span>
+                     </>
+                   ) : (
+                     <>
+                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                       </svg>
+                       <span>Send Custom Email</span>
+                     </>
+                   )}
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   );
 };
