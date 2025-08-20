@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { packageApi, userApi, staffApi, safariRequestApi, bookingApi, reviewApi, donationApi } from '../services/api';
-import { sendThankYouEmail, sendCustomEmail, testEmailConfiguration, debugEmailJS } from '../services/emailService';
+import { sendThankYouEmail, sendCustomEmail } from '../services/emailService';
 
 import AddPackageModal from '../components/AddPackageModal';
 import EditPackageModal from '../components/EditPackageModal';
@@ -517,38 +517,7 @@ The Wildlife Safari Team`);
     setSendingEmail(false);
   };
 
-  const handleTestEmailConfiguration = async () => {
-    try {
-      console.log('Testing EmailJS configuration...');
-      const result = await testEmailConfiguration();
-      
-      if (result.success) {
-        alert('EmailJS test successful! Check console for details.');
-      } else {
-        alert(`EmailJS test failed: ${result.error}`);
-      }
-    } catch (error) {
-      console.error('Test error:', error);
-      alert('Test failed. Check console for details.');
-    }
-  };
 
-  const handleDebugEmailJS = async () => {
-    try {
-      console.log('Debugging EmailJS configuration...');
-      const result = await debugEmailJS();
-      
-      if (result.success) {
-        alert(`EmailJS debug successful! Working parameters found. Check console for details.`);
-        console.log('Working parameters:', result.workingParams);
-      } else {
-        alert(`EmailJS debug failed: ${result.error}`);
-      }
-    } catch (error) {
-      console.error('Debug error:', error);
-      alert('Debug failed. Check console for details.');
-    }
-  };
 
   // Calculate dashboard stats from real data
   const dashboardStats = {
@@ -1631,18 +1600,6 @@ The Wildlife Safari Team`);
                          <p className="text-gray-300 font-abeze mt-1">Track and manage all wildlife conservation donations</p>
                   </div>
                        <div className="flex flex-wrap gap-4 text-sm">
-                         <button
-                           onClick={handleTestEmailConfiguration}
-                           className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
-                         >
-                           Test EmailJS
-                         </button>
-                         <button
-                           onClick={handleDebugEmailJS}
-                           className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
-                         >
-                           Debug EmailJS
-                         </button>
                          <div className="bg-blue-500/20 px-3 py-2 rounded-lg">
                            <span className="text-blue-300 font-abeze">Total: </span>
                            <span className="text-white font-bold">{donations.length}</span>
@@ -1657,15 +1614,6 @@ The Wildlife Safari Team`);
                            <span className="text-yellow-300 font-abeze">Pending: </span>
                            <span className="text-white font-bold">
                              {donations.filter(d => d.paymentStatus === 'pending').length}
-                           </span>
-                         </div>
-                         <div className="bg-purple-500/20 px-3 py-2 rounded-lg">
-                           <span className="text-purple-300 font-abeze">Total Amount: </span>
-                           <span className="text-white font-bold">
-                             LKR {donations
-                               .filter(d => d.paymentStatus === 'completed')
-                               .reduce((sum, d) => sum + (d.amount || 0), 0)
-                               .toLocaleString()}
                            </span>
                          </div>
                        </div>
