@@ -1,36 +1,38 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const TravelPackages = () => {
   const navigate = useNavigate();
   const { isAuthenticated, setRedirectPath } = useAuth();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedDuration, setSelectedDuration] = useState('all');
   const [selectedPrice, setSelectedPrice] = useState('all');
 
   const categories = [
-    { id: 'all', name: 'All Packages' },
-    { id: 'safari', name: 'Safari Tours' },
-    { id: 'hiking', name: 'Hiking' },
-    { id: 'photography', name: 'Photography' },
-    { id: 'birding', name: 'Bird Watching' },
-    { id: 'adventure', name: 'Adventure' }
+    { id: 'all', name: t('travelPackages.categories.all') },
+    { id: 'safari', name: t('travelPackages.categories.safari') },
+    { id: 'hiking', name: t('travelPackages.categories.hiking') },
+    { id: 'photography', name: t('travelPackages.categories.photography') },
+    { id: 'birding', name: t('travelPackages.categories.birding') },
+    { id: 'adventure', name: t('travelPackages.categories.adventure') }
   ];
 
   const durations = [
-    { id: 'all', name: 'Any Duration' },
-    { id: '1-day', name: '1 Day' },
-    { id: '2-3-days', name: '2-3 Days' },
-    { id: '4-7-days', name: '4-7 Days' },
-    { id: '8+days', name: '8+ Days' }
+    { id: 'all', name: t('travelPackages.durations.any') },
+    { id: '1-day', name: t('travelPackages.durations.1day') },
+    { id: '2-3-days', name: t('travelPackages.durations.2to3days') },
+    { id: '4-7-days', name: t('travelPackages.durations.4to7days') },
+    { id: '8+days', name: t('travelPackages.durations.8plusdays') }
   ];
 
   const priceRanges = [
-    { id: 'all', name: 'Any Price' },
-    { id: 'budget', name: 'Budget (Under LKR 25,000)' },
-    { id: 'mid-range', name: 'Mid-Range (LKR 25,000 - 75,000)' },
-    { id: 'luxury', name: 'Luxury (Over LKR 75,000)' }
+    { id: 'all', name: t('travelPackages.prices.any') },
+    { id: 'budget', name: t('travelPackages.prices.budget') },
+    { id: 'mid-range', name: t('travelPackages.prices.midRange') },
+    { id: 'luxury', name: t('travelPackages.prices.luxury') }
   ];
 
   const packages = [
@@ -180,8 +182,7 @@ const TravelPackages = () => {
             Travel <span className="text-green-400">Packages</span>
           </h1>
           <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-            Discover our complete collection of Sri Lankan wildlife experiences. From day trips to extended adventures, 
-            find the perfect safari package for your dream wildlife encounter.
+            {t('travelPackages.description')}
           </p>
         </div>
 
@@ -190,7 +191,7 @@ const TravelPackages = () => {
           <div className="grid md:grid-cols-3 gap-6">
             {/* Category Filter */}
             <div>
-              <label className="block text-white font-abeze font-medium mb-3">Category</label>
+              <label className="block text-white font-abeze font-medium mb-3">{t('travelPackages.labels.category')}</label>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
@@ -204,7 +205,7 @@ const TravelPackages = () => {
 
             {/* Duration Filter */}
             <div>
-              <label className="block text-white font-abeze font-medium mb-3">Duration</label>
+              <label className="block text-white font-abeze font-medium mb-3">{t('travelPackages.labels.duration')}</label>
               <select
                 value={selectedDuration}
                 onChange={(e) => setSelectedDuration(e.target.value)}
@@ -218,7 +219,7 @@ const TravelPackages = () => {
 
             {/* Price Filter */}
             <div>
-              <label className="block text-white font-abeze font-medium mb-3">Price Range</label>
+              <label className="block text-white font-abeze font-medium mb-3">{t('travelPackages.labels.priceRange')}</label>
               <select
                 value={selectedPrice}
                 onChange={(e) => setSelectedPrice(e.target.value)}
@@ -235,7 +236,7 @@ const TravelPackages = () => {
         {/* Results Count */}
         <div className="mb-8">
           <p className="text-gray-300 font-abeze">
-            Showing {filteredPackages.length} of {packages.length} packages
+            {t('travelPackages.showingResults', { showing: filteredPackages.length, total: packages.length })}
           </p>
         </div>
 
@@ -259,7 +260,7 @@ const TravelPackages = () => {
               {pkg.popular && (
                 <div className="absolute -top-3 right-4">
                   <span className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-abeze font-medium">
-                    Most Popular
+                    {t('travelPackages.mostPopular')}
                   </span>
                 </div>
               )}
@@ -293,7 +294,7 @@ const TravelPackages = () => {
                     {pkg.originalPrice}
                   </span>
                 )}
-                <span className="text-gray-400 font-abeze text-sm block">per person</span>
+                <span className="text-gray-400 font-abeze text-sm block">{t('travelPackages.perPerson')}</span>
               </div>
 
               {/* Description */}
@@ -317,10 +318,10 @@ const TravelPackages = () => {
                   onClick={() => handleBookNow(pkg.id)}
                   className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
                 >
-                  Book Now
+                  {t('travelPackages.bookNow')}
                 </button>
                 <button className="w-full bg-transparent border border-green-400 text-green-400 hover:bg-green-400 hover:text-white py-2 rounded-lg font-abeze font-medium transition-all duration-300">
-                  View Details
+                  {t('travelPackages.viewDetails')}
                 </button>
               </div>
             </div>
@@ -332,10 +333,10 @@ const TravelPackages = () => {
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-2xl font-abeze font-bold text-white mb-2">
-              No packages found
+              {t('travelPackages.noResults.title')}
             </h3>
             <p className="text-gray-300 font-abeze">
-              Try adjusting your filters to find the perfect package for your wildlife adventure.
+              {t('travelPackages.noResults.description')}
             </p>
           </div>
         )}
@@ -344,17 +345,17 @@ const TravelPackages = () => {
         <div className="text-center mt-16">
           <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-8 border border-green-400/30">
             <h3 className="text-2xl font-abeze font-bold text-white mb-4">
-              Can't Find What You're Looking For?
+              {t('travelPackages.customPackage.title')}
             </h3>
             <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-              We can create a custom wildlife experience tailored to your specific interests, group size, and travel dates.
+              {t('travelPackages.customPackage.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                Request Custom Package
+                {t('travelPackages.customPackage.requestButton')}
               </button>
               <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
-                Contact Our Experts
+                {t('travelPackages.customPackage.contactButton')}
               </button>
             </div>
           </div>

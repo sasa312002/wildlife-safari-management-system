@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Signup = ({ onClose, onSwitchToLogin }) => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -65,19 +67,19 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
     const errors = [];
     
     if (password.length < minLength) {
-      errors.push(`At least ${minLength} characters`);
+      errors.push(t('signup.password.minLength', { minLength }));
     }
     if (!hasUpperCase) {
-      errors.push('At least one uppercase letter');
+      errors.push(t('signup.password.uppercase'));
     }
     if (!hasLowerCase) {
-      errors.push('At least one lowercase letter');
+      errors.push(t('signup.password.lowercase'));
     }
     if (!hasNumbers) {
-      errors.push('At least one number');
+      errors.push(t('signup.password.numbers'));
     }
     if (!hasSpecialChar) {
-      errors.push('At least one special character');
+      errors.push(t('signup.password.specialChar'));
     }
     
     return {
@@ -92,61 +94,61 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
 
     // First Name validation
     if (!formData.firstName.trim()) {
-      newErrors.firstName = 'First name is required';
+      newErrors.firstName = t('signup.validation.firstName.required');
     } else if (formData.firstName.trim().length < 2) {
-      newErrors.firstName = 'First name must be at least 2 characters';
+      newErrors.firstName = t('signup.validation.firstName.minLength');
     }
 
     // Last Name validation
     if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+      newErrors.lastName = t('signup.validation.lastName.required');
     } else if (formData.lastName.trim().length < 2) {
-      newErrors.lastName = 'Last name must be at least 2 characters';
+      newErrors.lastName = t('signup.validation.lastName.minLength');
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('signup.validation.email.required');
     } else if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('signup.validation.email.invalid');
     }
 
     // Country validation
     if (!formData.country) {
-      newErrors.country = 'Please select your country';
+      newErrors.country = t('signup.validation.country.required');
     }
 
     // Phone validation (only if country is selected)
     if (formData.country && formData.country !== 'Other') {
       const phoneData = countryPhoneCodes[formData.country];
       if (!formData.phoneNumber.trim()) {
-        newErrors.phoneNumber = 'Phone number is required';
+        newErrors.phoneNumber = t('signup.validation.phone.required');
       } else if (!/^\d+$/.test(formData.phoneNumber.trim())) {
-        newErrors.phoneNumber = 'Phone number should contain only numbers';
+        newErrors.phoneNumber = t('signup.validation.phone.numbersOnly');
       } else if (formData.phoneNumber.trim().length !== phoneData.maxDigits) {
-        newErrors.phoneNumber = `Phone number should be ${phoneData.maxDigits} digits`;
+        newErrors.phoneNumber = t('signup.validation.phone.digits', { digits: phoneData.maxDigits });
       }
     }
 
     // Password validation
     const passwordValidation = validatePassword(formData.password);
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('signup.validation.password.required');
     } else if (!passwordValidation.isValid) {
       newErrors.password = passwordValidation.errors;
     }
 
     // Confirm Password validation
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
+      newErrors.confirmPassword = t('signup.validation.confirmPassword.required');
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = t('signup.validation.confirmPassword.mismatch');
     }
 
     // Terms agreement validation
     if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
+      newErrors.agreeToTerms = t('signup.validation.terms.required');
     }
 
     setErrors(newErrors);
@@ -212,7 +214,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
       onClose();
       navigate('/');
     } catch (err) {
-      const msg = err?.response?.data?.message || 'Signup failed';
+      const msg = err?.response?.data?.message || t('signup.error.general');
       alert(msg);
     } finally {
       setIsSubmitting(false);
@@ -233,10 +235,10 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Join Mufasa Wildlife
+            {t('signup.title')}
           </h2>
           <p className="text-gray-300 font-abeze">
-            Create your account to start your wildlife adventure
+            {t('signup.subtitle')}
           </p>
         </div>
 
@@ -244,6 +246,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          aria-label={t('common.close')}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -256,7 +259,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                First Name *
+                {t('signup.form.firstName')} *
               </label>
               <input
                 type="text"
@@ -266,7 +269,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                   errors.firstName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Your first name"
+                placeholder={t('signup.form.firstNamePlaceholder')}
               />
               {errors.firstName && (
                 <p className="text-red-400 text-sm mt-1 font-abeze">{errors.firstName}</p>
@@ -274,7 +277,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
             </div>
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Last Name *
+                {t('signup.form.lastName')} *
               </label>
               <input
                 type="text"
@@ -284,7 +287,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                   errors.lastName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Your last name"
+                placeholder={t('signup.form.lastNamePlaceholder')}
               />
               {errors.lastName && (
                 <p className="text-red-400 text-sm mt-1 font-abeze">{errors.lastName}</p>
@@ -295,7 +298,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
           {/* Email */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Email Address *
+              {t('signup.form.email')} *
             </label>
             <input
               type="email"
@@ -305,7 +308,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="your.email@example.com"
+              placeholder={t('signup.form.emailPlaceholder')}
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
@@ -315,7 +318,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
           {/* Country */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Country *
+              {t('signup.form.country')} *
             </label>
             <select
               name="country"
@@ -325,7 +328,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                 errors.country ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
             >
-              <option value="" className="bg-gray-800 text-white">Select your country</option>
+              <option value="" className="bg-gray-800 text-white">{t('signup.form.countryPlaceholder')}</option>
               {countries.map((country, index) => (
                 <option key={index} value={country} className="bg-gray-800 text-white">{country}</option>
               ))}
@@ -339,7 +342,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
           {formData.country && (
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Phone Number {formData.country !== 'Other' ? '*' : ''}
+                {t('signup.form.phone')} {formData.country !== 'Other' ? '*' : ''}
               </label>
               <div className="flex">
                 {/* Country Code Display */}
@@ -361,8 +364,8 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                     errors.phoneNumber ? 'border-red-400' : 'focus:border-green-400'
                   }`}
                   placeholder={formData.country !== 'Other' 
-                    ? `e.g., 77 123 456 (${countryPhoneCodes[formData.country].maxDigits} digits)` 
-                    : "Enter your phone number"
+                    ? t('signup.form.phonePlaceholder', { digits: countryPhoneCodes[formData.country].maxDigits })
+                    : t('signup.form.phonePlaceholderOther')
                   }
                 />
               </div>
@@ -371,7 +374,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
               )}
               {formData.country !== 'Other' && formData.phoneNumber && (
                 <p className="text-gray-400 text-sm mt-1 font-abeze">
-                  {formData.phoneNumber.length}/{countryPhoneCodes[formData.country].maxDigits} digits
+                  {formData.phoneNumber.length}/{countryPhoneCodes[formData.country].maxDigits} {t('signup.form.digits')}
                 </p>
               )}
             </div>
@@ -381,7 +384,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Password *
+                {t('signup.form.password')} *
               </label>
               <div className="relative">
                 <input
@@ -392,12 +395,13 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                     errors.password ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
-                  placeholder="Create a password"
+                  placeholder={t('signup.form.passwordPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  aria-label={showPassword ? t('common.hidePassword') : t('common.showPassword')}
                 >
                   {showPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,13 +430,13 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
               )}
               {formData.password && !errors.password && (
                 <p className={`text-sm mt-1 font-abeze ${getPasswordStrengthColor()}`}>
-                  ✓ Strong password
+                  ✓ {t('signup.form.passwordStrong')}
                 </p>
               )}
             </div>
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Confirm Password *
+                {t('signup.form.confirmPassword')} *
               </label>
               <div className="relative">
                 <input
@@ -443,12 +447,13 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                     errors.confirmPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
-                  placeholder="Confirm your password"
+                  placeholder={t('signup.form.confirmPasswordPlaceholder')}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  aria-label={showConfirmPassword ? t('common.hidePassword') : t('common.showPassword')}
                 >
                   {showConfirmPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -479,13 +484,13 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                 className="w-4 h-4 text-green-600 bg-white/10 border-white/20 rounded focus:ring-green-500 focus:ring-2 mt-1"
               />
               <span className="ml-2 text-gray-300 font-abeze text-sm">
-                I agree to the{' '}
+                {t('signup.form.terms.agree')}{' '}
                 <button type="button" className="text-green-400 hover:text-green-300">
-                  Terms and Conditions
+                  {t('signup.form.terms.termsAndConditions')}
                 </button>
-                {' '}and{' '}
+                {' '}{t('signup.form.terms.and')}{' '}
                 <button type="button" className="text-green-400 hover:text-green-300">
-                  Privacy Policy
+                  {t('signup.form.terms.privacyPolicy')}
                 </button>
               </span>
             </label>
@@ -501,7 +506,7 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
                 className="w-4 h-4 text-green-600 bg-white/10 border-white/20 rounded focus:ring-green-500 focus:ring-2 mt-1"
               />
               <span className="ml-2 text-gray-300 font-abeze text-sm">
-                Subscribe to our newsletter for wildlife updates and special offers
+                {t('signup.form.newsletter')}
               </span>
             </label>
           </div>
@@ -512,19 +517,19 @@ const Signup = ({ onClose, onSwitchToLogin }) => {
             disabled={isSubmitting}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
           >
-            {isSubmitting ? 'Creating Account...' : 'Create Account'}
+            {isSubmitting ? t('signup.form.submitting') : t('signup.form.submit')}
           </button>
 
           {/* Login Link */}
           <div className="text-center">
             <p className="text-gray-300 font-abeze">
-              Already have an account?{' '}
+              {t('signup.form.alreadyHaveAccount')}{' '}
               <button
                 type="button"
                 onClick={onSwitchToLogin}
                 className="text-green-400 hover:text-green-300 font-abeze font-medium transition-colors"
               >
-                Sign in here
+                {t('signup.form.signInHere')}
               </button>
             </p>
           </div>

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
   const navigate = useNavigate();
   const { staffLogin } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -96,10 +98,10 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Staff & Admin Login
+            {t('staffLogin.title')}
           </h2>
           <p className="text-gray-300 font-abeze">
-            Access your staff or admin account
+            {t('staffLogin.subtitle')}
           </p>
         </div>
 
@@ -117,7 +119,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
           {/* Email */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Email Address
+              {t('staffLogin.emailLabel')}
             </label>
             <input
               type="email"
@@ -128,7 +130,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="staff.email@mufasa.com"
+              placeholder={t('staffLogin.emailPlaceholder')}
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
@@ -138,7 +140,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
           {/* Password */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Password
+              {t('staffLogin.passwordLabel')}
             </label>
             <div className="relative">
               <input
@@ -150,7 +152,7 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                   errors.password ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Enter your password"
+                placeholder={t('staffLogin.passwordPlaceholder')}
               />
               <button
                 type="button"
@@ -180,19 +182,19 @@ const StaffLogin = ({ onClose, onSwitchToRegularLogin }) => {
             disabled={isSubmitting}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
           >
-            {isSubmitting ? 'Signing In...' : 'Staff & Admin Sign In'}
+            {isSubmitting ? t('staffLogin.signingIn') : t('staffLogin.signInButton')}
           </button>
 
           {/* Switch to Regular Login */}
           <div className="text-center">
             <p className="text-gray-300 font-abeze">
-              Are you a customer?{' '}
+              {t('staffLogin.customerQuestion')}{' '}
               <button
                 type="button"
                 onClick={onSwitchToRegularLogin}
                 className="text-green-400 hover:text-green-300 font-abeze font-medium transition-colors"
               >
-                Customer login here
+                {t('staffLogin.customerLoginLink')}
               </button>
             </p>
           </div>

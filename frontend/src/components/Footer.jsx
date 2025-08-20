@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 import logo from '../assets/logo.png';
 
 const Footer = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const navigateToHome = () => {
     navigate('/');
@@ -49,7 +51,7 @@ const Footer = () => {
               <p className="text-sm font-abeze font-light tracking-wider text-gray-300">WILDLIFE</p>
             </div>
             <p className="text-gray-300 font-abeze text-sm leading-relaxed mb-6">
-              Discover the wonders of Sri Lankan wildlife through authentic, sustainable, and educational safari experiences.
+              {t('footer.description')}
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-400 hover:text-green-400 transition-colors">
@@ -77,14 +79,14 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg font-abeze font-bold text-white mb-6">Quick Links</h4>
+            <h4 className="text-lg font-abeze font-bold text-white mb-6">{t('footer.quickLinks')}</h4>
             <ul className="space-y-3">
               <li>
                 <button 
                   onClick={navigateToHome}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  Home
+                  {t('footer.links.home')}
                 </button>
               </li>
               <li>
@@ -92,7 +94,7 @@ const Footer = () => {
                   onClick={scrollToAwareness}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  Wildlife Awareness
+                  {t('footer.links.wildlifeAwareness')}
                 </button>
               </li>
               <li>
@@ -100,7 +102,7 @@ const Footer = () => {
                   onClick={navigateToTravelPackages}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  Safari Packages
+                  {t('footer.links.safariPackages')}
                 </button>
               </li>
               <li>
@@ -108,7 +110,7 @@ const Footer = () => {
                   onClick={navigateToGallery}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  Gallery
+                  {t('footer.links.gallery')}
                 </button>
               </li>
               <li>
@@ -116,7 +118,7 @@ const Footer = () => {
                   onClick={navigateToAbout}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  About Us
+                  {t('footer.links.aboutUs')}
                 </button>
               </li>
               <li>
@@ -124,7 +126,7 @@ const Footer = () => {
                   onClick={navigateToContact}
                   className="text-gray-300 hover:text-green-400 transition-colors font-abeze text-sm"
                 >
-                  Contact
+                  {t('footer.links.contact')}
                 </button>
               </li>
             </ul>
@@ -134,7 +136,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="text-lg font-abeze font-bold text-white mb-6">Contact Info</h4>
+            <h4 className="text-lg font-abeze font-bold text-white mb-6">{t('footer.contactInfo')}</h4>
             <div className="space-y-4">
               <div className="flex items-start space-x-3">
                 <svg className="w-5 h-5 text-green-400 mt-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,27 +144,27 @@ const Footer = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
                 <div>
-                  <p className="text-gray-300 font-abeze text-sm">123 Wildlife Road</p>
-                  <p className="text-gray-300 font-abeze text-sm">Colombo, Sri Lanka</p>
+                  <p className="text-gray-300 font-abeze text-sm">{t('footer.contact.address.line1')}</p>
+                  <p className="text-gray-300 font-abeze text-sm">{t('footer.contact.address.line2')}</p>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
                 </svg>
-                <span className="text-gray-300 font-abeze text-sm">+94 11 234 5678</span>
+                <span className="text-gray-300 font-abeze text-sm">{t('footer.contact.phone')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                 </svg>
-                <span className="text-gray-300 font-abeze text-sm">info@wildpath.lk</span>
+                <span className="text-gray-300 font-abeze text-sm">{t('footer.contact.email')}</span>
               </div>
               <div className="flex items-center space-x-3">
                 <svg className="w-5 h-5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <span className="text-gray-300 font-abeze text-sm">Mon - Sun: 6:00 AM - 8:00 PM</span>
+                <span className="text-gray-300 font-abeze text-sm">{t('footer.contact.hours')}</span>
               </div>
             </div>
           </div>
@@ -172,17 +174,17 @@ const Footer = () => {
         <div className="border-t border-gray-800 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-gray-400 font-abeze text-sm mb-4 md:mb-0">
-              © {currentYear} Wild Path. All rights reserved.
+              © {currentYear} {t('footer.copyright')}
             </div>
             <div className="flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-green-400 transition-colors font-abeze text-sm">
-                Privacy Policy
+                {t('footer.policies.privacy')}
               </a>
               <a href="#" className="text-gray-400 hover:text-green-400 transition-colors font-abeze text-sm">
-                Terms of Service
+                {t('footer.policies.terms')}
               </a>
               <a href="#" className="text-gray-400 hover:text-green-400 transition-colors font-abeze text-sm">
-                Cookie Policy
+                {t('footer.policies.cookies')}
               </a>
             </div>
           </div>

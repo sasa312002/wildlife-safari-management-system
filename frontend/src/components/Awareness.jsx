@@ -1,8 +1,10 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
 
 const Awareness = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleNavigateToDonate = () => {
     navigate('/donate');
@@ -12,58 +14,58 @@ const Awareness = () => {
   const hikingTopics = [
     {
       id: 1,
-      title: "Elephant Hiking",
-      description: "Learn about Sri Lanka's wild elephant population and the challenges they face in their natural habitat.",
+      title: t('awareness.topics.elephant.title'),
+      description: t('awareness.topics.elephant.description'),
       icon: "🐘",
-      stats: "6,000+ wild elephants",
+      stats: t('awareness.topics.elephant.stats'),
       color: "from-emerald-500 to-teal-600"
     },
     {
       id: 2,
-      title: "Leopard Protection",
-      description: "Discover the importance of protecting Sri Lanka's apex predator and maintaining ecosystem balance.",
+      title: t('awareness.topics.leopard.title'),
+      description: t('awareness.topics.leopard.description'),
       icon: "🐆",
-      stats: "800+ leopards in the wild",
+      stats: t('awareness.topics.leopard.stats'),
       color: "from-amber-500 to-orange-600"
     },
     {
       id: 3,
-      title: "Bird Sanctuary",
-      description: "Explore the diverse avian life of Sri Lanka, including endemic species found nowhere else on Earth.",
+      title: t('awareness.topics.bird.title'),
+      description: t('awareness.topics.bird.description'),
       icon: "🦜",
-      stats: "450+ bird species",
+      stats: t('awareness.topics.bird.stats'),
       color: "from-lime-500 to-green-600"
     },
     {
       id: 4,
-      title: "Marine Life",
-      description: "Understand the importance of protecting Sri Lanka's coastal ecosystems and marine biodiversity.",
+      title: t('awareness.topics.marine.title'),
+      description: t('awareness.topics.marine.description'),
       icon: "🐋",
-      stats: "28 whale species",
+      stats: t('awareness.topics.marine.stats'),
       color: "from-cyan-500 to-blue-600"
     }
   ];
 
   const initiatives = [
     {
-      title: "Community Education",
-      description: "Working with local communities to promote wildlife hiking and sustainable tourism practices.",
-      impact: "500+ families educated"
+      title: t('awareness.initiatives.community.title'),
+      description: t('awareness.initiatives.community.description'),
+      impact: t('awareness.initiatives.community.impact')
     },
     {
-      title: "Habitat Restoration",
-      description: "Restoring degraded habitats and creating wildlife corridors for safe animal movement.",
-      impact: "1,000+ acres restored"
+      title: t('awareness.initiatives.habitat.title'),
+      description: t('awareness.initiatives.habitat.description'),
+      impact: t('awareness.initiatives.habitat.impact')
     },
     {
-      title: "Anti-Poaching",
-      description: "Supporting ranger programs and technology to prevent illegal hunting and wildlife trade.",
-      impact: "24/7 monitoring"
+      title: t('awareness.initiatives.antiPoaching.title'),
+      description: t('awareness.initiatives.antiPoaching.description'),
+      impact: t('awareness.initiatives.antiPoaching.impact')
     },
     {
-      title: "Research & Monitoring",
-      description: "Conducting scientific research to better understand and protect Sri Lanka's wildlife populations.",
-      impact: "50+ research projects"
+      title: t('awareness.initiatives.research.title'),
+      description: t('awareness.initiatives.research.description'),
+      impact: t('awareness.initiatives.research.impact')
     }
   ];
 
@@ -73,10 +75,10 @@ const Awareness = () => {
         {/* Section Header */}
         <div className="text-center mb-20 animate-fadeIn">
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-abeze font-extrabold text-white mb-6 tracking-tight">
-            Wildlife <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600">Conservation</span>
+            {t('awareness.title.prefix')} <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600">{t('awareness.title.conservation')}</span>
           </h2>
           <p className="text-gray-200 text-lg md:text-xl lg:text-2xl font-abeze max-w-4xl mx-auto leading-relaxed">
-            Join us in safeguarding Sri Lanka's extraordinary wildlife. Discover our conservation efforts, understand the challenges, and help preserve these natural treasures for generations to come.
+            {t('awareness.subtitle')}
           </p>
         </div>
 
@@ -112,7 +114,7 @@ const Awareness = () => {
         {/* Conservation Initiatives */}
         <div className="mb-24">
           <h3 className="text-4xl md:text-5xl font-abeze font-extrabold text-white text-center mb-12 animate-fadeIn">
-            Our <span className="text-green-400">Initiatives</span>
+            {t('awareness.initiatives.title.prefix')} <span className="text-green-400">{t('awareness.initiatives.title.initiatives')}</span>
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {initiatives.map((initiative, index) => (
@@ -139,10 +141,10 @@ const Awareness = () => {
         <div className="text-center mb-20 animate-fadeIn">
           <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 backdrop-blur-xl rounded-2xl p-10 border border-green-400/20 hover:border-green-400/40 transition-all duration-500">
             <h3 className="text-3xl md:text-4xl font-abeze font-extrabold text-white mb-6">
-              Be a Wildlife Champion
+              {t('awareness.cta.title')}
             </h3>
             <p className="text-gray-200 font-abeze mb-8 max-w-3xl mx-auto text-lg leading-relaxed">
-              Your support fuels habitat protection, anti-poaching efforts, community education, and groundbreaking research. Make a difference today.
+              {t('awareness.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
@@ -150,13 +152,13 @@ const Awareness = () => {
                 className="relative bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-10 py-4 rounded-full font-abeze font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl overflow-hidden group"
               >
                 <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-                Support Wildlife
+                {t('awareness.cta.supportButton')}
               </button>
               <button 
                 onClick={handleNavigateToDonate}
                 className="relative bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-10 py-4 rounded-full font-abeze font-bold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
               >
-                Learn More
+                {t('awareness.cta.learnMoreButton')}
               </button>
             </div>
           </div>
@@ -165,9 +167,9 @@ const Awareness = () => {
         {/* Environmental Facts */}
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { stat: "25%", text: "Of Sri Lanka's land is protected for wildlife" },
-            { stat: "26", text: "National parks and wildlife sanctuaries" },
-            { stat: "100+", text: "Endemic species found only in Sri Lanka" }
+            { stat: "25%", text: t('awareness.facts.protectedLand') },
+            { stat: "26", text: t('awareness.facts.nationalParks') },
+            { stat: "100+", text: t('awareness.facts.endemicSpecies') }
           ].map((fact, index) => (
             <div 
               key={index}

@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { LanguageProvider } from './context/LanguageContext'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './components/Home'
@@ -61,51 +62,53 @@ function ChatbotWrapper() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/" element={<MainPage />} />
-            <Route path="/travel-packages" element={<TravelPackagesPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/contact" element={<ContactUsPage />} />
-            <Route path="/about" element={<AboutUsPage />} />
-            <Route path="/donate" element={<DonatePage />} />
-            <Route path="/donation-details" element={<DonationDetailsPage />} />
-            <Route path="/donation-success" element={<DonationSuccessPage />} />
-            <Route path="/donation-cancelled" element={<DonationCancelledPage />} />
-            <Route path="/account" element={
-              <ProtectedRoute>
-                <UserAccountPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedAdminRoute>
-                <AdminPage />
-              </ProtectedAdminRoute>
-            } />
-            <Route path="/booking/:packageId" element={
-              <ProtectedRoute>
-                <BookingPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/booking-success" element={<BookingSuccessPage />} />
-            <Route path="/booking-cancelled" element={<BookingCancelledPage />} />
-            <Route path="/driver-dashboard" element={
-              <ProtectedStaffRoute allowedRoles={['driver']}>
-                <DriverDashboard />
-              </ProtectedStaffRoute>
-            } />
-            <Route path="/tour-guide-dashboard" element={
-              <ProtectedStaffRoute allowedRoles={['tour_guide']}>
-                <TourGuideDashboard />
-              </ProtectedStaffRoute>
-            } />
-          </Routes>
-          <ChatbotWrapper />
-        </div>
-      </Router>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <div className="App">
+            <Routes>
+              <Route path="/" element={<MainPage />} />
+              <Route path="/travel-packages" element={<TravelPackagesPage />} />
+              <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/contact" element={<ContactUsPage />} />
+              <Route path="/about" element={<AboutUsPage />} />
+              <Route path="/donate" element={<DonatePage />} />
+              <Route path="/donation-details" element={<DonationDetailsPage />} />
+              <Route path="/donation-success" element={<DonationSuccessPage />} />
+              <Route path="/donation-cancelled" element={<DonationCancelledPage />} />
+              <Route path="/account" element={
+                <ProtectedRoute>
+                  <UserAccountPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedAdminRoute>
+                  <AdminPage />
+                </ProtectedAdminRoute>
+              } />
+              <Route path="/booking/:packageId" element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/booking-success" element={<BookingSuccessPage />} />
+              <Route path="/booking-cancelled" element={<BookingCancelledPage />} />
+              <Route path="/driver-dashboard" element={
+                <ProtectedStaffRoute allowedRoles={['driver']}>
+                  <DriverDashboard />
+                </ProtectedStaffRoute>
+              } />
+              <Route path="/tour-guide-dashboard" element={
+                <ProtectedStaffRoute allowedRoles={['tour_guide']}>
+                  <TourGuideDashboard />
+                </ProtectedStaffRoute>
+              } />
+            </Routes>
+            <ChatbotWrapper />
+          </div>
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 

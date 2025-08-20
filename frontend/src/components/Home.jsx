@@ -1,7 +1,10 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import BackgroundSlideshow from './BackgroundSlideshow';
 
 const Home = () => {
+  const { t } = useLanguage();
+  
   return (
     <BackgroundSlideshow>
       <section id="home" className="min-h-screen flex items-center pt-20">
@@ -13,29 +16,29 @@ const Home = () => {
             {/* Slogan */}
             <div className="space-y-2">
               <p className="text-green-400 font-abeze-italic font-semibold text-xl md:text-2xl">
-                Sri Lankan wildlife diversity
+                {t('home.slogan')}
               </p>
             </div>
 
             {/* Main Headline */}
             <div className="space-y-3">
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-abeze font-black leading-tight">
-                DISCOVER<br />
-                <span className="text-green-400">SRI LANKA</span>
+                {t('home.discover')}<br />
+                <span className="text-green-400">{t('home.sriLanka')}</span>
               </h1>
             </div>
 
             {/* Body Text */}
             <div className="max-w-lg">
               <p className="text-gray-300 text-lg font-abeze font-semibold leading-relaxed">
-                Experience the magic of Sri Lanka's wildlife sanctuaries, from majestic elephants in national parks to exotic birds in pristine forests. Your adventure awaits in the Pearl of the Indian Ocean.
+                {t('home.description')}
               </p>
             </div>
 
             {/* Call to Action Button */}
             <div className="pt-2">
               <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-abeze font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                EXPLORE SAFARIS
+                {t('home.exploreSafaris')}
               </button>
             </div>
           </div>
