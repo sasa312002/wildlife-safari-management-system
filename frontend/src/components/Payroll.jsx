@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { payrollApi, staffApi } from '../services/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const Payroll = () => {
   const [payroll, setPayroll] = useState([]);
@@ -246,6 +248,283 @@ const Payroll = () => {
     }
   };
 
+  const handleDownloadPDF = async () => {
+    try {
+      if (payroll.length === 0) {
+        alert('No payroll data available to download. Please generate or add payroll records first.');
+        return;
+      }
+
+      // Check if jsPDF is available
+      if (typeof jsPDF === 'undefined') {
+        alert('jsPDF library is not available. Please install it with: npm install jspdf');
+        return;
+      }
+
+      // Check if autoTable plugin is available
+      if (typeof autoTable === 'undefined') {
+        alert('jspdf-autotable plugin is not available. Please install it with: npm install jspdf-autotable');
+        return;
+      }
+
+      // Show loading message
+      alert('Generating PDF... Please wait.');
+
+      // Create new PDF document
+      const doc = new jsPDF();
+      
+      // Set document properties
+      doc.setProperties({
+        title: `Payroll Report - ${getMonthName(selectedMonth)} ${selectedYear}`,
+        subject: 'Monthly Payroll Summary',
+        author: 'Wildlife Safari Management System',
+        creator: 'Payroll System'
+      });
+      
+      // Add professional header with background
+      doc.setFillColor(31, 41, 55); // Dark gray background
+      doc.rect(0, 0, 210, 40, 'F');
+      
+      // Add company logo/name area
+      doc.setFillColor(59, 130, 246); // Blue accent
+      doc.rect(20, 10, 4, 20, 'F');
+      
+      // Add title with professional styling
+      doc.setTextColor(255, 255, 255); // White text
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('PAYROLL REPORT', 105, 25, { align: 'center' });
+      
+      // Add subtitle
+      doc.setFontSize(16);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`${getMonthName(selectedMonth)} ${selectedYear}`, 105, 35, { align: 'center' });
+      
+      // Add generation info section
+      doc.setFillColor(243, 244, 246); // Light gray background
+      doc.rect(20, 50, 170, 30, 'F');
+      
+      doc.setTextColor(75, 85, 99); // Dark gray text
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Report Information:', 25, 60);
+      
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Generated on: ${new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })}`, 25, 68);
+      
+      doc.text(`Report Period: ${getMonthName(selectedMonth)} 1 - ${getMonthName(selectedMonth)} ${new Date(selectedYear, selectedMonth, 0).getDate()}, ${selectedYear}`, 25, 76);
+      
+      // Add summary statistics with professional styling
+      doc.setFillColor(59, 130, 246); // Blue background
+      doc.rect(20, 90, 170, 25, 'F');
+      
+      doc.setTextColor(255, 255, 255); // White text
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('SUMMARY STATISTICS', 105, 100, { align: 'center' });
+      
+      // Calculate summary values
+      const totalStaff = payroll.length;
+      const totalWorkingHours = payroll.reduce((sum, record) => sum + (record.totalWorkingHours || 0), 0);
+      const totalNetPay = payroll.reduce((sum, record) => sum + (record.netPay || 0), 0);
+      const totalOvertimeHours = payroll.reduce((sum, record) => sum + Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)), 0);
+      
+      // Add summary boxes with better spacing
+      const summaryBoxes = [
+        { label: 'Total Staff', value: totalStaff.toString(), color: [59, 130, 246] },
+        { label: 'Working Hours', value: `${totalWorkingHours.toFixed(1)} hrs`, color: [34, 197, 94] },
+        { label: 'Overtime Hours', value: `${totalOvertimeHours.toFixed(1)} hrs`, color: [245, 158, 11] },
+        { label: 'Total Net Pay', value: `LKR ${totalNetPay.toLocaleString()}`, color: [168, 85, 247] }
+      ];
+      
+      let boxX = 25;
+      summaryBoxes.forEach((box, index) => {
+        doc.setFillColor(...box.color);
+        doc.rect(boxX, 105, 38, 18, 'F'); // Increased height from 15 to 18
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'bold');
+        doc.text(box.label, boxX + 19, 115, { align: 'center' }); // Adjusted Y position
+        
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'normal');
+        doc.text(box.value, boxX + 19, 122, { align: 'center' }); // Adjusted Y position
+        
+        boxX += 42; // Increased spacing between boxes from 40 to 42
+      });
+      
+      // Define table columns and rows
+      const tableColumn = [
+        "Staff", "Working Days", "Total Hours", "Overtime Hours", 
+        "Basic Salary", "Overtime Pay", "Bonuses", "Allowances", 
+        "Deductions", "Gross Pay", "Net Pay"
+      ];
+      
+      // Table rows
+      const tableRows = payroll.map(record => {
+        const overtimeHours = Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8));
+        const overtimePay = overtimeHours * 1000;
+        const grossPay = (record.regularPay || 0) + overtimePay + (record.bonuses || 0) + (record.allowances || 0);
+        
+        return [
+          `${record.staffId.firstName} ${record.staffId.lastName}`,
+          record.totalWorkingDays,
+          `${record.totalWorkingHours.toFixed(1)} hrs`,
+          `${overtimeHours.toFixed(1)} hrs`,
+          `LKR ${(record.basicSalary || 0).toLocaleString()}`,
+          `LKR ${overtimePay.toLocaleString()}`,
+          `LKR ${(record.bonuses || 0).toLocaleString()}`,
+          `LKR ${(record.allowances || 0).toLocaleString()}`,
+          `LKR ${(record.deductions || 0).toLocaleString()}`,
+          `LKR ${grossPay.toLocaleString()}`,
+          `LKR ${(record.netPay || 0).toLocaleString()}`
+        ];
+      });
+      
+      // Add table with enhanced styling
+      try {
+        if (typeof autoTable === 'function') {
+          autoTable(doc, {
+            head: [tableColumn],
+            body: tableRows,
+            startY: 135, // Increased from 130 to give more space
+            styles: {
+              fontSize: 9,
+              cellPadding: 3, // Reduced from 4 to save space
+              lineColor: [209, 213, 219],
+              lineWidth: 0.1
+            },
+            headStyles: {
+              fillColor: [31, 41, 55],
+              textColor: 255,
+              fontSize: 9, // Reduced from 10 to save space
+              fontStyle: 'bold',
+              halign: 'center'
+            },
+            bodyStyles: {
+              textColor: 75,
+              fontSize: 7 // Reduced from 8 to save space
+            },
+            alternateRowStyles: {
+              fillColor: [249, 250, 251]
+            },
+            columnStyles: {
+              // A4 width is 210mm, so we need to fit within ~190mm (with margins)
+              // Total width: 25+14+14+14+18+18+14+14+14+18+18 = 175mm
+              0: { cellWidth: 25, fontStyle: 'bold' }, // Staff name
+              1: { cellWidth: 14, halign: 'center' }, // Working Days
+              2: { cellWidth: 14, halign: 'center' }, // Total Hours
+              3: { cellWidth: 14, halign: 'center' }, // Overtime Hours
+              4: { cellWidth: 18, halign: 'right' }, // Basic Salary
+              5: { cellWidth: 18, halign: 'right' }, // Overtime Pay
+              6: { cellWidth: 14, halign: 'right' }, // Bonuses
+              7: { cellWidth: 14, halign: 'right' }, // Allowances
+              8: { cellWidth: 14, halign: 'right' }, // Deductions
+              9: { cellWidth: 18, halign: 'right' }, // Gross Pay
+              10: { cellWidth: 18, halign: 'right' }  // Net Pay
+            },
+            margin: { top: 10, right: 10, bottom: 20, left: 10 }, // Reduced margins
+            didDrawPage: function (data) {
+              // Add page numbers
+              doc.setFontSize(8);
+              doc.setTextColor(128);
+              doc.text(
+                `Page ${doc.internal.getCurrentPageInfo().pageNumber}`,
+                data.settings.margin.left,
+                doc.internal.pageSize.height - 10
+              );
+            }
+          });
+        } else {
+          // Enhanced fallback table styling
+          let yPosition = 135; // Increased from 130
+          let xPosition = 10; // Start from left margin
+          
+          // Add table header with professional styling
+          doc.setFillColor(31, 41, 55);
+          doc.rect(xPosition, yPosition, 175, 10, 'F'); // Width: 175mm (reduced from 190)
+          
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'bold');
+          
+          // Updated column widths to fit A4 page (total: 175mm)
+          const columnWidths = [25, 14, 14, 14, 18, 18, 14, 14, 14, 18, 18];
+          
+          tableColumn.forEach((header, index) => {
+            const cellWidth = columnWidths[index];
+            doc.text(header, xPosition + cellWidth/2, yPosition + 7, { align: 'center' });
+            xPosition += cellWidth;
+          });
+          
+          // Add data rows with alternating colors
+          yPosition += 12;
+          tableRows.forEach((row, rowIndex) => {
+            xPosition = 10; // Reset to left margin
+            
+            // Alternate row colors
+            if (rowIndex % 2 === 0) {
+              doc.setFillColor(249, 250, 251);
+            } else {
+              doc.setFillColor(255, 255, 255);
+            }
+            doc.rect(10, yPosition - 2, 175, 10, 'F'); // Width: 175mm (reduced from 190)
+            
+            row.forEach((cell, index) => {
+              const cellWidth = columnWidths[index];
+              doc.setDrawColor(209, 213, 219);
+              doc.rect(xPosition, yPosition - 2, cellWidth, 10, 'S');
+              
+              doc.setTextColor(75, 85, 99);
+              doc.setFontSize(7); // Reduced font size
+              doc.setFont('helvetica', 'normal');
+              
+              // Align text based on column type
+              if (index === 0) { // Staff name
+                doc.text(cell, xPosition + 2, yPosition + 4);
+              } else if (index >= 4) { // Currency columns
+                doc.text(cell, xPosition + cellWidth - 2, yPosition + 4, { align: 'right' });
+              } else { // Number columns
+                doc.text(cell, xPosition + cellWidth/2, yPosition + 4, { align: 'center' });
+              }
+              
+              xPosition += cellWidth;
+            });
+            yPosition += 12;
+          });
+        }
+      } catch (tableError) {
+        console.warn('AutoTable plugin not available, using fallback table:', tableError);
+        // Continue with fallback table creation
+      }
+      
+      // Add footer with professional styling
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFillColor(31, 41, 55);
+      doc.rect(0, pageHeight - 20, 210, 20, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Wildlife Safari Management System - Payroll Report', 105, pageHeight - 12, { align: 'center' });
+      doc.text('This is an automatically generated report. For questions, contact the HR department.', 105, pageHeight - 6, { align: 'center' });
+      
+      // Save PDF
+      doc.save(`payroll_${getMonthName(selectedMonth)}_${selectedYear}.pdf`);
+      alert('PDF downloaded successfully!');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    }
+  };
+
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this payroll record?')) {
       try {
@@ -347,6 +626,15 @@ const Payroll = () => {
             Add/Edit Payroll
           </button>
           <button
+            onClick={handleDownloadPDF}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Download PDF</span>
+          </button>
+          <button
             onClick={handleRefreshMonth}
             className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
           >
@@ -440,45 +728,17 @@ const Payroll = () => {
           <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-xl p-6 text-white">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-orange-200 font-abeze text-sm">Paid Records</p>
-                <p className="text-3xl font-abeze font-bold">{stats.byStatus.paid}</p>
+                <p className="text-orange-200 font-abeze text-sm">Total Working Hours</p>
+                <p className="text-3xl font-abeze font-bold">
+                  {payroll.reduce((sum, record) => sum + (record.totalWorkingHours || 0), 0).toFixed(1)}
+                </p>
+                <p className="text-orange-200 font-abeze text-xs mt-1">hours this month</p>
               </div>
               <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Overtime Summary */}
-      {payroll.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
-          <h4 className="text-blue-300 font-abeze font-medium mb-3">Monthly Overtime Summary</h4>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <p className="text-gray-400">Total Staff:</p>
-              <p className="text-white font-medium">{payroll.length}</p>
-            </div>
-            <div>
-              <p className="text-gray-400">Total Overtime Hours:</p>
-              <p className="text-white font-medium">
-                {payroll.reduce((sum, record) => sum + Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)), 0).toFixed(1)} hrs
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-400">Total Overtime Pay:</p>
-              <p className="text-white font-medium">
-                {formatCurrency(payroll.reduce((sum, record) => sum + (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000), 0))}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-400">Average Overtime per Staff:</p>
-              <p className="text-white font-medium">
-                {formatCurrency(payroll.reduce((sum, record) => sum + (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000), 0) / payroll.length)}
-              </p>
             </div>
           </div>
         </div>
@@ -526,9 +786,11 @@ const Payroll = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Overtime Hours</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Basic Salary</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Overtime Pay</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Bonuses</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Allowances</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Deductions</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gross Pay</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Net Pay</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -568,6 +830,15 @@ const Payroll = () => {
                       {formatCurrency(Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                      {formatCurrency(record.bonuses || 0)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                      {formatCurrency(record.allowances || 0)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                      {formatCurrency(record.deductions || 0)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       {formatCurrency(
                         (record.regularPay || 0) + 
                         (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000) + 
@@ -577,11 +848,6 @@ const Payroll = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
                       {formatCurrency(record.netPay)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(record.status)} text-white`}>
-                        {getStatusText(record.status)}
-                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
