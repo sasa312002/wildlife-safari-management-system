@@ -185,7 +185,22 @@ const generatePayroll = async (req, res) => {
 // Create or update payroll record
 const createOrUpdatePayroll = async (req, res) => {
   try {
-    const { staffId, month, year, basicSalary, deductions, bonuses, allowances, notes } = req.body;
+    const { staffId, month, year, basicSalary, totalWorkingDays, totalWorkingHours, deductions, bonuses, allowances, notes } = req.body;
+    
+    console.log('=== PAYROLL CREATE/UPDATE DEBUG ===');
+    console.log('Request body:', req.body);
+    console.log('Parsed values:');
+    console.log('- staffId:', staffId);
+    console.log('- month:', month);
+    console.log('- year:', year);
+    console.log('- basicSalary:', basicSalary);
+    console.log('- totalWorkingDays:', totalWorkingDays);
+    console.log('- totalWorkingHours:', totalWorkingHours);
+    console.log('- deductions:', deductions);
+    console.log('- bonuses:', bonuses);
+    console.log('- allowances:', allowances);
+    console.log('- notes:', notes);
+    console.log('==================================');
     
     // Check if staff exists
     const staff = await Staff.findById(staffId);
@@ -197,29 +212,73 @@ const createOrUpdatePayroll = async (req, res) => {
     let payroll = await Payroll.findOne({ staffId, month, year });
     
     if (payroll) {
+      console.log('Updating existing payroll record');
       // Update existing payroll
       payroll.basicSalary = basicSalary || payroll.basicSalary;
+      payroll.totalWorkingDays = totalWorkingDays || payroll.totalWorkingDays;
+      payroll.totalWorkingHours = totalWorkingHours || payroll.totalWorkingHours;
       payroll.deductions = deductions || 0;
       payroll.bonuses = bonuses || 0;
       payroll.allowances = allowances || 0;
       payroll.notes = notes || '';
       
+      console.log('Updated payroll values before save:');
+      console.log('- basicSalary:', payroll.basicSalary);
+      console.log('- totalWorkingDays:', payroll.totalWorkingDays);
+      console.log('- totalWorkingHours:', payroll.totalWorkingHours);
+      console.log('- deductions:', payroll.deductions);
+      console.log('- bonuses:', payroll.bonuses);
+      console.log('- allowances:', payroll.allowances);
+      
+      // Explicitly calculate payroll to ensure it's updated
+      payroll.calculatePayroll();
+      console.log('After explicit calculation:');
+      console.log('- regularPay:', payroll.regularPay);
+      console.log('- overtimePay:', payroll.overtimePay);
+      console.log('- grossPay:', payroll.grossPay);
+      console.log('- netPay:', payroll.netPay);
+      
       await payroll.save();
     } else {
+      console.log('Creating new payroll record');
       // Create new payroll
       payroll = new Payroll({
         staffId,
         month,
         year,
         basicSalary,
+        totalWorkingDays: totalWorkingDays || 0,
+        totalWorkingHours: totalWorkingHours || 0,
         deductions: deductions || 0,
         bonuses: bonuses || 0,
         allowances: allowances || 0,
         notes: notes || ''
       });
       
+      console.log('New payroll values before save:');
+      console.log('- basicSalary:', payroll.basicSalary);
+      console.log('- totalWorkingDays:', payroll.totalWorkingDays);
+      console.log('- totalWorkingHours:', payroll.totalWorkingHours);
+      console.log('- deductions:', payroll.deductions);
+      console.log('- bonuses:', payroll.bonuses);
+      console.log('- allowances:', payroll.allowances);
+      
+      // Explicitly calculate payroll to ensure it's set
+      payroll.calculatePayroll();
+      console.log('After explicit calculation:');
+      console.log('- regularPay:', payroll.regularPay);
+      console.log('- overtimePay:', payroll.overtimePay);
+      console.log('- grossPay:', payroll.grossPay);
+      console.log('- netPay:', payroll.netPay);
+      
       await payroll.save();
     }
+    
+    console.log('Payroll saved successfully. Final calculated values:');
+    console.log('- regularPay:', payroll.regularPay);
+    console.log('- overtimePay:', payroll.overtimePay);
+    console.log('- grossPay:', payroll.grossPay);
+    console.log('- netPay:', payroll.netPay);
     
     const populatedPayroll = await Payroll.findById(payroll._id)
       .populate('staffId', 'firstName lastName email role')
@@ -350,7 +409,24 @@ const recalculatePayroll = async (req, res) => {
     console.log(`Found ${attendanceData.length} attendance records, Total hours: ${payroll.totalWorkingHours}`);
     
     // Recalculate payroll
+    console.log('=== RECALCULATE PAYROLL DEBUG ===');
+    console.log('Before calculation:');
+    console.log('- totalWorkingDays:', payroll.totalWorkingDays);
+    console.log('- totalWorkingHours:', payroll.totalWorkingHours);
+    console.log('- basicSalary:', payroll.basicSalary);
+    console.log('- bonuses:', payroll.bonuses);
+    console.log('- allowances:', payroll.allowances);
+    console.log('- deductions:', payroll.deductions);
+    
     payroll.calculatePayroll();
+    
+    console.log('After calculation:');
+    console.log('- regularPay:', payroll.regularPay);
+    console.log('- overtimePay:', payroll.overtimePay);
+    console.log('- grossPay:', payroll.grossPay);
+    console.log('- netPay:', payroll.netPay);
+    console.log('===============================');
+    
     await payroll.save();
     
     const populatedPayroll = await Payroll.findById(payroll._id)
@@ -406,7 +482,24 @@ const refreshPayrollForMonth = async (req, res) => {
       console.log(`Staff ${payroll.staffId}: ${memberAttendance.length} days, ${payroll.totalWorkingHours} hours`);
       
       // Recalculate payroll
+      console.log(`=== REFRESH PAYROLL DEBUG - Staff ${payroll.staffId} ===`);
+      console.log('Before calculation:');
+      console.log('- totalWorkingDays:', payroll.totalWorkingDays);
+      console.log('- totalWorkingHours:', payroll.totalWorkingHours);
+      console.log('- basicSalary:', payroll.basicSalary);
+      console.log('- bonuses:', payroll.bonuses);
+      console.log('- allowances:', payroll.allowances);
+      console.log('- deductions:', payroll.deductions);
+      
       payroll.calculatePayroll();
+      
+      console.log('After calculation:');
+      console.log('- regularPay:', payroll.regularPay);
+      console.log('- overtimePay:', payroll.overtimePay);
+      console.log('- grossPay:', payroll.grossPay);
+      console.log('- netPay:', payroll.netPay);
+      console.log('==============================================');
+      
       await payroll.save();
       
       const populatedPayroll = await Payroll.findById(payroll._id)
