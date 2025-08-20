@@ -26,7 +26,7 @@ const UserAccountPage = () => {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewSuccess, setShowReviewSuccess] = useState(false);
   const [showAlreadyReviewedMessage, setShowAlreadyReviewedMessage] = useState(false);
-  const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(null); // Track which booking is being downloaded
   
   // Pagination states
   const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
@@ -163,13 +163,13 @@ const UserAccountPage = () => {
   };
 
   const handleDownloadPDF = async (booking) => {
-    setDownloadingPDF(true);
+    setDownloadingPDF(booking._id);
     try {
       generateBookingPDF(booking, user);
     } catch (error) {
       console.error('Error downloading PDF:', error);
     } finally {
-      setDownloadingPDF(false);
+      setDownloadingPDF(null);
     }
   };
 
@@ -659,39 +659,68 @@ const UserAccountPage = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="md:ml-6">
-                                                         {booking.status === 'Completed' && (
-                               <button
-                                 onClick={() => handleAddReview(booking._id)}
-                                 className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
-                                   checkIfAlreadyReviewed(booking._id)
-                                     ? 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed border-gray-400/30'
-                                     : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-400/30'
-                                 }`}
-                                 disabled={checkIfAlreadyReviewed(booking._id)}
-                               >
-                                 <div className="flex items-center space-x-2">
-                                   {checkIfAlreadyReviewed(booking._id) ? (
-                                     <>
-                                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                       </svg>
-                                       <span>Already Reviewed</span>
-                                     </>
-                                   ) : (
-                                     <>
-                                       <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                       </svg>
-                                       <span>Share Your Experience</span>
-                                     </>
-                                   )}
-                                 </div>
-                                 {!checkIfAlreadyReviewed(booking._id) && (
-                                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                                 )}
-                               </button>
-                             )}
+                          <div className="md:ml-6 flex flex-col space-y-3">
+                            {/* Download PDF Button */}
+                            <button
+                              onClick={() => handleDownloadPDF(booking)}
+                              disabled={downloadingPDF === booking._id}
+                              className="group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <div className="flex items-center space-x-2">
+                                {downloadingPDF === booking._id ? (
+                                  <>
+                                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                    </svg>
+                                    <span>{t('userAccount.bookings.downloadingPDF')}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-5 h-5 group-hover:animate-bounce transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span>{t('userAccount.bookings.downloadPDF')}</span>
+                                  </>
+                                )}
+                              </div>
+                              {downloadingPDF !== booking._id && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                              )}
+                            </button>
+
+                            {/* Review Button - Only show for completed bookings */}
+                            {booking.status === 'Completed' && (
+                              <button
+                                onClick={() => handleAddReview(booking._id)}
+                                className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
+                                  checkIfAlreadyReviewed(booking._id)
+                                    ? 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed border-gray-400/30'
+                                    : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-400/30'
+                                }`}
+                                disabled={checkIfAlreadyReviewed(booking._id)}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  {checkIfAlreadyReviewed(booking._id) ? (
+                                    <>
+                                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                      <span>Already Reviewed</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <svg className="w-5 h-5 group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                                      </svg>
+                                      <span>Share Your Experience</span>
+                                    </>
+                                  )}
+                                </div>
+                                {!checkIfAlreadyReviewed(booking._id) && (
+                                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                )}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </div>

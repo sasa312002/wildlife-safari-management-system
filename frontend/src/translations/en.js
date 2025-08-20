@@ -724,6 +724,8 @@ export default {
   'userAccount.bookings.shareExperience': 'Share Your Experience',
   'userAccount.bookings.previous': 'Previous',
   'userAccount.bookings.next': 'Next',
+  'userAccount.bookings.downloadPDF': 'download pdf',
+  'userAccount.bookings.downloadingPDF': 'Downloading PDF...',
   'userAccount.messages.title': 'My Messages',
   'userAccount.reviews.previous': 'Previous',
   'userAccount.reviews.next': 'Next',

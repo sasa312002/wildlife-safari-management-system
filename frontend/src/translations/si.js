@@ -646,6 +646,8 @@ export default {
   'userAccount.bookings.shareExperience': 'ඔබගේ අත්දැකීම බෙදාගන්න',
   'userAccount.bookings.previous': 'පෙර',
   'userAccount.bookings.next': 'ඊළඟ',
+  'userAccount.bookings.downloadPDF': 'pdf බාගන්න',
+  'userAccount.bookings.downloadingPDF': 'PDF බාගැනෙමින්...',
   'userAccount.messages.title': 'මගේ පණිවිඩ',
   'userAccount.reviews.previous': 'පෙර',
   'userAccount.reviews.next': 'ඊළඟ',

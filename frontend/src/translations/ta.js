@@ -680,6 +680,8 @@ export default {
   'userAccount.bookings.shareExperience': 'உங்கள் அனுபவத்தை பகிர்ந்து கொள்ளுங்கள்',
   'userAccount.bookings.previous': 'முந்தைய',
   'userAccount.bookings.next': 'அடுத்து',
+  'userAccount.bookings.downloadPDF': 'pdf பதிவிறக்கு',
+  'userAccount.bookings.downloadingPDF': 'PDF பதிவிறக்குகிறது...',
   'userAccount.messages.title': 'எனது செய்திகள்',
   'userAccount.reviews.previous': 'முந்தைய',
   'userAccount.reviews.next': 'அடுத்து',
