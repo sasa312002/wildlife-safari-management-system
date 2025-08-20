@@ -691,6 +691,8 @@ const AdminPage = () => {
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Email</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Phone</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Role</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Basic Salary</th>
+                  <th className="text-left py-4 px-6 text-green-200 font-abeze">License/Register</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Specialization</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Experience</th>
                   <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
@@ -732,6 +734,12 @@ const AdminPage = () => {
                       }`}>
                         {staffMember.role === 'tour_guide' ? 'Tour Guide' : staffMember.role}
                       </span>
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      LKR {staffMember.basicSalary?.toLocaleString() || 'N/A'}
+                    </td>
+                    <td className="py-4 px-6 text-white font-abeze text-sm">
+                      {staffMember.licenseNumber || 'N/A'}
                     </td>
                     <td className="py-4 px-6 text-white font-abeze text-sm">
                       {staffMember.specialization || 'N/A'}
