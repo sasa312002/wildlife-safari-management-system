@@ -118,7 +118,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
             Add New Package
           </h2>
           <p className="text-gray-300 font-abeze">
-            Create a new wildlife safari package
+            Create a new wildlife safari package for your customers
           </p>
         </div>
 
@@ -151,7 +151,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                     errors.title ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
-                  placeholder="e.g., Yala National Park Safari"
+                  placeholder="Enter package title"
                 />
                 {errors.title && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.title}</p>
@@ -188,7 +188,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                     errors.duration ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
-                  placeholder="e.g., 2 Days / 1 Night"
+                  placeholder="e.g., 2 days, 1 week"
                 />
                 {errors.duration && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.duration}</p>
@@ -198,7 +198,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
               {/* Price */}
               <div>
                 <label className="block text-white font-abeze font-medium mb-2">
-                  Price (LKR) *
+                  Price *
                 </label>
                 <input
                   type="number"
@@ -330,7 +330,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.description ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="Describe the package experience..."
+              placeholder="Describe the package experience, what makes it special..."
             />
             {errors.description && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.description}</p>
@@ -341,7 +341,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Features (comma-separated)
+                Features
               </label>
               <textarea
                 name="features"
@@ -349,13 +349,13 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                 onChange={handleInputChange}
                 rows="3"
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                placeholder="Professional guide, Luxury tented camp, Game drives"
+                placeholder="List key features of this package..."
               />
             </div>
 
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                Highlights (comma-separated)
+                Highlights
               </label>
               <textarea
                 name="highlights"
@@ -363,7 +363,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                 onChange={handleInputChange}
                 rows="3"
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                placeholder="Leopard sightings, Elephant herds, Bird watching"
+                placeholder="What are the main highlights of this experience?"
               />
             </div>
           </div>
@@ -372,7 +372,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
           <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                What's Included (comma-separated)
+                What's Included
               </label>
               <textarea
                 name="included"
@@ -380,13 +380,13 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                 onChange={handleInputChange}
                 rows="3"
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                placeholder="Accommodation, Meals, Transportation, Guide"
+                placeholder="What services and items are included in the price?"
               />
             </div>
 
             <div>
               <label className="block text-white font-abeze font-medium mb-2">
-                What's Not Included (comma-separated)
+                What's Not Included
               </label>
               <textarea
                 name="notIncluded"
@@ -394,7 +394,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
                 onChange={handleInputChange}
                 rows="3"
                 className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                placeholder="International flights, Personal expenses, Tips"
+                placeholder="What additional costs might customers expect?"
               />
             </div>
           </div>
@@ -402,7 +402,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
           {/* Requirements */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Requirements (comma-separated)
+              Requirements
             </label>
             <textarea
               name="requirements"
@@ -410,7 +410,7 @@ const AddPackageModal = ({ onClose, onPackageAdded }) => {
               onChange={handleInputChange}
               rows="3"
               className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-              placeholder="Good physical fitness, Comfortable walking shoes, Camera"
+              placeholder="Any physical requirements, age restrictions, or special considerations?"
             />
           </div>
 

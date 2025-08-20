@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
   const navigate = useNavigate();
   const { login, redirectAfterLogin, clearRedirectPath } = useAuth();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -63,7 +65,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
         navigate('/');
       }
     } catch (err) {
-      const errorMessage = err?.response?.data?.message || 'Login failed';
+      const errorMessage = err?.response?.data?.message || t('login.error.general');
       
       // Trigger shake animation
       triggerShake();
@@ -76,8 +78,8 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
       } else {
         // General error - show on both fields or as a general error
         setErrors({ 
-          email: 'Invalid credentials',
-          password: 'Invalid credentials'
+          email: t('login.error.invalidCredentials'),
+          password: t('login.error.invalidCredentials')
         });
       }
     } finally {
@@ -93,10 +95,10 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
         {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-3xl font-abeze font-bold text-white mb-2">
-            Welcome Back
+            {t('login.title')}
           </h2>
           <p className="text-gray-300 font-abeze">
-            Sign in to your Mufasa Wildlife account
+            {t('login.subtitle')}
           </p>
         </div>
 
@@ -104,6 +106,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          aria-label={t('common.close')}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -115,7 +118,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
           {/* Email */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Email Address
+              {t('login.form.email')}
             </label>
             <input
               type="email"
@@ -126,7 +129,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
               className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
                 errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
               }`}
-              placeholder="your.email@example.com"
+              placeholder={t('login.form.emailPlaceholder')}
             />
             {errors.email && (
               <p className="text-red-400 text-sm mt-1 font-abeze">{errors.email}</p>
@@ -136,7 +139,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
           {/* Password */}
           <div>
             <label className="block text-white font-abeze font-medium mb-2">
-              Password
+              {t('login.form.password')}
             </label>
             <div className="relative">
               <input
@@ -148,12 +151,13 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
                 className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
                   errors.password ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                 }`}
-                placeholder="Enter your password"
+                placeholder={t('login.form.passwordPlaceholder')}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                aria-label={showPassword ? t('common.hidePassword') : t('common.showPassword')}
               >
                 {showPassword ? (
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +182,7 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
               type="button"
               className="text-green-400 hover:text-green-300 font-abeze text-sm transition-colors"
             >
-              Forgot password?
+              {t('login.form.forgotPassword')}
             </button>
           </div>
 
@@ -188,29 +192,29 @@ const Login = ({ onClose, onSwitchToSignup, onSwitchToStaffLogin }) => {
             disabled={isSubmitting}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
           >
-            {isSubmitting ? 'Signing In...' : 'Sign In'}
+            {isSubmitting ? t('login.form.submitting') : t('login.form.submit')}
           </button>
 
           {/* Links */}
           <div className="text-center space-y-2">
             <p className="text-gray-300 font-abeze">
-              Don't have an account?{' '}
+              {t('login.form.noAccount')}{' '}
               <button
                 type="button"
                 onClick={onSwitchToSignup}
                 className="text-green-400 hover:text-green-300 font-abeze font-medium transition-colors"
               >
-                Sign up here
+                {t('login.form.signUpHere')}
               </button>
             </p>
             <p className="text-gray-300 font-abeze">
-              Are you staff?{' '}
+              {t('login.form.areYouStaff')}{' '}
               <button
                 type="button"
                 onClick={onSwitchToStaffLogin}
                 className="text-blue-400 hover:text-blue-300 font-abeze font-medium transition-colors"
               >
-                Staff login here
+                {t('login.form.staffLoginHere')}
               </button>
             </p>
           </div>

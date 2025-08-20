@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { bookingApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -12,6 +13,7 @@ import { reviewApi } from '../services/api';
 const UserAccountPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [showBookings, setShowBookings] = useState(false);
@@ -219,7 +221,7 @@ const UserAccountPage = () => {
                     : 'text-green-200 hover:text-white hover:bg-white/10'
                 }`}
               >
-                My Reviews
+                {t('userAccount.myReviews')}
               </button>
             </div>
 
@@ -384,13 +386,13 @@ const UserAccountPage = () => {
             {activeTab === 'reviews' && (
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
                 <h3 className="text-2xl font-abeze font-bold text-white mb-6">
-                  My Reviews
+                  {t('userAccount.myReviews')}
                 </h3>
                 
                 {loadingReviews ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
-                    <p className="text-green-200 font-abeze">Loading your reviews...</p>
+                    <p className="text-green-200 font-abeze">{t('userAccount.loadingReviews')}</p>
                   </div>
                 ) : reviews.length === 0 ? (
                   <div className="text-center py-8">
@@ -399,8 +401,8 @@ const UserAccountPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                       </svg>
                     </div>
-                    <p className="text-gray-300 font-abeze mb-4">No reviews yet</p>
-                    <p className="text-gray-400 font-abeze text-sm">Complete a safari booking to leave a review!</p>
+                    <p className="text-gray-300 font-abeze mb-4">{t('userAccount.noReviewsYet')}</p>
+                    <p className="text-gray-400 font-abeze text-sm">{t('userAccount.completeBookingToReview')}</p>
                   </div>
                 ) : (
                                      <div className="space-y-6">
@@ -416,7 +418,7 @@ const UserAccountPage = () => {
                                <div className="flex items-center space-x-3">
                                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                                  <h4 className="text-xl font-abeze font-bold text-white group-hover:text-green-300 transition-colors duration-200">
-                                   {review.packageId?.title || 'Safari Package'}
+                                   {review.packageId?.title || t('userAccount.defaultPackageTitle')}
                                  </h4>
                                </div>
                                <div className="flex items-center space-x-2 bg-white/10 px-3 py-2 rounded-full border border-white/20">
@@ -470,7 +472,7 @@ const UserAccountPage = () => {
                            
                            {review.images && review.images.length > 0 && (
                              <div className="flex flex-col space-y-2">
-                               <p className="text-green-200 font-abeze font-medium text-sm text-center">Your Photos</p>
+                               <p className="text-green-200 font-abeze font-medium text-sm text-center">{t('userAccount.yourPhotos')}</p>
                                <div className="grid grid-cols-2 gap-2">
                                  {review.images.map((image, index) => (
                                    <div key={index} className="relative group/image">
@@ -589,7 +591,7 @@ const UserAccountPage = () => {
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1">
                             <h4 className="text-lg font-abeze font-bold text-white mb-2">
-                              {booking.packageDetails?.title || 'Safari Package'}
+                                                                 {booking.packageDetails?.title || t('userAccount.defaultPackageTitle')}
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>

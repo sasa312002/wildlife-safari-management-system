@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { contactMessageApi } from '../services/api';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const ContactUsPage = () => {
   const { isAuthenticated, user } = useAuth();
+  const { t } = useLanguage();
   const loginTriggerRef = useRef(null);
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -183,10 +185,10 @@ const ContactUsPage = () => {
         });
       }
       
-      alert('Thank you! Your message has been sent successfully. We\'ll get back to you within 24 hours.');
+      alert(t('contact.form.success'));
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Failed to send message. Please try again.');
+      alert(t('contact.form.error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -194,28 +196,28 @@ const ContactUsPage = () => {
 
   const faqs = [
     {
-      question: "What is the best time to visit Sri Lanka for wildlife safaris?",
-      answer: "The best time for wildlife safaris in Sri Lanka is during the dry season (February to September), with peak wildlife viewing from May to September."
+      question: t('contact.faq.bestTime.question'),
+      answer: t('contact.faq.bestTime.answer')
     },
     {
-      question: "Do you provide transportation to and from the national parks?",
-      answer: "Yes, we provide complete transportation services including airport transfers, hotel pickups, and comfortable safari vehicles."
+      question: t('contact.faq.transportation.question'),
+      answer: t('contact.faq.transportation.answer')
     },
     {
-      question: "What should I bring for a safari tour?",
-      answer: "We recommend bringing comfortable clothing, a hat, sunscreen, binoculars, camera, and any personal medications. We provide detailed packing lists for each tour."
+      question: t('contact.faq.whatToBring.question'),
+      answer: t('contact.faq.whatToBring.answer')
     },
     {
-      question: "Are your tours suitable for children?",
-      answer: "Yes, we offer family-friendly tours with special considerations for children. Some tours have age restrictions for safety reasons."
+      question: t('contact.faq.children.question'),
+      answer: t('contact.faq.children.answer')
     },
     {
-      question: "What is your cancellation policy?",
-      answer: "We offer flexible cancellation policies with full refunds available up to 7 days before the tour date, subject to terms and conditions."
+      question: t('contact.faq.cancellation.question'),
+      answer: t('contact.faq.cancellation.answer')
     },
     {
-      question: "Do you offer custom safari packages?",
-      answer: "Absolutely! We specialize in creating custom safari experiences tailored to your interests, group size, and travel dates."
+      question: t('contact.faq.custom.question'),
+      answer: t('contact.faq.custom.answer')
     }
   ];
 
@@ -227,16 +229,16 @@ const ContactUsPage = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              Contact <span className="text-green-400">Us</span>
+              {t('contact.title')} <span className="text-green-400">Us</span>
             </h1>
             <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-              Ready to start your wildlife adventure? Get in touch with our expert team to plan your perfect Sri Lankan safari experience.
+              {t('contact.subtitle')}
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12 mb-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-2xl font-abeze font-bold text-white mb-6">Send us a Message</h3>
+              <h3 className="text-2xl font-abeze font-bold text-white mb-6">{t('contact.form.title')}</h3>
               
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isAuthenticated && (
@@ -246,7 +248,7 @@ const ContactUsPage = () => {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <p className="text-green-400 font-abeze text-sm">
-                        Your contact information has been pre-filled from your account.
+                        {t('contact.form.prefilled')}
                       </p>
                     </div>
                   </div>
@@ -255,7 +257,7 @@ const ContactUsPage = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-white font-abeze font-medium mb-2">
-                      First Name {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                      {t('contact.form.firstName')} {isAuthenticated && <span className="text-green-400 text-sm">({t('contact.form.prefilledNote')})</span>}
                     </label>
                     <input
                       type="text"
@@ -268,13 +270,13 @@ const ContactUsPage = () => {
                           ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
                           : 'bg-white/10 border-white/20 focus:border-green-400'
                       }`}
-                      placeholder="Enter your first name"
+                      placeholder={t('contact.form.placeholders.firstName')}
                       required
                     />
                   </div>
                   <div>
                     <label className="block text-white font-abeze font-medium mb-2">
-                      Last Name {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                      {t('contact.form.lastName')} {isAuthenticated && <span className="text-green-400 text-sm">({t('contact.form.prefilledNote')})</span>}
                     </label>
                     <input
                       type="text"
@@ -287,7 +289,7 @@ const ContactUsPage = () => {
                           ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
                           : 'bg-white/10 border-white/20 focus:border-green-400'
                       }`}
-                      placeholder="Enter your last name"
+                      placeholder={t('contact.form.placeholders.lastName')}
                       required
                     />
                   </div>
@@ -295,7 +297,7 @@ const ContactUsPage = () => {
                 
                 <div>
                   <label className="block text-white font-abeze font-medium mb-2">
-                    Email Address {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                    {t('contact.form.email')} {isAuthenticated && <span className="text-green-400 text-sm">({t('contact.form.prefilledNote')})</span>}
                   </label>
                   <input
                     type="email"
@@ -308,14 +310,14 @@ const ContactUsPage = () => {
                         ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
                         : 'bg-white/10 border-white/20 focus:border-green-400'
                     }`}
-                    placeholder="Enter your email address"
+                    placeholder={t('contact.form.placeholders.email')}
                     required
                   />
                 </div>
                 
                 <div>
                   <label className="block text-white font-abeze font-medium mb-2">
-                    Phone Number {isAuthenticated && <span className="text-green-400 text-sm">(Pre-filled)</span>}
+                    {t('contact.form.phone')} {isAuthenticated && <span className="text-green-400 text-sm">({t('contact.form.prefilledNote')})</span>}
                   </label>
                   <input
                     type="tel"
@@ -328,12 +330,12 @@ const ContactUsPage = () => {
                         ? 'bg-gray-700/50 border-gray-600 cursor-not-allowed' 
                         : 'bg-white/10 border-white/20 focus:border-green-400'
                     }`}
-                    placeholder="Enter your phone number"
+                    placeholder={t('contact.form.placeholders.phone')}
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-white font-abeze font-medium mb-2">Subject</label>
+                  <label className="block text-white font-abeze font-medium mb-2">{t('contact.form.subject')}</label>
                   <select
                     name="subject"
                     value={formData.subject}
@@ -341,24 +343,24 @@ const ContactUsPage = () => {
                     className="w-full bg-gray-700 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors"
                     required
                   >
-                    <option value="">Select a subject</option>
-                    <option value="safari-booking">Safari Booking</option>
-                    <option value="custom-package">Custom Package</option>
-                    <option value="general-inquiry">General Inquiry</option>
-                    <option value="group-booking">Group Booking</option>
-                    <option value="support">Customer Support</option>
+                    <option value="">{t('contact.form.selectSubject')}</option>
+                    <option value="safari-booking">{t('contact.form.subjects.safari')}</option>
+                    <option value="custom-package">{t('contact.form.subjects.custom')}</option>
+                    <option value="general-inquiry">{t('contact.form.subjects.general')}</option>
+                    <option value="group-booking">{t('contact.form.subjects.group')}</option>
+                    <option value="support">{t('contact.form.subjects.support')}</option>
                   </select>
                 </div>
                 
                 <div>
-                  <label className="block text-white font-abeze font-medium mb-2">Message</label>
+                  <label className="block text-white font-abeze font-medium mb-2">{t('contact.form.message')}</label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
                     rows="5"
                     className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze focus:border-green-400 focus:outline-none transition-colors resize-none"
-                    placeholder="Tell us about your wildlife adventure plans..."
+                    placeholder={t('contact.form.placeholders.message')}
                     required
                   ></textarea>
                 </div>
@@ -368,7 +370,7 @@ const ContactUsPage = () => {
                   disabled={isSubmitting}
                   className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
                 >
-                  {isSubmitting ? 'Sending Message...' : 'Send Message'}
+                  {isSubmitting ? t('contact.form.sending') : t('contact.form.sendMessage')}
                 </button>
               </form>
             </div>
@@ -383,11 +385,11 @@ const ContactUsPage = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-abeze font-bold text-white mb-2">Office Location</h4>
+                    <h4 className="text-xl font-abeze font-bold text-white mb-2">{t('contact.info.office.title')}</h4>
                     <p className="text-gray-300 font-abeze text-sm leading-relaxed">
-                      123 Wildlife Road<br />
-                      Colombo 03, Sri Lanka<br />
-                      Near the National Museum
+                      {t('contact.info.office.address')}<br />
+                      {t('contact.info.office.city')}<br />
+                      {t('contact.info.office.near')}
                     </p>
                   </div>
                 </div>
@@ -401,16 +403,16 @@ const ContactUsPage = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-abeze font-bold text-white mb-2">Phone & Email</h4>
+                    <h4 className="text-xl font-abeze font-bold text-white mb-2">{t('contact.info.phone.title')}</h4>
                     <div className="space-y-2">
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">Phone:</span> +94 11 234 5678
+                        <span className="text-green-400">{t('contact.info.phone.phone')}</span> {t('contact.info.phone.phoneNumber')}
                       </p>
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">WhatsApp:</span> +94 77 123 4567
+                        <span className="text-green-400">{t('contact.info.phone.whatsapp')}</span> {t('contact.info.phone.whatsappNumber')}
                       </p>
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">Email:</span> info@wildpath.lk
+                        <span className="text-green-400">{t('contact.info.phone.email')}</span> {t('contact.info.phone.emailAddress')}
                       </p>
                     </div>
                   </div>
@@ -425,16 +427,16 @@ const ContactUsPage = () => {
                     </svg>
                   </div>
                   <div>
-                    <h4 className="text-xl font-abeze font-bold text-white mb-2">Business Hours</h4>
+                    <h4 className="text-xl font-abeze font-bold text-white mb-2">{t('contact.info.hours.title')}</h4>
                     <div className="space-y-1">
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">Monday - Sunday:</span> 6:00 AM - 8:00 PM
+                        <span className="text-green-400">{t('contact.info.hours.weekdays')}</span> {t('contact.info.hours.weekdaysTime')}
                       </p>
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">Safari Departures:</span> 5:30 AM - 6:00 PM
+                        <span className="text-green-400">{t('contact.info.hours.safari')}</span> {t('contact.info.hours.safariTime')}
                       </p>
                       <p className="text-gray-300 font-abeze text-sm">
-                        <span className="text-green-400">Emergency:</span> 24/7 Available
+                        <span className="text-green-400">{t('contact.info.hours.emergency')}</span> {t('contact.info.hours.emergencyTime')}
                       </p>
                     </div>
                   </div>
@@ -442,7 +444,7 @@ const ContactUsPage = () => {
               </div>
 
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <h4 className="text-xl font-abeze font-bold text-white mb-4">Follow Us</h4>
+                <h4 className="text-xl font-abeze font-bold text-white mb-4">{t('contact.info.social.title')}</h4>
                 <div className="flex space-x-4">
                   <a href="#" className="bg-green-600/20 p-3 rounded-lg hover:bg-green-600/30 transition-colors">
                     <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 24 24">
@@ -471,7 +473,7 @@ const ContactUsPage = () => {
 
           <div className="mb-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-2xl font-abeze font-bold text-white mb-6 text-center">Find Us</h3>
+              <h3 className="text-2xl font-abeze font-bold text-white mb-6 text-center">{t('contact.map.title')}</h3>
               <div className="bg-gray-800 rounded-lg overflow-hidden">
                 <div ref={mapContainerRef} className="w-full h-96" />
                 <div className="p-3 text-center">
@@ -481,9 +483,9 @@ const ContactUsPage = () => {
                     rel="noopener noreferrer"
                     className="text-green-400 hover:text-green-300 font-abeze text-sm"
                   >
-                    View on OpenStreetMap
+                    {t('contact.map.viewOnMap')}
                   </a>
-                  <p className="text-gray-400 font-abeze text-xs mt-1">Explore safari, hiking, and adventure locations across Sri Lanka</p>
+                  <p className="text-gray-400 font-abeze text-xs mt-1">{t('contact.map.description')}</p>
                 </div>
               </div>
             </div>
@@ -491,7 +493,7 @@ const ContactUsPage = () => {
 
           <div className="mb-16">
             <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-              Frequently Asked <span className="text-green-400">Questions</span>
+              {t('contact.faq.title')} <span className="text-green-400">Questions</span>
             </h3>
             <div className="grid md:grid-cols-2 gap-8">
               {faqs.map((faq, index) => (

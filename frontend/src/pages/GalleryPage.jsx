@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { reviewApi } from '../services/api';
 
 const GalleryPage = () => {
+	const { t } = useLanguage();
 	const [reviews, setReviews] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState('all'); // all, recent, popular
@@ -94,9 +96,9 @@ const GalleryPage = () => {
 				<div className="container mx-auto px-6">
 					{/* Page Header */}
 					<div className="text-center mb-12">
-						<h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">Safari Gallery</h1>
+						<h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">{t('gallery.title')}</h1>
 						<p className="text-green-200 font-abeze text-lg max-w-2xl mx-auto">
-							Explore amazing moments captured by our safari guests. Each card represents one review with multiple photos.
+							{t('gallery.subtitle')}
 						</p>
 					</div>
 
@@ -109,7 +111,7 @@ const GalleryPage = () => {
 									filter === 'all' ? 'bg-green-600 text-white' : 'text-green-200 hover:text-white hover:bg-white/10'
 								}`}
 							>
-								All
+								{t('gallery.filters.all')}
 							</button>
 							<button
 								onClick={() => setFilter('recent')}
@@ -117,7 +119,7 @@ const GalleryPage = () => {
 									filter === 'recent' ? 'bg-green-600 text-white' : 'text-green-200 hover:text-white hover:bg-white/10'
 								}`}
 							>
-								Recent
+								{t('gallery.filters.recent')}
 							</button>
 							<button
 								onClick={() => setFilter('popular')}
@@ -125,7 +127,7 @@ const GalleryPage = () => {
 									filter === 'popular' ? 'bg-green-600 text-white' : 'text-green-200 hover:text-white hover:bg-white/10'
 								}`}
 							>
-								Top Rated
+								{t('gallery.filters.popular')}
 							</button>
 						</div>
 					</div>
@@ -134,7 +136,7 @@ const GalleryPage = () => {
 					{loading ? (
 						<div className="text-center py-16">
 							<div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-400 mx-auto mb-4"></div>
-							<p className="text-green-200 font-abeze text-lg">Loading gallery...</p>
+							<p className="text-green-200 font-abeze text-lg">{t('gallery.loading')}</p>
 						</div>
 					) : displayedReviews.length === 0 ? (
 						<div className="text-center py-16">
@@ -143,8 +145,8 @@ const GalleryPage = () => {
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
 								</svg>
 							</div>
-							<h3 className="text-2xl font-abeze font-bold text-white mb-2">No Reviews With Photos</h3>
-							<p className="text-gray-300 font-abeze">Be the first to share your safari experience!</p>
+							<h3 className="text-2xl font-abeze font-bold text-white mb-2">{t('gallery.noReviews')}</h3>
+							<p className="text-gray-300 font-abeze">{t('gallery.beFirst')}</p>
 						</div>
 					) : (
 						<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -167,7 +169,7 @@ const GalleryPage = () => {
 										<div className="absolute bottom-0 left-0 right-0 p-4">
 											<div className="flex items-center justify-between mb-2">
 												<h4 className="text-white font-abeze font-bold text-sm truncate">
-													{review.packageId?.title || 'Safari Package'}
+													{review.packageId?.title || t('gallery.safariPackage')}
 												</h4>
 												<div className="flex items-center space-x-1">
 													{[...Array(5)].map((_, i) => (
@@ -177,15 +179,15 @@ const GalleryPage = () => {
 															fill="currentColor"
 															viewBox="0 0 20 20"
 														>
-															<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+															<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-.1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
 														</svg>
 													))}
 													<span className="text-white font-abeze ml-2 text-xs">{review.rating}/5</span>
 												</div>
 											</div>
 											<p className="text-gray-300 font-abeze text-xs flex items-center justify-between">
-												<span>by {getUserName(review)}</span>
-												<span>{review.images.length} photo{review.images.length !== 1 ? 's' : ''}</span>
+												<span>{t('gallery.by')} {getUserName(review)}</span>
+												<span>{review.images.length} {review.images.length === 1 ? t('gallery.photos') : t('gallery.photosPlural')}</span>
 											</p>
 										</div>
 									</div>
@@ -198,7 +200,10 @@ const GalleryPage = () => {
 					{displayedReviews.length > 0 && (
 						<div className="text-center mt-8">
 							<p className="text-gray-300 font-abeze">
-								Showing {displayedReviews.length} review{displayedReviews.length !== 1 ? 's' : ''} with photos
+								{displayedReviews.length === 1 
+									? t('gallery.showingReviews', { count: displayedReviews.length })
+									: t('gallery.showingReviewsPlural', { count: displayedReviews.length })
+								}
 							</p>
 						</div>
 					)}
@@ -230,7 +235,7 @@ const GalleryPage = () => {
 								<button
 									onClick={prevImage}
 									className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-									aria-label="Previous image"
+									aria-label={t('gallery.previousImage')}
 								>
 									<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -239,7 +244,7 @@ const GalleryPage = () => {
 								<button
 									onClick={nextImage}
 									className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full"
-									aria-label="Next image"
+									aria-label={t('gallery.nextImage')}
 								>
 									<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -250,7 +255,7 @@ const GalleryPage = () => {
 							<div className="p-6">
 								<div className="flex items-center justify-between mb-3">
 									<h3 className="text-xl font-abeze font-bold text-white truncate mr-3">
-										{selectedReview.packageId?.title || 'Safari Package'}
+										{selectedReview.packageId?.title || t('gallery.safariPackage')}
 									</h3>
 									<div className="flex items-center space-x-1">
 										{[...Array(5)].map((_, i) => (
@@ -260,7 +265,7 @@ const GalleryPage = () => {
 												fill="currentColor"
 												viewBox="0 0 20 20"
 											>
-												<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+												<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.538 1.118l-2.8-2.034a1 1 0 00-.1.175 0l-2.8 2.034c-.783.57-1.838-.197-1.538-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
 											</svg>
 										))}
 										<span className="text-white font-abeze ml-2">{selectedReview.rating}/5</span>
@@ -268,7 +273,7 @@ const GalleryPage = () => {
 								</div>
 
 								<p className="text-gray-300 font-abeze mb-3">
-									<span className="text-green-400">By:</span> {getUserName(selectedReview)}
+									<span className="text-green-400">{t('gallery.by')}:</span> {getUserName(selectedReview)}
 								</p>
 
 								{selectedReview.comment && (
@@ -276,7 +281,7 @@ const GalleryPage = () => {
 								)}
 
 								<p className="text-gray-400 font-abeze text-sm">
-									{new Date(selectedReview.createdAt).toLocaleDateString()} • Image {currentIndex + 1} of {selectedReview.images.length}
+									{new Date(selectedReview.createdAt).toLocaleDateString()} • {t('gallery.imageOf', { current: currentIndex + 1, total: selectedReview.images.length })}
 								</p>
 							</div>
 						</div>

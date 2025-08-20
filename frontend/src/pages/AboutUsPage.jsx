@@ -1,8 +1,10 @@
 import React from 'react';
+import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const AboutUsPage = () => {
+  const { t } = useLanguage();
   const teamMembers = [
     {
       name: "Kumara Perera",
@@ -36,23 +38,23 @@ expertise: "Elephant behavior, Hiking trails",
 
   const values = [
     {
-      title: "Hiking First",
-      description: "Every tour is designed to minimize environmental impact while maximizing educational value.",
+      title: t('about.values.hikingFirst.title'),
+      description: t('about.values.hikingFirst.description'),
       icon: "🌱"
     },
     {
-      title: "Local Expertise",
-      description: "Our team consists of local experts with deep knowledge of Sri Lanka's wildlife and culture.",
+      title: t('about.values.localExpertise.title'),
+      description: t('about.values.localExpertise.description'),
       icon: "🏠"
     },
     {
-      title: "Sustainable Tourism",
-      description: "We promote responsible tourism that benefits both wildlife and local communities.",
+      title: t('about.values.sustainableTourism.title'),
+      description: t('about.values.sustainableTourism.description'),
       icon: "♻️"
     },
     {
-      title: "Authentic Experiences",
-      description: "We provide genuine wildlife encounters that respect animals and their natural behaviors.",
+      title: t('about.values.authenticExperiences.title'),
+      description: t('about.values.authenticExperiences.description'),
       icon: "✨"
     }
   ];
@@ -60,23 +62,23 @@ expertise: "Elephant behavior, Hiking trails",
   const achievements = [
     {
       number: "10+",
-      label: "Years of Experience",
-      description: "Serving wildlife enthusiasts since 2014"
+      label: t('about.achievements.years'),
+      description: t('about.achievements.yearsDesc')
     },
     {
       number: "5,000+",
-      label: "Happy Guests",
-      description: "From over 50 countries worldwide"
+      label: t('about.achievements.guests'),
+      description: t('about.achievements.guestsDesc')
     },
     {
       number: "100%",
-      label: "Safety Record",
-      description: "Zero incidents in all our tours"
+      label: t('about.achievements.safety'),
+      description: t('about.achievements.safetyDesc')
     },
     {
       number: "15+",
-      label: "Hiking Projects",
-      description: "Actively supporting wildlife protection"
+      label: t('about.achievements.projects'),
+      description: t('about.achievements.projectsDesc')
     }
   ];
 
@@ -89,10 +91,10 @@ expertise: "Elephant behavior, Hiking trails",
           {/* Page Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              About <span className="text-green-400">Wild Path</span>
+              {t('about.title')} <span className="text-green-400">Wild Path</span>
             </h1>
             <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-              We are passionate about sharing the wonders of Sri Lankan wildlife while ensuring their protection for future generations.
+              {t('about.subtitle')}
             </p>
           </div>
 
@@ -100,34 +102,28 @@ expertise: "Elephant behavior, Hiking trails",
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
             <div>
               <h3 className="text-3xl font-abeze font-bold text-white mb-6">
-                Our Story
+                {t('about.story.title')}
               </h3>
               <div className="space-y-4 text-gray-300 font-abeze leading-relaxed">
                 <p>
-                  Founded in 2014, Wild Path began with a simple mission: to connect people with Sri Lanka's incredible wildlife 
-                  while ensuring their protection. What started as a small family operation has grown into one of Sri Lanka's most 
-                  trusted wildlife tourism companies.
+                  {t('about.story.founded')}
                 </p>
                 <p>
-                  Our founder, Kumara Perera, grew up in the shadow of Yala National Park, developing a deep connection with the 
-                  island's wildlife from an early age. This personal connection drives our commitment to hiking and responsible tourism.
+                  {t('about.story.founder')}
                 </p>
                 <p>
-                  Today, we work with local communities, hiking experts, and government agencies to create sustainable wildlife 
-                  experiences that benefit both visitors and the natural world they come to explore.
+                  {t('about.story.today')}
                 </p>
               </div>
             </div>
             <div className="bg-gradient-to-br from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-8 border border-green-400/30">
-              <h4 className="text-2xl font-abeze font-bold text-white mb-4">Our Mission</h4>
+              <h4 className="text-2xl font-abeze font-bold text-white mb-4">{t('about.mission.title')}</h4>
               <p className="text-gray-300 font-abeze mb-6">
-                To provide authentic, educational, and sustainable wildlife experiences that inspire hiking 
-                while supporting local communities and protecting Sri Lanka's natural heritage.
+                {t('about.mission.description')}
               </p>
-              <h4 className="text-2xl font-abeze font-bold text-white mb-4">Our Vision</h4>
+              <h4 className="text-2xl font-abeze font-bold text-white mb-4">{t('about.vision.title')}</h4>
               <p className="text-gray-300 font-abeze">
-                A world where wildlife tourism serves as a powerful tool for hiking, education, and 
-                sustainable development, ensuring Sri Lanka's natural wonders thrive for generations to come.
+                {t('about.vision.description')}
               </p>
             </div>
           </div>
@@ -135,7 +131,7 @@ expertise: "Elephant behavior, Hiking trails",
           {/* Values Section */}
           <div className="mb-20">
             <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-              Our <span className="text-green-400">Values</span>
+              {t('about.values.title')} <span className="text-green-400">Values</span>
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {values.map((value, index) => (
@@ -160,7 +156,7 @@ expertise: "Elephant behavior, Hiking trails",
           {/* Team Section */}
           <div className="mb-20">
             <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-              Meet Our <span className="text-green-400">Team</span>
+              {t('about.team.title')} <span className="text-green-400">Team</span>
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {teamMembers.map((member, index) => (
@@ -191,7 +187,7 @@ expertise: "Elephant behavior, Hiking trails",
           {/* Achievements Section */}
           <div className="mb-16">
             <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
-              Our <span className="text-green-400">Achievements</span>
+              {t('about.achievements.title')} <span className="text-green-400">Achievements</span>
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
               {achievements.map((achievement, index) => (
@@ -217,18 +213,17 @@ expertise: "Elephant behavior, Hiking trails",
           <div className="text-center mb-16">
             <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-8 border border-green-400/30">
               <h3 className="text-2xl font-abeze font-bold text-white mb-4">
-                Ready to Experience Sri Lankan Wildlife?
+                {t('about.cta.title')}
               </h3>
               <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
-                Join us on an unforgettable journey through Sri Lanka's most pristine wildlife sanctuaries. 
-                Let our expert guides show you the magic of the island's natural wonders.
+                {t('about.cta.description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
-                  Book Your Safari
+                  {t('about.cta.bookSafari')}
                 </button>
                 <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
-                  Contact Us
+                  {t('about.cta.contactUs')}
                 </button>
               </div>
             </div>
