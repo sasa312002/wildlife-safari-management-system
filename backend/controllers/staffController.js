@@ -53,8 +53,19 @@ export const createStaff = async (req, res, next) => {
       role,
       specialization,
       experience,
-      licenseNumber
+      licenseNumber,
+      basicSalary
     } = req.body;
+
+    console.log('Received staff creation data:', {
+      role,
+      basicSalary,
+      basicSalaryType: typeof basicSalary,
+      basicSalaryFalsy: !basicSalary,
+      basicSalaryUndefined: basicSalary === undefined,
+      basicSalaryNull: basicSalary === null,
+      basicSalaryZero: basicSalary === 0
+    });
 
     if (!firstName || !lastName || !email || !password || !phone || !role) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -66,6 +77,25 @@ export const createStaff = async (req, res, next) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
+    // Set basic salary based on role if not provided
+    let finalBasicSalary = basicSalary;
+    
+    // Only override if basicSalary is truly undefined or null
+    if (basicSalary === undefined || basicSalary === null) {
+      finalBasicSalary = role === 'driver' ? 75000 : 50000;
+      console.log('Salary was undefined/null, set to:', finalBasicSalary);
+    } else {
+      console.log('Salary was provided, keeping as:', finalBasicSalary);
+    }
+
+    console.log('Final basic salary calculation:', {
+      originalBasicSalary: basicSalary,
+      finalBasicSalary,
+      role,
+      willUseProvided: finalBasicSalary === basicSalary,
+      willUseCalculated: finalBasicSalary !== basicSalary
+    });
+
     const newStaff = await Staff.create({
       firstName,
       lastName,
@@ -75,7 +105,8 @@ export const createStaff = async (req, res, next) => {
       role,
       specialization,
       experience: Number(experience) || 0,
-      licenseNumber
+      licenseNumber,
+      basicSalary: finalBasicSalary
       // createdBy field is optional and will be null by default
     });
 
@@ -106,7 +137,8 @@ export const updateStaff = async (req, res, next) => {
       specialization,
       experience,
       licenseNumber,
-      isActive
+      isActive,
+      basicSalary
     } = req.body;
 
     const staffData = await Staff.findById(req.params.id);
@@ -122,6 +154,12 @@ export const updateStaff = async (req, res, next) => {
       }
     }
 
+    // Set basic salary based on role if not provided
+    let finalBasicSalary = basicSalary;
+    if (finalBasicSalary === undefined || finalBasicSalary === null) {
+      finalBasicSalary = role === 'driver' ? 75000 : 50000;
+    }
+
     const updatedStaff = await Staff.findByIdAndUpdate(
       req.params.id,
       {
@@ -133,7 +171,8 @@ export const updateStaff = async (req, res, next) => {
         specialization,
         experience: Number(experience) || 0,
         licenseNumber,
-        isActive
+        isActive,
+        basicSalary: finalBasicSalary
       },
       { new: true, runValidators: true }
     ).select('-passwordHash');

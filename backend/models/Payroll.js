@@ -131,23 +131,64 @@ payrollSchema.virtual('statusFormatted').get(function() {
 
 // Method to calculate payroll
 payrollSchema.methods.calculatePayroll = function() {
-  // Calculate regular pay (assuming 8 hours per day, 5 days per week)
-  const standardHoursPerDay = 8;
-  const standardDaysPerMonth = 22; // Average working days per month
+  console.log('=== BACKEND PAYROLL CALCULATION DEBUG ===');
+  console.log('Input values:');
+  console.log('- totalWorkingDays:', this.totalWorkingDays);
+  console.log('- totalWorkingHours:', this.totalWorkingHours);
+  console.log('- basicSalary:', this.basicSalary);
+  console.log('- bonuses:', this.bonuses);
+  console.log('- allowances:', this.allowances);
+  console.log('- deductions:', this.deductions);
   
-  this.regularHours = Math.min(this.totalWorkingHours, standardDaysPerMonth * standardHoursPerDay);
+  // Calculate regular hours (8 hours per day is standard)
+  const standardHoursPerDay = 8;
+  
+  // Calculate regular and overtime hours
+  this.regularHours = Math.min(this.totalWorkingHours, this.totalWorkingDays * standardHoursPerDay);
   this.overtimeHours = Math.max(0, this.totalWorkingHours - this.regularHours);
   
-  // Calculate pay rates
-  const hourlyRate = this.basicSalary / (standardDaysPerMonth * standardHoursPerDay);
-  const overtimeRate = hourlyRate * 1.5; // 1.5x for overtime
+  console.log('Calculated hours:');
+  console.log('- standardHoursPerDay:', standardHoursPerDay);
+  console.log('- regularHours:', this.regularHours);
+  console.log('- overtimeHours:', this.overtimeHours);
   
-  this.regularPay = this.regularHours * hourlyRate;
-  this.overtimePay = this.overtimeHours * overtimeRate;
+  // Calculate pay rates - EXACTLY like frontend
+  // Regular pay: pro-rated based on actual working hours vs standard hours
+  let regularPay = 0;
+  if (this.totalWorkingDays > 0 && this.totalWorkingHours > 0) {
+    const standardHoursForWorkingDays = this.totalWorkingDays * standardHoursPerDay;
+    const actualRegularHours = Math.min(this.totalWorkingHours, standardHoursForWorkingDays);
+    regularPay = (actualRegularHours / standardHoursForWorkingDays) * this.basicSalary;
+    
+    console.log('Regular pay calculation:');
+    console.log('- standardHoursForWorkingDays:', standardHoursForWorkingDays);
+    console.log('- actualRegularHours:', actualRegularHours);
+    console.log('- regularPay calculation:', `(${actualRegularHours} / ${standardHoursForWorkingDays}) × ${this.basicSalary} = ${regularPay}`);
+  }
+  this.regularPay = regularPay;
   
-  // Calculate gross and net pay
-  this.grossPay = this.regularPay + this.overtimePay + this.bonuses + this.allowances;
-  this.netPay = this.grossPay - this.deductions;
+  // Overtime pay: LKR 1,000 per overtime hour (EXACTLY like frontend)
+  const overtimeRatePerHour = 1000; // LKR 1,000 per overtime hour
+  this.overtimePay = this.overtimeHours * overtimeRatePerHour;
+  
+  console.log('Overtime pay calculation:');
+  console.log('- overtimeRatePerHour:', overtimeRatePerHour);
+  console.log('- overtimePay calculation:', `${this.overtimeHours} × ${overtimeRatePerHour} = ${this.overtimePay}`);
+  
+  // Calculate gross and net pay - EXACTLY like frontend
+  this.grossPay = this.regularPay + this.overtimePay + (this.bonuses || 0) + (this.allowances || 0);
+  this.netPay = this.grossPay - (this.deductions || 0);
+  
+  console.log('Final calculations:');
+  console.log('- grossPay calculation:', `${this.regularPay} + ${this.overtimePay} + ${this.bonuses || 0} + ${this.allowances || 0} = ${this.grossPay}`);
+  console.log('- netPay calculation:', `${this.grossPay} - ${this.deductions || 0} = ${this.netPay}`);
+  
+  console.log('Final calculated values:');
+  console.log('- regularPay:', this.regularPay);
+  console.log('- overtimePay:', this.overtimePay);
+  console.log('- grossPay:', this.grossPay);
+  console.log('- netPay:', this.netPay);
+  console.log('========================================');
   
   return {
     regularPay: this.regularPay,
@@ -159,7 +200,11 @@ payrollSchema.methods.calculatePayroll = function() {
 
 // Pre-save middleware to calculate payroll
 payrollSchema.pre('save', function(next) {
-  if (this.isModified('totalWorkingHours') || this.isModified('basicSalary')) {
+  if (this.isModified('totalWorkingHours') || 
+      this.isModified('basicSalary') || 
+      this.isModified('deductions') || 
+      this.isModified('bonuses') || 
+      this.isModified('allowances')) {
     this.calculatePayroll();
   }
   next();

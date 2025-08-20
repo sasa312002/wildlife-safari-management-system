@@ -17,6 +17,8 @@ const Payroll = () => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
     basicSalary: 0,
+    totalWorkingDays: 0,
+    totalWorkingHours: 0,
     deductions: 0,
     bonuses: 0,
     allowances: 0,
@@ -78,26 +80,109 @@ const Payroll = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!formData.staffId || !formData.basicSalary) {
+    if (!formData.staffId || !formData.basicSalary || !formData.totalWorkingDays || !formData.totalWorkingHours) {
       alert('Please fill in all required fields');
       return;
     }
+
+    // Validate working hours
+    const maxPossibleHours = formData.totalWorkingDays * 24; // Maximum possible hours in a day
+    if (formData.totalWorkingHours > maxPossibleHours) {
+      alert(`Working hours (${formData.totalWorkingHours}) cannot exceed ${maxPossibleHours} hours for ${formData.totalWorkingDays} days`);
+      return;
+    }
+
+    // Validate working days
+    if (formData.totalWorkingDays > 31) {
+      alert('Working days cannot exceed 31 days in a month');
+      return;
+    }
+
+    // Calculate expected values for verification
+    const standardHoursPerDay = 8;
+    const regularHours = Math.min(formData.totalWorkingHours, formData.totalWorkingDays * standardHoursPerDay);
+    const overtimeHours = Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * standardHoursPerDay));
+    
+    const regularPay = (regularHours / (formData.totalWorkingDays * standardHoursPerDay)) * formData.basicSalary;
+    const overtimePay = overtimeHours * 1000;
+    const grossPay = regularPay + overtimePay + (formData.bonuses || 0) + (formData.allowances || 0);
+    const expectedNetPay = grossPay - (formData.deductions || 0);
+
+    console.log('=== FRONTEND FORM SUBMISSION DEBUG ===');
+    console.log('Form Data:', formData);
+    console.log('Calculated Values:');
+    console.log('- Regular Hours:', regularHours);
+    console.log('- Overtime Hours:', overtimeHours);
+    console.log('- Regular Pay:', regularPay);
+    console.log('- Overtime Pay:', overtimePay);
+    console.log('- Gross Pay:', grossPay);
+    console.log('- Expected Net Pay:', expectedNetPay);
+    console.log('=====================================');
     
     try {
+      // Show confirmation with calculated values
+      const confirmMessage = `Please confirm payroll details:\n\n` +
+        `Staff: ${staff.find(s => s._id === formData.staffId)?.firstName} ${staff.find(s => s._id === formData.staffId)?.lastName}\n` +
+        `Month: ${getMonthName(formData.month)} ${formData.year}\n` +
+        `Working Days: ${formData.totalWorkingDays}\n` +
+        `Total Hours: ${formData.totalWorkingHours}\n` +
+        `Basic Salary: LKR ${formData.basicSalary?.toLocaleString()}\n` +
+        `Regular Pay: LKR ${regularPay.toFixed(2)}\n` +
+        `Overtime Pay: LKR ${overtimePay.toFixed(2)}\n` +
+        `Bonuses: LKR ${formData.bonuses?.toLocaleString() || '0'}\n` +
+        `Allowances: LKR ${formData.allowances?.toLocaleString() || '0'}\n` +
+        `Gross Pay: LKR ${grossPay.toFixed(2)}\n` +
+        `Deductions: LKR ${formData.deductions?.toLocaleString() || '0'}\n` +
+        `Expected Net Pay: LKR ${expectedNetPay.toFixed(2)}\n\n` +
+        `Do you want to proceed?`;
+
+      if (!window.confirm(confirmMessage)) {
+        return;
+      }
+
       await payrollApi.createOrUpdatePayroll(formData);
+      
+      // Verify the saved payroll matches our calculation
+      const savedPayroll = await payrollApi.getPayrollByMonth(formData.month, formData.year);
+      const currentRecord = savedPayroll.find(p => p.staffId._id === formData.staffId);
+      
+      if (currentRecord) {
+        console.log('=== PAYROLL VERIFICATION ===');
+        console.log('Frontend Expected Values:');
+        console.log('- Regular Pay:', regularPay.toFixed(2));
+        console.log('- Overtime Pay:', overtimePay.toFixed(2));
+        console.log('- Gross Pay:', grossPay.toFixed(2));
+        console.log('- Net Pay:', expectedNetPay.toFixed(2));
+        console.log('Backend Saved Values:');
+        console.log('- Regular Pay:', currentRecord.regularPay?.toFixed(2) || 'N/A');
+        console.log('- Overtime Pay:', currentRecord.overtimePay?.toFixed(2) || 'N/A');
+        console.log('- Gross Pay:', currentRecord.grossPay?.toFixed(2) || 'N/A');
+        console.log('- Net Pay:', currentRecord.netPay?.toFixed(2) || 'N/A');
+        
+        // Check for discrepancies
+        const regularPayDiff = Math.abs(regularPay - (currentRecord.regularPay || 0));
+        const overtimePayDiff = Math.abs(overtimePay - (currentRecord.overtimePay || 0));
+        const grossPayDiff = Math.abs(grossPay - (currentRecord.grossPay || 0));
+        const netPayDiff = Math.abs(expectedNetPay - (currentRecord.netPay || 0));
+        
+        if (regularPayDiff > 0.01 || overtimePayDiff > 0.01 || grossPayDiff > 0.01 || netPayDiff > 0.01) {
+          console.warn('⚠️ CALCULATION DISCREPANCY DETECTED!');
+          console.warn('Regular Pay Diff:', regularPayDiff);
+          console.warn('Overtime Pay Diff:', overtimePayDiff);
+          console.warn('Gross Pay Diff:', grossPayDiff);
+          console.warn('Net Pay Diff:', netPayDiff);
+          alert(`⚠️ Calculation discrepancy detected!\n\nFrontend Net Pay: LKR ${expectedNetPay.toFixed(2)}\nBackend Net Pay: LKR ${currentRecord.netPay?.toFixed(2) || 'N/A'}\n\nCheck console for details.`);
+        } else {
+          console.log('✅ All calculations match perfectly!');
+        }
+        console.log('=============================');
+      }
+      
       setShowEditModal(false);
-      setFormData({
-        staffId: '',
-        month: new Date().getMonth() + 1,
-        year: new Date().getFullYear(),
-        basicSalary: 0,
-        deductions: 0,
-        bonuses: 0,
-        allowances: 0,
-        notes: ''
-      });
+      resetForm();
       loadPayroll();
       loadStats();
+      alert('Payroll saved successfully!');
     } catch (error) {
       console.error('Error creating/updating payroll:', error);
       alert('Error saving payroll. Please try again.');
@@ -106,11 +191,18 @@ const Payroll = () => {
 
   const handleEdit = (payrollRecord) => {
     setSelectedPayroll(payrollRecord);
+    
+    // Get the current staff member's basic salary
+    const currentStaff = staff.find(s => s._id === payrollRecord.staffId._id);
+    const currentBasicSalary = currentStaff?.basicSalary || payrollRecord.basicSalary || 0;
+    
     setFormData({
       staffId: payrollRecord.staffId._id,
       month: payrollRecord.month,
       year: payrollRecord.year,
-      basicSalary: payrollRecord.basicSalary,
+      basicSalary: currentBasicSalary,
+      totalWorkingDays: payrollRecord.totalWorkingDays,
+      totalWorkingHours: payrollRecord.totalWorkingHours,
       deductions: payrollRecord.deductions,
       bonuses: payrollRecord.bonuses,
       allowances: payrollRecord.allowances,
@@ -177,9 +269,9 @@ const Payroll = () => {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-LK', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'LKR'
     }).format(amount);
   };
 
@@ -196,6 +288,41 @@ const Payroll = () => {
 
   const getStatusText = (status) => {
     return status.charAt(0).toUpperCase() + status.slice(1);
+  };
+
+  // Handle staff member selection and auto-populate basic salary
+  const handleStaffSelection = (staffId) => {
+    const selectedStaff = staff.find(s => s._id === staffId);
+    if (selectedStaff) {
+      setFormData({
+        ...formData,
+        staffId: staffId,
+        basicSalary: selectedStaff.basicSalary || 0
+      });
+    } else {
+      setFormData({
+        ...formData,
+        staffId: staffId,
+        basicSalary: 0
+      });
+    }
+  };
+
+  // Reset form when modal is closed
+  const resetForm = () => {
+    setFormData({
+      staffId: '',
+      month: new Date().getMonth() + 1,
+      year: new Date().getFullYear(),
+      basicSalary: 0,
+      totalWorkingDays: 0,
+      totalWorkingHours: 0,
+      deductions: 0,
+      bonuses: 0,
+      allowances: 0,
+      notes: ''
+    });
+    setSelectedPayroll(null);
   };
 
   return (
@@ -326,12 +453,48 @@ const Payroll = () => {
         </div>
       )}
 
+      {/* Overtime Summary */}
+      {payroll.length > 0 && (
+        <div className="bg-gradient-to-r from-blue-900/20 to-purple-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
+          <h4 className="text-blue-300 font-abeze font-medium mb-3">Monthly Overtime Summary</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div>
+              <p className="text-gray-400">Total Staff:</p>
+              <p className="text-white font-medium">{payroll.length}</p>
+            </div>
+            <div>
+              <p className="text-gray-400">Total Overtime Hours:</p>
+              <p className="text-white font-medium">
+                {payroll.reduce((sum, record) => sum + Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)), 0).toFixed(1)} hrs
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-400">Total Overtime Pay:</p>
+              <p className="text-white font-medium">
+                {formatCurrency(payroll.reduce((sum, record) => sum + (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000), 0))}
+              </p>
+            </div>
+            <div>
+              <p className="text-gray-400">Average Overtime per Staff:</p>
+              <p className="text-white font-medium">
+                {formatCurrency(payroll.reduce((sum, record) => sum + (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000), 0) / payroll.length)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Payroll Table */}
       <div className="bg-gray-800 rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-700">
-          <h3 className="text-lg font-abeze font-semibold text-white">
-            Payroll Records - {getMonthName(selectedMonth)} {selectedYear}
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-abeze font-semibold text-white">
+              Payroll Records - {getMonthName(selectedMonth)} {selectedYear}
+            </h3>
+            <div className="text-xs text-gray-400 bg-gray-700 px-3 py-2 rounded-lg">
+              <span className="text-blue-400 font-medium">Overtime Rule:</span> LKR 1,000 per hour for hours worked over 8 hours per day
+            </div>
+          </div>
         </div>
         
         {loading ? (
@@ -359,9 +522,11 @@ const Payroll = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Staff</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Working Days</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Hours</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Total Hours</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Overtime Hours</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Basic Salary</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Overtime</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Overtime Pay</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Gross Pay</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Net Pay</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
@@ -394,10 +559,21 @@ const Payroll = () => {
                       {record.totalWorkingHours.toFixed(1)} hrs
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                      {formatCurrency(record.basicSalary)}
+                      {Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)).toFixed(1)} hrs
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                      {formatCurrency(record.overtimePay)}
+                      LKR {record.basicSalary?.toLocaleString() || '0'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                      {formatCurrency(Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                      {formatCurrency(
+                        (record.regularPay || 0) + 
+                        (Math.max(0, record.totalWorkingHours - (record.totalWorkingDays * 8)) * 1000) + 
+                        (record.bonuses || 0) + 
+                        (record.allowances || 0)
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white font-medium">
                       {formatCurrency(record.netPay)}
@@ -416,15 +592,6 @@ const Payroll = () => {
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => handleRecalculate(record._id)}
-                          className="text-green-400 hover:text-green-300 transition-colors"
-                          title="Recalculate"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                           </svg>
                         </button>
                         <button
@@ -517,25 +684,28 @@ const Payroll = () => {
       {/* Add/Edit Payroll Modal */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700">
-            <div className="p-6 border-b border-gray-700">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl shadow-2xl max-w-md w-full border border-gray-700 max-h-[90vh] flex flex-col">
+            {/* Fixed Header */}
+            <div className="p-6 border-b border-gray-700 flex-shrink-0">
               <h3 className="text-xl font-abeze font-bold text-white">
                 {selectedPayroll ? 'Edit Payroll Record' : 'Add Payroll Record'}
               </h3>
             </div>
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+            
+            {/* Scrollable Form Content */}
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
               <div>
                 <label className="block text-gray-300 font-abeze text-sm mb-2">Staff Member</label>
                 <select
                   value={formData.staffId}
-                  onChange={(e) => setFormData({ ...formData, staffId: e.target.value })}
+                  onChange={(e) => handleStaffSelection(e.target.value)}
                   className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
                   required
                 >
                   <option value="">Select Staff Member</option>
                   {staff.map((member) => (
                     <option key={member._id} value={member._id}>
-                      {member.firstName} {member.lastName} - {member.role}
+                      {member.firstName} {member.lastName} - {member.role} (Basic: LKR {member.basicSalary?.toLocaleString() || 'N/A'})
                     </option>
                   ))}
                 </select>
@@ -578,22 +748,226 @@ const Payroll = () => {
               </div>
 
               <div>
-                <label className="block text-gray-300 font-abeze text-sm mb-2">Basic Salary</label>
+                <label className="block text-gray-300 font-abeze text-sm mb-2">Basic Salary (LKR)</label>
                 <input
                   type="number"
                   value={formData.basicSalary}
                   onChange={(e) => setFormData({ ...formData, basicSalary: parseFloat(e.target.value) || 0 })}
                   className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
-                  placeholder="0.00"
+                  placeholder="75000"
                   step="0.01"
                   min="0"
                   required
                 />
+                <p className="text-xs text-gray-400 mt-1">
+                  Auto-populated from staff member's basic salary in LKR. You can modify if needed.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-300 font-abeze text-sm mb-2">Working Days</label>
+                  <input
+                    type="number"
+                    value={formData.totalWorkingDays}
+                    onChange={(e) => setFormData({ ...formData, totalWorkingDays: parseInt(e.target.value) || 0 })}
+                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
+                    placeholder="22"
+                    min="0"
+                    max="31"
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Number of days worked this month
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-gray-300 font-abeze text-sm mb-2">Total Working Hours</label>
+                  <input
+                    type="number"
+                    value={formData.totalWorkingHours}
+                    onChange={(e) => setFormData({ ...formData, totalWorkingHours: parseFloat(e.target.value) || 0 })}
+                    className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
+                    placeholder="176"
+                    step="0.1"
+                    min="0"
+                    required
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Total hours worked this month (8 hours/day = regular, over 8 = overtime)
+                  </p>
+                </div>
+              </div>
+
+              {/* Overtime Calculation Display */}
+              <div className="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
+                <h4 className="text-blue-300 font-abeze font-medium mb-3">Overtime Calculation</h4>
+                <div className="grid grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <p className="text-gray-400">Regular Hours:</p>
+                    <p className="text-white font-medium">
+                      {Math.min(formData.totalWorkingHours, formData.totalWorkingDays * 8).toFixed(1)} hrs
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Overtime Hours:</p>
+                    <p className="text-white font-medium">
+                      {Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8)).toFixed(1)} hrs
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Overtime Pay:</p>
+                    <p className="text-white font-medium">
+                      LKR {Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8)) * 1000}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-blue-300 mt-2">
+                  Overtime rate: LKR 1,000 per hour (for hours worked over 8 hours per day)
+                </p>
+              </div>
+
+              {/* Net Pay Calculation Display */}
+              <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-4">
+                <h4 className="text-green-300 font-abeze font-medium mb-3">Net Pay Calculation</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Basic Salary:</span>
+                    <span className="text-white font-medium">LKR {formData.basicSalary?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Regular Pay (pro-rated):</span>
+                    <span className="text-white font-medium">
+                      LKR {((Math.min(formData.totalWorkingHours, formData.totalWorkingDays * 8) / (formData.totalWorkingDays * 8)) * formData.basicSalary).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Overtime Pay:</span>
+                    <span className="text-white font-medium">
+                      LKR {Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8)) * 1000}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Bonuses:</span>
+                    <span className="text-white font-medium">LKR {formData.bonuses?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Allowances:</span>
+                    <span className="text-white font-medium">LKR {formData.allowances?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="border-t border-green-500/30 pt-2">
+                    <div className="flex justify-between">
+                      <span className="text-green-300 font-medium">Gross Pay:</span>
+                      <span className="text-green-300 font-medium">
+                        LKR {(
+                          ((Math.min(formData.totalWorkingHours, formData.totalWorkingDays * 8) / (formData.totalWorkingDays * 8)) * formData.basicSalary) +
+                          (Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8)) * 1000) +
+                          formData.bonuses +
+                          formData.allowances
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-red-400">Deductions:</span>
+                    <span className="text-red-400">-LKR {formData.deductions?.toLocaleString() || '0'}</span>
+                  </div>
+                  <div className="border-t border-green-500/30 pt-2">
+                    <div className="flex justify-between">
+                      <span className="text-white font-bold text-lg">Net Pay:</span>
+                      <span className="text-white font-bold text-lg">
+                        LKR {(
+                          ((Math.min(formData.totalWorkingHours, formData.totalWorkingDays * 8) / (formData.totalWorkingDays * 8)) * formData.basicSalary) +
+                          (Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8)) * 1000) +
+                          formData.bonuses +
+                          formData.allowances -
+                          formData.deductions
+                        ).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-green-300 mt-2">
+                  Net Pay = Basic Salary (pro-rated) + Overtime Pay + Bonuses + Allowances - Deductions
+                </p>
+                
+                {/* Test Calculation Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const standardHoursPerDay = 8;
+                    const regularHours = Math.min(formData.totalWorkingHours, formData.totalWorkingDays * standardHoursPerDay);
+                    const overtimeHours = Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * standardHoursPerDay));
+                    
+                    const regularPay = (regularHours / (formData.totalWorkingDays * standardHoursPerDay)) * formData.basicSalary;
+                    const overtimePay = overtimeHours * 1000;
+                    const grossPay = regularPay + overtimePay + (formData.bonuses || 0) + (formData.allowances || 0);
+                    const netPay = grossPay - (formData.deductions || 0);
+                    
+                    const testMessage = `🧮 CALCULATION TEST RESULTS:\n\n` +
+                      `Input Values:\n` +
+                      `- Working Days: ${formData.totalWorkingDays}\n` +
+                      `- Total Hours: ${formData.totalWorkingHours}\n` +
+                      `- Basic Salary: LKR ${formData.basicSalary?.toLocaleString()}\n` +
+                      `- Bonuses: LKR ${formData.bonuses?.toLocaleString() || '0'}\n` +
+                      `- Allowances: LKR ${formData.allowances?.toLocaleString() || '0'}\n` +
+                      `- Deductions: LKR ${formData.deductions?.toLocaleString() || '0'}\n\n` +
+                      `Calculations:\n` +
+                      `- Regular Hours: ${regularHours.toFixed(1)} hrs\n` +
+                      `- Overtime Hours: ${overtimeHours.toFixed(1)} hrs\n` +
+                      `- Regular Pay: LKR ${regularPay.toFixed(2)}\n` +
+                      `- Overtime Pay: LKR ${overtimePay.toFixed(2)}\n` +
+                      `- Gross Pay: LKR ${grossPay.toFixed(2)}\n` +
+                      `- Net Pay: LKR ${netPay.toFixed(2)}\n\n` +
+                      `Check console for detailed calculation steps.`;
+                    
+                    console.log('=== FRONTEND CALCULATION TEST ===');
+                    console.log('Input Values:', formData);
+                    console.log('Calculation Steps:');
+                    console.log('1. Regular Hours:', `${Math.min(formData.totalWorkingHours, formData.totalWorkingDays * 8)} hrs`);
+                    console.log('2. Overtime Hours:', `${Math.max(0, formData.totalWorkingHours - (formData.totalWorkingDays * 8))} hrs`);
+                    console.log('3. Regular Pay:', `(${regularHours} / ${formData.totalWorkingDays * 8}) × ${formData.basicSalary} = LKR ${regularPay.toFixed(2)}`);
+                    console.log('4. Overtime Pay:', `${overtimeHours} × 1000 = LKR ${overtimePay.toFixed(2)}`);
+                    console.log('5. Gross Pay:', `${regularPay.toFixed(2)} + ${overtimePay.toFixed(2)} + ${formData.bonuses || 0} + ${formData.allowances || 0} = LKR ${grossPay.toFixed(2)}`);
+                    console.log('6. Net Pay:', `${grossPay.toFixed(2)} - ${formData.deductions || 0} = LKR ${netPay.toFixed(2)}`);
+                    console.log('==================================');
+                    
+                    alert(testMessage);
+                  }}
+                  className="mt-3 w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+                >
+                  🧮 Test Calculation (Debug)
+                </button>
+                
+                {/* Debug Information - Show backend vs frontend calculations */}
+                {selectedPayroll && (
+                  <div className="mt-4 p-3 bg-gray-800/50 rounded border border-gray-600">
+                    <p className="text-xs text-gray-400 mb-2">Debug Info (Backend vs Frontend):</p>
+                    <div className="text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span>Backend Regular Pay:</span>
+                        <span>LKR {selectedPayroll.regularPay?.toFixed(2) || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Backend Overtime Pay:</span>
+                        <span>LKR {selectedPayroll.overtimePay?.toFixed(2) || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Backend Gross Pay:</span>
+                        <span>LKR {selectedPayroll.grossPay?.toFixed(2) || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Backend Net Pay:</span>
+                        <span>LKR {selectedPayroll.netPay?.toFixed(2) || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-abeze text-sm mb-2">Deductions</label>
+                  <label className="block text-gray-300 font-abeze text-sm mb-2">Deductions (LKR)</label>
                   <input
                     type="number"
                     value={formData.deductions}
@@ -605,7 +979,7 @@ const Payroll = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-abeze text-sm mb-2">Bonuses</label>
+                  <label className="block text-gray-300 font-abeze text-sm mb-2">Bonuses (LKR)</label>
                   <input
                     type="number"
                     value={formData.bonuses}
@@ -617,7 +991,7 @@ const Payroll = () => {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-abeze text-sm mb-2">Allowances</label>
+                  <label className="block text-gray-300 font-abeze text-sm mb-2">Allowances (LKR)</label>
                   <input
                     type="number"
                     value={formData.allowances}
@@ -640,23 +1014,28 @@ const Payroll = () => {
                   placeholder="Additional notes..."
                 />
               </div>
-
-              <div className="flex space-x-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
-                >
-                  {selectedPayroll ? 'Update Record' : 'Add Record'}
-                </button>
-              </div>
             </form>
+            
+            {/* Fixed Footer */}
+            <div className="p-6 border-t border-gray-700 flex space-x-3 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowEditModal(false);
+                  resetForm();
+                }}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                onClick={handleSubmit}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-abeze font-medium transition-colors duration-300"
+              >
+                {selectedPayroll ? 'Update Record' : 'Add Record'}
+              </button>
+            </div>
           </div>
         </div>
       )}

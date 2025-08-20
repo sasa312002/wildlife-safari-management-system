@@ -51,7 +51,6 @@ const staffSchema = new mongoose.Schema(
     },
     basicSalary: {
       type: Number,
-      default: 50000,
       min: 0
     },
     profilePicture: {

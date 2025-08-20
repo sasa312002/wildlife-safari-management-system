@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { staffApi } from '../services/api';
 
 const AddStaffModal = ({ onClose, onStaffAdded }) => {
@@ -11,7 +11,8 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
     role: 'driver',
     specialization: '',
     experience: '',
-    licenseNumber: ''
+    licenseNumber: '',
+    basicSalary: 75000
   });
 
   const [errors, setErrors] = useState({});
@@ -20,18 +21,69 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const roles = [
     { value: 'driver', label: 'Driver' },
     { value: 'tour_guide', label: 'Tour Guide' }
   ];
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  // Log initial formData
+  useEffect(() => {
+    console.log('Component mounted - Initial formData:', formData);
+  }, []);
+
+  // Update basic salary when role changes
+  useEffect(() => {
+    // Always set the correct salary based on role
+    const newSalary = formData.role === 'driver' ? 75000 : 50000;
+    console.log('useEffect: Setting basic salary for role:', formData.role, 'to:', newSalary);
+    
+    setFormData(prev => {
+      const updatedData = {
+        ...prev,
+        basicSalary: newSalary
+      };
+      console.log('useEffect: Updated formData:', updatedData);
+      return updatedData;
+    });
+  }, [formData.role]);
+
+  // Ensure basic salary is correctly set based on role
+  const ensureCorrectBasicSalary = () => {
+    // Always return the correct salary based on current role, regardless of form state
+    const expectedSalary = formData.role === 'driver' ? 75000 : 50000;
+    console.log('ensureCorrectBasicSalary - Role:', formData.role, 'Returning salary:', expectedSalary);
+    return expectedSalary;
+  };
+
+  // Force update basic salary whenever role changes
+  const handleRoleChange = (e) => {
+    const newRole = e.target.value;
+    console.log('Role changed to:', newRole);
+    
+    const newSalary = newRole === 'driver' ? 75000 : 50000;
+    console.log('Setting salary for new role:', newRole, 'to:', newSalary);
+    
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      role: newRole,
+      basicSalary: newSalary
     }));
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    console.log('Input change - Field:', name, 'Value:', value);
+    
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      console.log('Updated formData:', newData);
+      return newData;
+    });
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -68,6 +120,13 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
     if (!formData.phone.trim()) newErrors.phone = 'Phone is required';
     if (!formData.role) newErrors.role = 'Role is required';
 
+    // Validate basic salary is correct for role
+    const expectedSalary = formData.role === 'driver' ? 75000 : 50000;
+    if (formData.basicSalary !== expectedSalary) {
+      newErrors.basicSalary = `Basic salary must be LKR ${expectedSalary.toLocaleString()} for ${formData.role}`;
+      console.error('Salary validation failed:', formData.basicSalary, 'expected:', expectedSalary);
+    }
+
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
@@ -90,10 +149,37 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
       return;
     }
 
+    // Force the correct basic salary based on current role
+    const correctSalary = formData.role === 'driver' ? 75000 : 50000;
+    
+    console.log('=== FORM SUBMISSION DEBUG ===');
+    console.log('Current formData:', formData);
+    console.log('Role:', formData.role);
+    console.log('Correct salary for role:', correctSalary);
+    console.log('============================');
+
     setIsSubmitting(true);
     try {
-      // Create staff first
-      const newStaff = await staffApi.createStaff(formData);
+      // Create staff with guaranteed correct basic salary
+      const submissionData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role,
+        specialization: formData.specialization,
+        experience: formData.experience,
+        licenseNumber: formData.licenseNumber,
+        basicSalary: correctSalary // Force the correct salary
+      };
+      
+      console.log('Final submission data:', submissionData);
+      
+      // Show alert with submission data for debugging
+      alert(`Submitting staff data:\nRole: ${submissionData.role}\nBasic Salary: LKR ${submissionData.basicSalary?.toLocaleString()}\n\nCheck console for full data.`);
+      
+      const newStaff = await staffApi.createStaff(submissionData);
       
       // Upload image if selected
       if (selectedImage) {
@@ -208,16 +294,33 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 <label className="block text-white font-abeze font-medium mb-2">
                   Password *
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                    errors.password ? 'border-red-400' : 'border-white/20 focus:border-green-400'
-                  }`}
-                  placeholder="Enter password"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 pr-12 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
+                    placeholder="Enter password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    {showPassword ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
                 {errors.password && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.password}</p>
                 )}
@@ -256,7 +359,7 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 <select
                   name="role"
                   value={formData.role}
-                  onChange={handleInputChange}
+                  onChange={handleRoleChange}
                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
                     errors.role ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
@@ -268,6 +371,33 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 {errors.role && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.role}</p>
                 )}
+              </div>
+
+              {/* Basic Salary Display */}
+              <div>
+                <label className="block text-white font-abeze font-medium mb-2">
+                  Basic Salary (Auto-set based on role)
+                </label>
+                <div className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-3 text-white font-abeze">
+                  LKR {formData.basicSalary?.toLocaleString() || '0'}
+                </div>
+                <p className="text-xs text-gray-400 mt-1">
+                  Driver: LKR 75,000 | Tour Guide: LKR 50,000
+                </p>
+                {errors.basicSalary && (
+                  <p className="text-red-400 text-sm mt-1 font-abeze">{errors.basicSalary}</p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const testSalary = ensureCorrectBasicSalary();
+                    console.log('Test button clicked - Role:', formData.role, 'Expected salary:', testSalary);
+                    alert(`Test: Role = ${formData.role}, Expected Salary = LKR ${testSalary.toLocaleString()}`);
+                  }}
+                  className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
+                >
+                  Test Salary Calculation
+                </button>
               </div>
 
               {/* Specialization */}
@@ -301,10 +431,10 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 />
               </div>
 
-              {/* License Number */}
+              {/* License Number / Register Number */}
               <div>
                 <label className="block text-white font-abeze font-medium mb-2">
-                  License Number
+                  {formData.role === 'driver' ? 'License Number' : 'Register Number'}
                 </label>
                 <input
                   type="text"
@@ -312,7 +442,7 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                   value={formData.licenseNumber}
                   onChange={handleInputChange}
                   className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none focus:border-green-400 transition-colors"
-                  placeholder="e.g., DL123456789"
+                  placeholder={formData.role === 'driver' ? 'e.g., DL123456789' : 'e.g., TG123456789'}
                 />
               </div>
 
