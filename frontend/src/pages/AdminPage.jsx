@@ -42,6 +42,8 @@ const AdminPage = () => {
   const [donationsLoading, setDonationsLoading] = useState(false);
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
   const [selectedBookingForAssignment, setSelectedBookingForAssignment] = useState(null);
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
 
   const handleLogout = () => {
     logout();
@@ -55,17 +57,17 @@ const AdminPage = () => {
   // Navigation items
   const navigationItems = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊', color: 'blue' },
-    { id: 'users', label: 'Customers', icon: '👥', color: 'green' },
-    { id: 'staff', label: 'Staff Management', icon: '👨‍💼', color: 'purple' },
-    { id: 'packages', label: 'Packages', icon: '🎒', color: 'yellow' },
-    { id: 'safari-requests', label: 'Safari Requests', icon: '🦁', color: 'orange' },
-    { id: 'contact-messages', label: 'Contact Messages', icon: '💬', color: 'pink' },
-    { id: 'bookings', label: 'Bookings', icon: '📅', color: 'indigo' },
-    { id: 'reviews', label: 'Reviews', icon: '⭐', color: 'amber' },
-    { id: 'donations', label: 'Donations', icon: '💝', color: 'rose' },
-    { id: 'attendance', label: 'Attendance', icon: '⏰', color: 'cyan' },
-    { id: 'payroll', label: 'Payroll', icon: '💰', color: 'emerald' },
-    { id: 'reports', label: 'Reports', icon: '📈', color: 'rose' },
+    { id: 'users', label: 'Customers', icon: '👥', color: 'blue' },
+    { id: 'staff', label: 'Staff Management', icon: '👨‍💼', color: 'blue' },
+    { id: 'packages', label: 'Packages', icon: '🎒', color: 'blue' },
+    { id: 'safari-requests', label: 'Safari Requests', icon: '🦁', color: 'blue' },
+    { id: 'contact-messages', label: 'Contact Messages', icon: '💬', color: 'blue' },
+    { id: 'bookings', label: 'Bookings', icon: '📅', color: 'blue' },
+    { id: 'reviews', label: 'Reviews', icon: '⭐', color: 'blue' },
+    { id: 'donations', label: 'Donations', icon: '💝', color: 'blue' },
+    { id: 'attendance', label: 'Attendance', icon: '⏰', color: 'blue' },
+    { id: 'payroll', label: 'Payroll', icon: '💰', color: 'blue' },
+    { id: 'reports', label: 'Reports', icon: '📈', color: 'blue' },
   ];
 
   // Load data when tabs are selected
@@ -368,6 +370,58 @@ const AdminPage = () => {
       b._id === updatedBooking._id ? updatedBooking : b
     ));
     setSelectedBookingForAssignment(null);
+  };
+
+  // Sort bookings based on current sort settings
+  const getSortedBookings = () => {
+    if (!Array.isArray(bookings)) return [];
+    
+    return [...bookings].sort((a, b) => {
+      let aValue, bValue;
+      
+      switch (sortBy) {
+        case 'customerName':
+          aValue = `${a.userId?.firstName || ''} ${a.userId?.lastName || ''}`.toLowerCase();
+          bValue = `${b.userId?.firstName || ''} ${b.userId?.lastName || ''}`.toLowerCase();
+          break;
+        case 'packageName':
+          aValue = (a.packageDetails?.title || '').toLowerCase();
+          bValue = (b.packageDetails?.title || '').toLowerCase();
+          break;
+        case 'startDate':
+          aValue = new Date(a.bookingDetails?.startDate || 0);
+          bValue = new Date(b.bookingDetails?.startDate || 0);
+          break;
+        case 'totalPrice':
+          aValue = a.totalPrice || 0;
+          bValue = b.totalPrice || 0;
+          break;
+        case 'status':
+          aValue = (a.status || '').toLowerCase();
+          bValue = (b.status || '').toLowerCase();
+          break;
+        case 'createdAt':
+        default:
+          aValue = new Date(a.createdAt || 0);
+          bValue = new Date(b.createdAt || 0);
+          break;
+      }
+      
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
+      } else {
+        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
+      }
+    });
+  };
+
+  const handleSortChange = (newSortBy) => {
+    if (sortBy === newSortBy) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(newSortBy);
+      setSortOrder('desc');
+    }
   };
 
   // Calculate dashboard stats from real data
@@ -938,149 +992,314 @@ const AdminPage = () => {
 
   const renderBookings = () => (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-xl font-abeze font-bold text-white">Booking Management</h3>
-        <div className="text-sm text-gray-300 font-abeze">
-          Total Bookings: {Array.isArray(bookings) ? bookings.length : 0}
-        </div>
-      </div>
+             {/* Enhanced Header with Stats */}
+       <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
+         <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
+           <div>
+             <h3 className="text-2xl font-abeze font-bold text-white">Booking Management</h3>
+             <p className="text-gray-300 font-abeze mt-1">Manage and track all safari bookings</p>
+           </div>
+           <div className="flex flex-wrap gap-4 text-sm">
+             <div className="bg-blue-500/20 px-3 py-2 rounded-lg">
+               <span className="text-blue-300 font-abeze">Total: </span>
+               <span className="text-white font-bold">{Array.isArray(bookings) ? bookings.length : 0}</span>
+             </div>
+             <div className="bg-green-500/20 px-3 py-2 rounded-lg">
+               <span className="text-green-300 font-abeze">Confirmed: </span>
+               <span className="text-white font-bold">
+                 {Array.isArray(bookings) ? bookings.filter(b => b.status === 'Confirmed' || b.status === 'Payment Confirmed').length : 0}
+               </span>
+             </div>
+             <div className="bg-yellow-500/20 px-3 py-2 rounded-lg">
+               <span className="text-yellow-300 font-abeze">Pending: </span>
+               <span className="text-white font-bold">
+                 {Array.isArray(bookings) ? bookings.filter(b => b.status === 'Pending').length : 0}
+               </span>
+             </div>
+           </div>
+         </div>
+       </div>
+
+       {/* Sorting Controls */}
+       <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20">
+         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+           <div className="flex items-center space-x-4">
+             <label className="text-white font-abeze text-sm font-medium">Sort by:</label>
+             <div className="flex flex-wrap gap-2">
+               {[
+                 { key: 'createdAt', label: 'Date Created', icon: '📅' },
+                 { key: 'customerName', label: 'Customer', icon: '👤' },
+                 { key: 'packageName', label: 'Package', icon: '🎒' },
+                 { key: 'startDate', label: 'Trip Date', icon: '✈️' },
+                 { key: 'totalPrice', label: 'Price', icon: '💰' },
+                 { key: 'status', label: 'Status', icon: '🏷️' }
+               ].map((option) => (
+                 <button
+                   key={option.key}
+                   onClick={() => handleSortChange(option.key)}
+                   className={`px-3 py-2 rounded-lg text-sm font-abeze font-medium transition-all duration-200 flex items-center space-x-2 ${
+                     sortBy === option.key
+                       ? 'bg-blue-600 text-white shadow-lg'
+                       : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50 hover:text-white'
+                   }`}
+                 >
+                   <span>{option.icon}</span>
+                   <span>{option.label}</span>
+                   {sortBy === option.key && (
+                     <svg className={`w-4 h-4 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                     </svg>
+                   )}
+                 </button>
+               ))}
+             </div>
+           </div>
+           <div className="flex items-center space-x-2">
+             <span className="text-gray-300 font-abeze text-sm">Order:</span>
+             <button
+               onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+               className="px-3 py-2 bg-gray-700/50 hover:bg-gray-600/50 text-gray-300 hover:text-white rounded-lg text-sm font-abeze font-medium transition-colors duration-200 flex items-center space-x-2"
+             >
+               <svg className={`w-4 h-4 transition-transform duration-200 ${sortOrder === 'desc' ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+               </svg>
+               <span>{sortOrder === 'asc' ? 'Ascending' : 'Descending'}</span>
+             </button>
+           </div>
+         </div>
+       </div>
 
       {/* Bookings List */}
       {bookingsLoading ? (
-        <div className="text-center py-8">
-          <div className="text-gray-300 font-abeze">Loading bookings...</div>
+        <div className="text-center py-12">
+          <div className="inline-flex items-center space-x-2 text-gray-300 font-abeze">
+            <svg className="animate-spin h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Loading bookings...</span>
+          </div>
         </div>
       ) : !Array.isArray(bookings) || bookings.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="text-gray-300 font-abeze">No bookings found.</div>
+        <div className="text-center py-12">
+          <div className="w-24 h-24 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-abeze font-bold text-white mb-2">No Bookings Found</h3>
+          <p className="text-gray-400 font-abeze">There are no bookings to display at the moment.</p>
         </div>
       ) : (
-        <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/20">
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Customer</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Package</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Dates</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">People</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Total Price</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Status</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Payment</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Staff Assignment</th>
-                  <th className="text-left py-4 px-6 text-green-200 font-abeze">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((booking) => (
-                  <tr key={booking._id} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-6 text-white font-abeze">
-                      <div>
-                        <div className="font-medium">
-                          {booking.userId?.firstName} {booking.userId?.lastName}
-                        </div>
-                        <div className="text-sm text-gray-400">{booking.userId?.email}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-white font-abeze">
-                      <div>
-                        <div className="font-medium">{booking.packageDetails?.title}</div>
-                        <div className="text-sm text-gray-400">{booking.packageDetails?.location}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-white font-abeze text-sm">
-                      <div>
-                        <div>Start: {new Date(booking.bookingDetails?.startDate).toLocaleDateString()}</div>
-                        <div>End: {new Date(booking.bookingDetails?.endDate).toLocaleDateString()}</div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-white font-abeze text-sm">
-                      {booking.bookingDetails?.numberOfPeople} people
-                    </td>
-                    <td className="py-4 px-6 text-white font-abeze">
+                 <div className="space-y-4">
+           {getSortedBookings().map((booking) => (
+            <div key={booking._id} className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-6 hover:bg-white/15 transition-all duration-300">
+              {/* Booking Header */}
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-4 space-y-3 lg:space-y-0">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-abeze font-bold text-white">
+                      Booking #{booking._id.slice(-6).toUpperCase()}
+                    </h4>
+                    <p className="text-gray-400 font-abeze text-sm">
+                      Created on {new Date(booking.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
+                    booking.status === 'Payment Confirmed' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                    booking.status === 'Confirmed' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                    booking.status === 'In Progress' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                    booking.status === 'Completed' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' :
+                    booking.status === 'Cancelled' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                    'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+                  }`}>
+                    {booking.status}
+                  </span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-abeze font-medium ${
+                    booking.payment ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  }`}>
+                    {booking.payment ? 'Paid' : 'Payment Pending'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Booking Details Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                {/* Customer Information */}
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
+                    <h5 className="font-abeze font-semibold text-white">Customer</h5>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-abeze font-medium">
+                      {booking.userId?.firstName} {booking.userId?.lastName}
+                    </p>
+                    <p className="text-gray-400 font-abeze text-sm">{booking.userId?.email}</p>
+                  </div>
+                </div>
+
+                {/* Package Information */}
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                      </svg>
+                    </div>
+                    <h5 className="font-abeze font-semibold text-white">Package</h5>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-abeze font-medium">{booking.packageDetails?.title}</p>
+                    <p className="text-gray-400 font-abeze text-sm">{booking.packageDetails?.location}</p>
+                  </div>
+                </div>
+
+                {/* Trip Details */}
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-8 h-8 bg-yellow-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <h5 className="font-abeze font-semibold text-white">Trip Details</h5>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-abeze text-sm">
+                      <span className="text-gray-400">Start:</span> {new Date(booking.bookingDetails?.startDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-white font-abeze text-sm">
+                      <span className="text-gray-400">End:</span> {new Date(booking.bookingDetails?.endDate).toLocaleDateString()}
+                    </p>
+                    <p className="text-white font-abeze text-sm">
+                      <span className="text-gray-400">People:</span> {booking.bookingDetails?.numberOfPeople}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Financial Information */}
+                <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                      <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                    </div>
+                    <h5 className="font-abeze font-semibold text-white">Payment</h5>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-white font-abeze font-bold text-lg">
                       LKR {booking.totalPrice?.toLocaleString()}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                        booking.status === 'Payment Confirmed' ? 'bg-green-500/20 text-green-400' :
-                        booking.status === 'Confirmed' ? 'bg-blue-500/20 text-blue-400' :
-                        booking.status === 'In Progress' ? 'bg-yellow-500/20 text-yellow-400' :
-                        booking.status === 'Completed' ? 'bg-purple-500/20 text-purple-400' :
-                        booking.status === 'Cancelled' ? 'bg-red-500/20 text-red-400' :
-                        'bg-gray-500/20 text-gray-400'
-                      }`}>
-                        {booking.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
-                        booking.payment ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {booking.payment ? 'Paid' : 'Pending'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="space-y-1">
-                        {booking.driverId ? (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-blue-400 text-xs">🚗</span>
-                            <span className="text-white text-xs font-abeze">
-                              {booking.driverId?.firstName} {booking.driverId?.lastName}
-                            </span>
-                            <span className={`px-1 py-0.5 rounded text-xs ${
-                              booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {booking.driverAccepted ? 'Accepted' : 'Pending'}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">No driver assigned</span>
-                        )}
-                        {booking.guideId ? (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-green-400 text-xs">👨‍💼</span>
-                            <span className="text-white text-xs font-abeze">
-                              {booking.guideId?.firstName} {booking.guideId?.lastName}
-                            </span>
-                            <span className={`px-1 py-0.5 rounded text-xs ${
-                              booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                            }`}>
-                              {booking.guideAccepted ? 'Accepted' : 'Pending'}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400 text-xs">No tour guide assigned</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleAssignStaff(booking)}
-                          className="px-3 py-1 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-xs font-abeze transition-colors"
-                        >
-                          Assign Staff
-                        </button>
-                        <select
-                          value={booking.status}
-                          onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
-                          className="bg-white/10 border border-white/20 text-white text-xs rounded px-2 py-1 font-abeze"
-                        >
-                          <option value="Pending">Pending</option>
-                          <option value="Payment Confirmed">Payment Confirmed</option>
-                          <option value="Confirmed">Confirmed</option>
-                          <option value="In Progress">In Progress</option>
-                          <option value="Completed">Completed</option>
-                          <option value="Cancelled">Cancelled</option>
-                        </select>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </p>
+                    <p className="text-gray-400 font-abeze text-sm">Total Amount</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Staff Assignment Section */}
+              <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  <h5 className="font-abeze font-semibold text-white">Staff Assignment</h5>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Driver Assignment */}
+                  <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
+                    <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-blue-400 text-lg">🚗</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-abeze font-medium">Driver</p>
+                      {booking.driverId ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white font-abeze text-sm">
+                            {booking.driverId?.firstName} {booking.driverId?.lastName}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                            booking.driverAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {booking.driverAccepted ? 'Accepted' : 'Pending'}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tour Guide Assignment */}
+                  <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
+                    <div className="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center">
+                      <span className="text-green-400 text-lg">👨‍💼</span>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-white font-abeze font-medium">Tour Guide</p>
+                      {booking.guideId ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-white font-abeze text-sm">
+                            {booking.guideId?.firstName} {booking.guideId?.lastName}
+                          </span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-abeze ${
+                            booking.guideAccepted ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>
+                            {booking.guideAccepted ? 'Accepted' : 'Pending'}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 font-abeze text-sm">Not assigned</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actions Section */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => handleAssignStaff(booking)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center space-x-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    <span>Assign Staff</span>
+                  </button>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <label className="text-white font-abeze text-sm">Update Status:</label>
+                  <select
+                    value={booking.status}
+                    onChange={(e) => handleStatusSelectChange(booking._id, e.target.value)}
+                    className="bg-gray-800 border border-gray-600 text-white text-sm rounded-lg px-3 py-2 font-abeze focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Payment Confirmed">Payment Confirmed</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -1188,12 +1407,13 @@ const AdminPage = () => {
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-colors"
+                className="px-4 py-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-colors flex items-center space-x-2"
                 title="Logout"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
+                <span className="font-abeze font-medium">Logout</span>
               </button>
             </div>
           </div>
