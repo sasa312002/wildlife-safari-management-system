@@ -400,17 +400,6 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 {errors.basicSalary && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.basicSalary}</p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const testSalary = ensureCorrectBasicSalary();
-                    console.log('Test button clicked - Role:', formData.role, 'Expected salary:', testSalary);
-                    alert(`Test: Role = ${formData.role}, Expected Salary = LKR ${testSalary.toLocaleString()}`);
-                  }}
-                  className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
-                >
-                  Test Salary Calculation
-                </button>
               </div>
 
               {/* Specialization */}
