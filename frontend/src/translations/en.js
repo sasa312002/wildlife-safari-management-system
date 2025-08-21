@@ -725,6 +725,7 @@ export default {
   'userAccount.bookings.previous': 'Previous',
   'userAccount.bookings.next': 'Next',
   'userAccount.bookings.downloadPDF': 'download pdf',
+  'userAccount.bookings.generatingPDF': 'generating pdf...',
   'userAccount.bookings.downloadingPDF': 'Downloading PDF...',
   'userAccount.messages.title': 'My Messages',
   'userAccount.reviews.previous': 'Previous',

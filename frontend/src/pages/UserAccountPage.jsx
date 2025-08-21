@@ -9,6 +9,7 @@ import EditProfileModal from '../components/EditProfileModal';
 import UserContactMessages from '../components/UserContactMessages';
 import AddReviewModal from '../components/AddReviewModal';
 import { reviewApi } from '../services/api';
+import { generateBookingPDF } from '../utils/pdfGenerator';
 
 
 const UserAccountPage = () => {
@@ -26,7 +27,7 @@ const UserAccountPage = () => {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewSuccess, setShowReviewSuccess] = useState(false);
   const [showAlreadyReviewedMessage, setShowAlreadyReviewedMessage] = useState(false);
-
+  const [downloadingPDF, setDownloadingPDF] = useState(null); // Track which booking is being downloaded
   
   // Pagination states
   const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
@@ -162,6 +163,17 @@ const UserAccountPage = () => {
     setCurrentBookingsPage(pageNumber);
   };
 
+  const handleDownloadPDF = async (booking) => {
+    setDownloadingPDF(booking._id);
+    try {
+      await generateBookingPDF(booking, user);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // You could add a toast notification here for better UX
+    } finally {
+      setDownloadingPDF(null);
+    }
+  };
 
 
 
@@ -628,8 +640,37 @@ const UserAccountPage = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="md:ml-6">
-                                                         {booking.status === 'Completed' && (
+                                                     <div className="md:ml-6 flex flex-col space-y-3">
+                             {/* PDF Download Button - Always visible for confirmed/completed bookings */}
+                             {(booking.status === 'Payment Confirmed' || booking.status === 'Confirmed' || booking.status === 'In Progress' || booking.status === 'Completed') && (
+                               <button
+                                 onClick={() => handleDownloadPDF(booking)}
+                                 disabled={downloadingPDF === booking._id}
+                                 className="group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border bg-blue-600 hover:bg-blue-700 border-blue-400/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                               >
+                                 <div className="flex items-center space-x-2">
+                                   {downloadingPDF === booking._id ? (
+                                     <>
+                                       <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+                                       <span>{t('userAccount.bookings.generatingPDF')}</span>
+                                     </>
+                                   ) : (
+                                     <>
+                                       <svg className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                       </svg>
+                                       <span>{t('userAccount.bookings.downloadPDF')}</span>
+                                     </>
+                                   )}
+                                 </div>
+                                 {downloadingPDF !== booking._id && (
+                                   <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                                 )}
+                               </button>
+                             )}
+
+                             {/* Review Button - Only for completed bookings */}
+                             {booking.status === 'Completed' && (
                                <button
                                  onClick={() => handleAddReview(booking._id)}
                                  className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
@@ -661,7 +702,7 @@ const UserAccountPage = () => {
                                  )}
                                </button>
                              )}
-                          </div>
+                           </div>
                         </div>
                       </div>
                     ))}

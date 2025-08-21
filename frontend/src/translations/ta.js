@@ -681,6 +681,7 @@ export default {
   'userAccount.bookings.previous': 'முந்தைய',
   'userAccount.bookings.next': 'அடுத்து',
   'userAccount.bookings.downloadPDF': 'pdf பதிவிறக்கு',
+  'userAccount.bookings.generatingPDF': 'pdf உருவாக்கு...',
   'userAccount.bookings.downloadingPDF': 'PDF பதிவிறக்குகிறது...',
   'userAccount.messages.title': 'எனது செய்திகள்',
   'userAccount.reviews.previous': 'முந்தைய',

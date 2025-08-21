@@ -647,6 +647,7 @@ export default {
   'userAccount.bookings.previous': 'පෙර',
   'userAccount.bookings.next': 'ඊළඟ',
   'userAccount.bookings.downloadPDF': 'pdf බාගන්න',
+  'userAccount.bookings.generatingPDF': 'pdf සාදන...',
   'userAccount.bookings.downloadingPDF': 'PDF බාගැනෙමින්...',
   'userAccount.messages.title': 'මගේ පණිවිඩ',
   'userAccount.reviews.previous': 'පෙර',
