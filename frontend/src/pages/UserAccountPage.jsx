@@ -176,18 +176,28 @@ const UserAccountPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-900 via-green-800 to-green-700">
+    <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gray-800/50"></div>
+      <div className="absolute inset-0 opacity-30">
+        <div className="w-full h-full bg-repeat bg-center" 
+             style={{
+               backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+             }}>
+        </div>
+      </div>
+      
       <Header />
       
       {/* Main Content */}
-      <div className="pt-24 pb-16">
+      <div className="pt-24 pb-16 relative z-10">
         <div className="container mx-auto px-6">
           {/* Page Header */}
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
+            <h1 className="text-4xl md:text-5xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 mb-4 animate-fade-in">
               {t('userAccount.pageTitle')}
             </h1>
-            <p className="text-green-200 font-abeze text-lg">
+            <p className="text-slate-300 font-abeze text-lg opacity-90">
               {t('userAccount.pageSubtitle')}
             </p>
           </div>
@@ -195,45 +205,45 @@ const UserAccountPage = () => {
           {/* Account Content */}
           <div className="max-w-4xl mx-auto">
             {/* Tab Navigation */}
-            <div className="flex flex-wrap justify-center mb-8 bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20">
-              <button
-                onClick={() => handleTabChange('profile')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                  activeTab === 'profile'
-                    ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
-                }`}
-              >
+            <div className="flex flex-wrap justify-center mb-8 bg-gray-800/80 backdrop-blur-xl rounded-3xl p-3 border border-gray-700/50 shadow-2xl">
+                             <button
+                 onClick={() => handleTabChange('profile')}
+                 className={`px-8 py-4 rounded-2xl font-abeze font-medium transition-all duration-500 transform hover:scale-105 ${
+                   activeTab === 'profile'
+                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                     : 'text-slate-300 hover:text-white hover:bg-emerald-600/20'
+                 }`}
+               >
                 {t('userAccount.tabs.profile')}
               </button>
-              <button
-                onClick={() => handleTabChange('bookings')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                  activeTab === 'bookings'
-                    ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
-                }`}
-              >
+                             <button
+                 onClick={() => handleTabChange('bookings')}
+                 className={`px-8 py-4 rounded-2xl font-abeze font-medium transition-all duration-500 transform hover:scale-105 ${
+                   activeTab === 'bookings'
+                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                     : 'text-slate-300 hover:text-white hover:bg-emerald-600/20'
+                 }`}
+               >
                 {t('userAccount.tabs.bookings')}
               </button>
-              <button
-                onClick={() => handleTabChange('messages')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                  activeTab === 'messages'
-                    ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
-                }`}
-              >
+                             <button
+                 onClick={() => handleTabChange('messages')}
+                 className={`px-8 py-4 rounded-2xl font-abeze font-medium transition-all duration-500 transform hover:scale-105 ${
+                   activeTab === 'messages'
+                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                     : 'text-slate-300 hover:text-white hover:bg-emerald-600/20'
+                 }`}
+               >
                 {t('userAccount.tabs.messages')}
               </button>
-              <button
-                onClick={() => handleTabChange('reviews')}
-                className={`px-6 py-3 rounded-lg font-abeze font-medium transition-colors duration-300 ${
-                  activeTab === 'reviews'
-                    ? 'bg-green-600 text-white'
-                    : 'text-green-200 hover:text-white hover:bg-white/10'
-                }`}
-              >
+                             <button
+                 onClick={() => handleTabChange('reviews')}
+                 className={`px-8 py-4 rounded-2xl font-abeze font-medium transition-all duration-500 transform hover:scale-105 ${
+                   activeTab === 'reviews'
+                     ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                     : 'text-slate-300 hover:text-white hover:bg-emerald-600/20'
+                 }`}
+               >
                 {t('userAccount.myReviews')}
               </button>
             </div>
@@ -243,42 +253,46 @@ const UserAccountPage = () => {
               <div className="grid md:grid-cols-3 gap-8">
                 {/* Profile Card */}
                 <div className="md:col-span-1">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
+                  <div className="bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-gray-700/50 shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 transform hover:scale-[1.02]">
                     <div className="text-center mb-6">
-                      <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden border-2 border-white/20">
-                        {user?.profilePicture?.url ? (
-                          <img 
-                            src={user.profilePicture.url} 
-                            alt={t('userAccount.common.profileImageAlt')} 
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-green-500 flex items-center justify-center">
-                            <span className="text-2xl font-abeze font-bold text-white">
-                              {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
-                            </span>
-                          </div>
-                        )}
+                      <div className="relative w-28 h-28 rounded-full mx-auto mb-6 overflow-hidden border-4 border-gradient-to-r from-emerald-400 to-green-500 p-1">
+                        <div className="w-full h-full rounded-full overflow-hidden bg-gradient-to-br from-slate-700 to-slate-800">
+                          {user?.profilePicture?.url ? (
+                            <img 
+                              src={user.profilePicture.url} 
+                              alt={t('userAccount.common.profileImageAlt')} 
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 flex items-center justify-center">
+                              <span className="text-2xl font-abeze font-bold text-white">
+                                {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        {/* Online indicator */}
+                        <div className="absolute bottom-2 right-2 w-6 h-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
                       </div>
-                      <h2 className="text-xl font-abeze font-bold text-white">
+                      <h2 className="text-2xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400 mb-2">
                         {user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : user?.firstName || t('userAccount.common.defaultUser')}
                       </h2>
-                      <p className="text-green-200 font-abeze">
+                      <p className="text-slate-400 font-abeze text-sm">
                         {user?.email}
                       </p>
                     </div>
 
                     <div className="space-y-4">
-                      <button
-                        onClick={handleEditProfile}
-                        className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
-                      >
+                                             <button
+                         onClick={handleEditProfile}
+                         className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-abeze font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
+                       >
                         {t('userAccount.profile.editProfile')}
                       </button>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-abeze font-medium transition-colors duration-300"
-                      >
+                                             <button
+                         onClick={handleLogout}
+                         className="w-full bg-red-600 hover:bg-red-700 text-white py-4 rounded-2xl font-abeze font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                       >
                         {t('userAccount.profile.logout')}
                       </button>
                     </div>
@@ -287,105 +301,69 @@ const UserAccountPage = () => {
 
                 {/* Account Details */}
                 <div className="md:col-span-2">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-                    <h3 className="text-2xl font-abeze font-bold text-white mb-6">
+                  <div className="bg-gray-800/80 backdrop-blur-xl rounded-3xl p-8 border border-gray-700/50 shadow-2xl">
+                    <h3 className="text-2xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-8">
                       {t('userAccount.profile.accountInformation')}
                     </h3>
                     
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.firstName')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.firstName || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.lastName')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.lastName || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.emailAddress')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.email}
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.phoneNumber')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.phone || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.country')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.country || t('userAccount.profile.notProvided')}
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
+                      <div className="group">
+                        <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                           {t('userAccount.profile.memberSince')}
                         </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
+                        <div className="bg-gray-700/50 border border-gray-600/50 rounded-2xl px-6 py-4 text-white font-abeze group-hover:border-emerald-400/30 transition-all duration-300">
                           {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : t('userAccount.profile.recentlyJoined')}
                         </div>
                       </div>
-
-                      <div>
-                        <label className="block text-green-200 font-abeze font-medium mb-2">
-                          {t('userAccount.profile.lastUpdated')}
-                        </label>
-                        <div className="bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white font-abeze">
-                          {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : t('userAccount.profile.never')}
-                        </div>
-                      </div>
                     </div>
                   </div>
 
-                  {/* Quick Actions */}
-                  <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-                    <h3 className="text-2xl font-abeze font-bold text-white mb-6">
-                      {t('userAccount.profile.quickActions')}
-                    </h3>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <button
-                        onClick={() => handleTabChange('bookings')}
-                        className="bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <span>{t('userAccount.profile.viewBookings')}</span>
-                      </button>
-                      
-                      <button
-                        onClick={() => navigate('/travel-packages')}
-                        className="bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-abeze font-medium transition-colors duration-300 flex items-center justify-center space-x-2"
-                      >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
-                        <span>{t('userAccount.profile.browsePackages')}</span>
-                      </button>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             )}
@@ -397,8 +375,8 @@ const UserAccountPage = () => {
 
             {/* Reviews Tab Content */}
             {activeTab === 'reviews' && (
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-                <h3 className="text-2xl font-abeze font-bold text-white mb-6">
+              <div className="bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+                <h3 className="text-2xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400 mb-8">
                   {t('userAccount.myReviews')}
                 </h3>
                 
@@ -422,7 +400,7 @@ const UserAccountPage = () => {
                      {currentReviews.map((review, index) => (
                        <div 
                          key={review._id} 
-                         className="group bg-gradient-to-r from-white/5 to-white/10 rounded-xl p-6 border border-white/20 hover:border-green-400/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl"
+                         className="group bg-gray-800/60 rounded-xl p-6 border border-gray-700/50 hover:border-green-400/30 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-xl"
                          style={{ animationDelay: `${index * 100}ms` }}
                        >
                          <div className="flex flex-col md:flex-row gap-6">
@@ -514,7 +492,7 @@ const UserAccountPage = () => {
                      {/* Reviews Pagination */}
                      {totalReviewsPages > 1 && (
                        <div className="mt-8 flex justify-center">
-                         <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
+                                                   <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md rounded-xl p-2 border border-gray-700/50">
                            <button
                              onClick={() => handleReviewsPageChange(currentReviewsPage - 1)}
                              disabled={currentReviewsPage === 1}
@@ -557,8 +535,8 @@ const UserAccountPage = () => {
 
             {/* Bookings Tab Content */}
             {activeTab === 'bookings' && (
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-                <h3 className="text-2xl font-abeze font-bold text-white mb-6">
+              <div className="bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+                <h3 className="text-2xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400 mb-8">
                   {t('userAccount.bookings.title')}
                 </h3>
                 
@@ -600,7 +578,7 @@ const UserAccountPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {currentBookings.map((booking) => (
-                      <div key={booking._id} className="bg-white/5 rounded-lg p-6 border border-white/10">
+                      <div key={booking._id} className="bg-gray-800/60 rounded-lg p-6 border border-gray-700/50">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                           <div className="flex-1">
                             <h4 className="text-lg font-abeze font-bold text-white mb-2">
@@ -666,7 +644,7 @@ const UserAccountPage = () => {
                                  className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
                                    checkIfAlreadyReviewed(booking._id)
                                      ? 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed border-gray-400/30'
-                                     : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-400/30'
+                                                                           : 'bg-green-600 hover:bg-green-700 border-green-400/30'
                                  }`}
                                  disabled={checkIfAlreadyReviewed(booking._id)}
                                >
@@ -700,7 +678,7 @@ const UserAccountPage = () => {
                     {/* Bookings Pagination */}
                     {totalBookingsPages > 1 && (
                       <div className="mt-8 flex justify-center">
-                        <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-xl p-2 border border-white/20">
+                                                  <div className="flex items-center space-x-2 bg-gray-800/80 backdrop-blur-md rounded-xl p-2 border border-gray-700/50">
                                                      <button
                              onClick={() => handleBookingsPageChange(currentBookingsPage - 1)}
                              disabled={currentBookingsPage === 1}
