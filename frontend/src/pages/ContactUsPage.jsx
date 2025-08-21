@@ -225,7 +225,7 @@ const ContactUsPage = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <Header triggerLogin={loginTriggerRef} />
       
-      <div className="pt-20">
+      <div className="pt-30">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
