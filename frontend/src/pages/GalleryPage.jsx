@@ -96,7 +96,9 @@ const GalleryPage = () => {
 				<div className="container mx-auto px-6">
 					{/* Page Header */}
 					<div className="text-center mb-12">
-						<h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">{t('gallery.title')}</h1>
+						<h1 className="text-4xl md:text-5xl font-abeze font-bold text-white mb-4">
+							Safari <span className="text-green-400">Gallery</span>
+						</h1>
 						<p className="text-green-200 font-abeze text-lg max-w-2xl mx-auto">
 							{t('gallery.subtitle')}
 						</p>
