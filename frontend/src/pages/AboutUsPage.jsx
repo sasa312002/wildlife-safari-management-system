@@ -119,7 +119,7 @@ expertise: "Elephant behavior, Hiking trails",
           <div className="relative z-10 flex items-center justify-center h-full">
             <div className="text-center">
               <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-                {t('about.title')} <span className="text-green-400">Wild Path</span>
+                {t('About')} <span className="text-green-400">Wild Path</span>
               </h1>
               <p className="text-gray-200 text-lg font-abeze max-w-3xl mx-auto px-4">
                 {t('about.subtitle')}
