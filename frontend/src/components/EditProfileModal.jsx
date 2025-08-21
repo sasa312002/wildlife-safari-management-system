@@ -325,16 +325,16 @@ const EditProfileModal = ({ onClose, user }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl p-8 w-full max-w-lg border border-white/20 max-h-[90vh] overflow-y-auto relative">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900/95 backdrop-blur-xl rounded-3xl p-8 w-full max-w-lg border border-gray-700/50 max-h-[90vh] overflow-y-auto relative shadow-2xl">
         
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className="text-3xl font-abeze font-bold text-white mb-2">
+          <h2 className="text-3xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 mb-2">
             {t('editProfile.title')}
           </h2>
-          <p className="text-gray-300 font-abeze">
+          <p className="text-slate-300 font-abeze">
             {t('editProfile.subtitle')}
           </p>
         </div>
@@ -342,9 +342,9 @@ const EditProfileModal = ({ onClose, user }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+          className="absolute top-6 right-6 text-slate-400 hover:text-white transition-all duration-300 hover:rotate-90 bg-white/5 hover:bg-white/10 rounded-full p-2"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -366,7 +366,7 @@ const EditProfileModal = ({ onClose, user }) => {
               )}
               
               <div 
-                className="w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer relative overflow-hidden border-2 border-white/20 hover:border-green-400 transition-colors"
+                className="w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center cursor-pointer relative overflow-hidden border-4 border-gradient-to-r from-emerald-400 to-green-500 hover:border-green-400 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25"
                 onClick={handleProfilePictureClick}
               >
                {user?.profilePicture?.url ? (
@@ -376,7 +376,7 @@ const EditProfileModal = ({ onClose, user }) => {
                    className="w-full h-full object-cover"
                  />
                ) : (
-                 <div className="w-full h-full bg-green-500 flex items-center justify-center">
+                 <div className="w-full h-full bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 flex items-center justify-center">
                    <span className="text-xl font-abeze font-bold text-white">
                      {user?.firstName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || t('userAccount.common.defaultUser').charAt(0).toUpperCase()}
                    </span>
@@ -407,7 +407,7 @@ const EditProfileModal = ({ onClose, user }) => {
                className="hidden"
              />
              
-             <p className="text-sm text-gray-300 font-abeze">
+             <p className="text-sm text-slate-300 font-abeze">
                {t('editProfile.profilePicture.clickToUpload')}
              </p>
            </div>
@@ -415,7 +415,7 @@ const EditProfileModal = ({ onClose, user }) => {
            {/* Name Fields */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-white font-abeze font-medium mb-2">
+              <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                 {t('editProfile.form.firstName')}
               </label>
               <input
@@ -423,8 +423,8 @@ const EditProfileModal = ({ onClose, user }) => {
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                  errors.firstName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 ${
+                  errors.firstName ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
                 }`}
                 placeholder={t('editProfile.form.firstNamePlaceholder')}
               />
@@ -433,7 +433,7 @@ const EditProfileModal = ({ onClose, user }) => {
               )}
             </div>
             <div>
-              <label className="block text-white font-abeze font-medium mb-2">
+              <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                 {t('editProfile.form.lastName')}
               </label>
               <input
@@ -441,8 +441,8 @@ const EditProfileModal = ({ onClose, user }) => {
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                  errors.lastName ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 ${
+                  errors.lastName ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
                 }`}
                 placeholder={t('editProfile.form.lastNamePlaceholder')}
               />
@@ -454,7 +454,7 @@ const EditProfileModal = ({ onClose, user }) => {
 
           {/* Email */}
           <div>
-            <label className="block text-white font-abeze font-medium mb-2">
+            <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
               {t('editProfile.form.email')}
             </label>
             <input
@@ -462,8 +462,8 @@ const EditProfileModal = ({ onClose, user }) => {
               name="email"
               value={formData.email}
               onChange={handleInputChange}
-              className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                errors.email ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+              className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 ${
+                errors.email ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
               }`}
               placeholder={t('editProfile.form.emailPlaceholder')}
             />
@@ -474,20 +474,20 @@ const EditProfileModal = ({ onClose, user }) => {
 
           {/* Country */}
           <div>
-            <label className="block text-white font-abeze font-medium mb-2">
+            <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
               {t('editProfile.form.country')}
             </label>
             <select
               name="country"
               value={formData.country}
               onChange={handleInputChange}
-              className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
-                errors.country ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+              className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze focus:outline-none transition-all duration-300 ${
+                errors.country ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
               }`}
             >
-              <option value="" className="bg-gray-800 text-white">{t('editProfile.form.countryPlaceholder')}</option>
+              <option value="" className="bg-slate-800 text-white">{t('editProfile.form.countryPlaceholder')}</option>
               {countries.map((country, index) => (
-                <option key={index} value={country} className="bg-gray-800 text-white">{country}</option>
+                <option key={index} value={country} className="bg-slate-800 text-white">{country}</option>
               ))}
             </select>
             {errors.country && (
@@ -498,13 +498,13 @@ const EditProfileModal = ({ onClose, user }) => {
           {/* Phone Number */}
           {formData.country && (
             <div>
-              <label className="block text-white font-abeze font-medium mb-2">
+              <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                 {formData.country !== 'Other' ? t('editProfile.form.phoneRequired') : t('editProfile.form.phone')}
               </label>
               <div className="flex">
                 {/* Country Code Display */}
                 {formData.country !== 'Other' && (
-                  <div className="bg-white/20 border border-white/20 rounded-l-lg px-4 py-3 text-white font-abeze font-medium min-w-[80px] flex items-center justify-center">
+                  <div className="bg-gradient-to-r from-white/10 to-white/15 border border-white/10 rounded-l-2xl px-6 py-4 text-white font-abeze font-medium min-w-[90px] flex items-center justify-center">
                     {countryPhoneCodes[formData.country].code}
                   </div>
                 )}
@@ -515,10 +515,10 @@ const EditProfileModal = ({ onClose, user }) => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   maxLength={formData.country !== 'Other' ? countryPhoneCodes[formData.country].maxDigits : 15}
-                  className={`flex-1 bg-white/10 border border-white/20 rounded-r-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors ${
-                    formData.country === 'Other' ? 'rounded-lg' : ''
+                  className={`flex-1 bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-r-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 ${
+                    formData.country === 'Other' ? 'rounded-2xl' : ''
                   } ${
-                    errors.phone ? 'border-red-400' : 'focus:border-green-400'
+                    errors.phone ? 'border-red-400 focus:border-red-500' : 'focus:border-emerald-400 hover:border-emerald-400/50'
                   }`}
                   placeholder={formData.country !== 'Other' 
                     ? t('editProfile.form.phonePlaceholder', { digits: countryPhoneCodes[formData.country].maxDigits })
@@ -530,7 +530,7 @@ const EditProfileModal = ({ onClose, user }) => {
                 <p className="text-red-400 text-sm mt-1 font-abeze">{errors.phone}</p>
               )}
               {formData.country !== 'Other' && formData.phone && (
-                <p className="text-gray-400 text-sm mt-1 font-abeze">
+                <p className="text-slate-400 text-sm mt-2 font-abeze">
                   {t('editProfile.form.phoneDigits', { current: formData.phone.length, max: countryPhoneCodes[formData.country].maxDigits })}
                 </p>
               )}
@@ -538,14 +538,14 @@ const EditProfileModal = ({ onClose, user }) => {
                      )}
 
            {/* Password Change Section */}
-           <div className="border-t border-white/20 pt-6">
-             <h3 className="text-xl font-abeze font-bold text-white mb-4">
+           <div className="border-t border-white/10 pt-8">
+             <h3 className="text-xl font-abeze font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-400 mb-6">
                {t('editProfile.form.passwordSection.title')}
              </h3>
              
              {/* Current Password */}
              <div className="mb-4">
-               <label className="block text-white font-abeze font-medium mb-2">
+               <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                  {t('editProfile.form.currentPassword')}
                </label>
                <div className="relative">
@@ -554,15 +554,15 @@ const EditProfileModal = ({ onClose, user }) => {
                    name="currentPassword"
                    value={formData.currentPassword}
                    onChange={handleInputChange}
-                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
-                     errors.currentPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                   className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 pr-14 ${
+                     errors.currentPassword ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
                    }`}
                    placeholder={t('editProfile.form.currentPasswordPlaceholder')}
                  />
                  <button
                    type="button"
                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
                  >
                    {showCurrentPassword ? (
                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -583,7 +583,7 @@ const EditProfileModal = ({ onClose, user }) => {
 
              {/* New Password */}
              <div className="mb-4">
-               <label className="block text-white font-abeze font-medium mb-2">
+               <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                  {t('editProfile.form.newPassword')}
                </label>
                <div className="relative">
@@ -592,15 +592,15 @@ const EditProfileModal = ({ onClose, user }) => {
                    name="newPassword"
                    value={formData.newPassword}
                    onChange={handleInputChange}
-                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
-                     errors.newPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                   className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 pr-14 ${
+                     errors.newPassword ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
                    }`}
                    placeholder={t('editProfile.form.newPasswordPlaceholder')}
                  />
                  <button
                    type="button"
                    onClick={() => setShowNewPassword(!showNewPassword)}
-                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
                  >
                    {showNewPassword ? (
                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,7 +636,7 @@ const EditProfileModal = ({ onClose, user }) => {
 
              {/* Confirm New Password */}
              <div className="mb-4">
-               <label className="block text-white font-abeze font-medium mb-2">
+               <label className="block text-slate-300 font-abeze font-medium mb-3 text-sm uppercase tracking-wider">
                  {t('editProfile.form.confirmPassword')}
                </label>
                <div className="relative">
@@ -645,15 +645,15 @@ const EditProfileModal = ({ onClose, user }) => {
                    name="confirmNewPassword"
                    value={formData.confirmNewPassword}
                    onChange={handleInputChange}
-                   className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze placeholder-gray-400 focus:outline-none transition-colors pr-12 ${
-                     errors.confirmNewPassword ? 'border-red-400' : 'border-white/20 focus:border-green-400'
+                   className={`w-full bg-gradient-to-r from-white/5 to-white/10 border rounded-2xl px-6 py-4 text-white font-abeze placeholder-slate-400 focus:outline-none transition-all duration-300 pr-14 ${
+                     errors.confirmNewPassword ? 'border-red-400 focus:border-red-500' : 'border-white/10 focus:border-emerald-400 hover:border-emerald-400/50'
                    }`}
                    placeholder={t('editProfile.form.confirmPasswordPlaceholder')}
                  />
                  <button
                    type="button"
                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                   className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-all duration-300 hover:scale-110"
                  >
                    {showConfirmPassword ? (
                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -689,7 +689,7 @@ const EditProfileModal = ({ onClose, user }) => {
             <button
              type="submit"
              disabled={isSubmitting}
-             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white py-3 rounded-lg font-abeze font-bold transition-colors duration-300"
+             className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-600 text-white py-4 rounded-2xl font-abeze font-bold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-emerald-500/25 disabled:hover:scale-100 disabled:hover:shadow-none"
            >
              {isSubmitting ? t('editProfile.form.updatingButton') : t('editProfile.form.updateButton')}
            </button>
