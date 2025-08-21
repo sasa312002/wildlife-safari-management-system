@@ -22,7 +22,7 @@ const Home = () => {
               <p className="text-green-400 font-abeze-italic font-semibold text-2xl md:text-3xl lg:text-4xl">
                 {t('home.slogan')}
               </p>
-              <p className="text-gray-300 text-lg font-abeze font-semibold leading-relaxed max-w-3xl mx-auto">
+              <p className="text-gray-300 text-xl font-abeze font-semibold leading-relaxed max-w-3xl mx-auto">
                 {t('home.description')}
               </p>
             </div>
