@@ -6,7 +6,6 @@ import Header from './components/Header'
 import Footer from './components/Footer'
 import Home from './components/Home'
 import Awareness from './components/Awareness'
-import SafariPackages from './components/SafariPackages'
 import Chatbot from './components/Chatbot'
 import TravelPackagesPage from './pages/TravelPackagesPage'
 import ContactUsPage from './pages/ContactUsPage'
@@ -34,7 +33,6 @@ function MainPage() {
       <Header />
       <Home />
       <Awareness />
-      <SafariPackages />
       <Footer />
     </div>
   )

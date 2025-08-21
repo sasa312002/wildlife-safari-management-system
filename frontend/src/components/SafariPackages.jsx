@@ -11,7 +11,7 @@ const SafariPackages = () => {
   };
 
   return (
-    <section id="safaris" className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+    <section id="safaris" className="py-20 bg-gradient-to-br from-gray-900 via-green-950 to-gray-900">
       <div className="container mx-auto px-6">
 
         {/* See More Packages Link */}
