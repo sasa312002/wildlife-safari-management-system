@@ -182,6 +182,26 @@ const DonationDetailsPage = () => {
     if (!validateForm()) return;
 
     try {
+      // Store donation data in localStorage for PDF generation
+      const donationDataForPDF = {
+        _id: 'donation_' + Date.now(), // Generate a temporary ID
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        country: formData.country,
+        postalCode: formData.postalCode,
+        amount: Number(donationAmount),
+        currency: selectedCurrency,
+        isAnonymous: !!formData.isAnonymous,
+        receiveUpdates: formData.receiveUpdates,
+        paymentStatus: 'pending',
+        createdAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('pendingDonationData', JSON.stringify(donationDataForPDF));
+
       const payload = {
         amount: Number(donationAmount),
         currency: selectedCurrency,

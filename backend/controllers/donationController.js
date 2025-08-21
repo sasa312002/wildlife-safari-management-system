@@ -130,6 +130,12 @@ const verifyDonationPayment = async (req, res) => {
 			}
 		}
 
+		// Get the complete donation data for the response
+		let donationData = null;
+		if (paid && session.metadata?.donationId) {
+			donationData = await Donation.findById(session.metadata.donationId);
+		}
+
 		return res.json({
 			success: paid,
 			payment_status: session.payment_status,
@@ -137,6 +143,7 @@ const verifyDonationPayment = async (req, res) => {
 			currency: session.currency,
 			metadata: session.metadata,
 			payment_intent: session.payment_intent,
+			donation: donationData
 		});
 	} catch (error) {
 		console.error('Verify donation Stripe payment error:', error);

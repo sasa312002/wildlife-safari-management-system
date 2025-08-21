@@ -26,7 +26,7 @@ const UserAccountPage = () => {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [showReviewSuccess, setShowReviewSuccess] = useState(false);
   const [showAlreadyReviewedMessage, setShowAlreadyReviewedMessage] = useState(false);
-  const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(null); // Track which booking is being downloaded
   
   // Pagination states
   const [currentReviewsPage, setCurrentReviewsPage] = useState(1);
@@ -163,13 +163,13 @@ const UserAccountPage = () => {
   };
 
   const handleDownloadPDF = async (booking) => {
-    setDownloadingPDF(true);
+    setDownloadingPDF(booking._id);
     try {
       generateBookingPDF(booking, user);
     } catch (error) {
       console.error('Error downloading PDF:', error);
     } finally {
-      setDownloadingPDF(false);
+      setDownloadingPDF(null);
     }
   };
 
@@ -644,7 +644,7 @@ const UserAccountPage = () => {
                                  className={`group relative px-6 py-3 rounded-xl font-abeze font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl border ${
                                    checkIfAlreadyReviewed(booking._id)
                                      ? 'bg-gray-500 hover:bg-gray-600 cursor-not-allowed border-gray-400/30'
-                                                                           : 'bg-green-600 hover:bg-green-700 border-green-400/30'
+                                     : 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 border-green-400/30'
                                  }`}
                                  disabled={checkIfAlreadyReviewed(booking._id)}
                                >

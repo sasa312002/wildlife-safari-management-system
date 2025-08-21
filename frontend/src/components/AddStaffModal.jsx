@@ -360,12 +360,25 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                   name="role"
                   value={formData.role}
                   onChange={handleRoleChange}
-                  className={`w-full bg-white/10 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
+                  className={`w-full bg-gray-800 border rounded-lg px-4 py-3 text-white font-abeze focus:outline-none transition-colors ${
                     errors.role ? 'border-red-400' : 'border-white/20 focus:border-green-400'
                   }`}
+                  style={{
+                    color: 'white',
+                    backgroundColor: '#1f2937'
+                  }}
                 >
                   {roles.map(role => (
-                    <option key={role.value} value={role.value}>{role.label}</option>
+                    <option 
+                      key={role.value} 
+                      value={role.value}
+                      style={{
+                        backgroundColor: '#1f2937',
+                        color: 'white'
+                      }}
+                    >
+                      {role.label}
+                    </option>
                   ))}
                 </select>
                 {errors.role && (
@@ -387,17 +400,6 @@ const AddStaffModal = ({ onClose, onStaffAdded }) => {
                 {errors.basicSalary && (
                   <p className="text-red-400 text-sm mt-1 font-abeze">{errors.basicSalary}</p>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const testSalary = ensureCorrectBasicSalary();
-                    console.log('Test button clicked - Role:', formData.role, 'Expected salary:', testSalary);
-                    alert(`Test: Role = ${formData.role}, Expected Salary = LKR ${testSalary.toLocaleString()}`);
-                  }}
-                  className="mt-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
-                >
-                  Test Salary Calculation
-                </button>
               </div>
 
               {/* Specialization */}

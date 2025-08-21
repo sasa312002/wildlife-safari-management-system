@@ -1188,14 +1188,58 @@ const Attendance = () => {
                       setFormData({ ...formData, status: newStatus });
                     }
                   }}
-                  className="w-full border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
+                  className="w-full bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-white font-abeze focus:outline-none focus:border-blue-500"
+                  style={{
+                    color: 'white',
+                    backgroundColor: '#1f2937'
+                  }}
                   required
                 >
-                  <option value="present">Present</option>
-                  <option value="absent">Absent</option>
-                  <option value="late">Late</option>
-                  <option value="half-day">Half Day</option>
-                  <option value="leave">Leave</option>
+                  <option 
+                    value="present"
+                    style={{
+                      backgroundColor: '#1f2937',
+                      color: 'white'
+                    }}
+                  >
+                    Present
+                  </option>
+                  <option 
+                    value="absent"
+                    style={{
+                      backgroundColor: '#1f2937',
+                      color: 'white'
+                    }}
+                  >
+                    Absent
+                  </option>
+                  <option 
+                    value="late"
+                    style={{
+                      backgroundColor: '#1f2937',
+                      color: 'white'
+                    }}
+                  >
+                    Late
+                  </option>
+                  <option 
+                    value="half-day"
+                    style={{
+                      backgroundColor: '#1f2937',
+                      color: 'white'
+                    }}
+                  >
+                    Half Day
+                  </option>
+                  <option 
+                    value="leave"
+                    style={{
+                      backgroundColor: '#1f2937',
+                      color: 'white'
+                    }}
+                  >
+                    Leave
+                  </option>
                 </select>
               </div>
               

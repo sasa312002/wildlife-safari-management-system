@@ -646,6 +646,8 @@ export default {
   'userAccount.bookings.shareExperience': 'ඔබගේ අත්දැකීම බෙදාගන්න',
   'userAccount.bookings.previous': 'පෙර',
   'userAccount.bookings.next': 'ඊළඟ',
+  'userAccount.bookings.downloadPDF': 'pdf බාගන්න',
+  'userAccount.bookings.downloadingPDF': 'PDF බාගැනෙමින්...',
   'userAccount.messages.title': 'මගේ පණිවිඩ',
   'userAccount.reviews.previous': 'පෙර',
   'userAccount.reviews.next': 'ඊළඟ',
@@ -711,4 +713,7 @@ export default {
   'editProfile.fileValidation.imageOnly': 'කරුණාකර ඡායාරූප ගොනුවක් තෝරන්න',
   'editProfile.fileValidation.sizeLimit': 'ගොනු ප්‍රමාණය 5MB ට අඩු විය යුතුය',
   'editProfile.fileValidation.uploadFailed': 'උඩුගත කිරීම අසමත් විය',
+  
+  // Travel Packages
+  'travelPackages.customPackage.contactButton': 'අපගේ විශේෂඥයින් සම්බන්ධ කරගන්න',
 };

@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const AboutUs = () => {
+  const navigate = useNavigate();
   const teamMembers = [
     {
       name: "Kumara Perera",
@@ -222,7 +224,10 @@ expertise: "Elephant behavior, Hiking trails",
               <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
                 Book Your Safari
               </button>
-              <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
+              <button 
+                onClick={() => navigate('/contact')}
+                className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300"
+              >
                 Contact Us
               </button>
             </div>

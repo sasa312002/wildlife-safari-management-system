@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const AboutUsPage = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const teamMembers = [
     {
@@ -222,7 +224,10 @@ expertise: "Elephant behavior, Hiking trails",
                 <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
                   {t('about.cta.bookSafari')}
                 </button>
-                <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
+                <button 
+                  onClick={() => navigate('/contact')}
+                  className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300"
+                >
                   {t('about.cta.contactUs')}
                 </button>
               </div>
