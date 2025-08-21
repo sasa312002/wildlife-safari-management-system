@@ -27,24 +27,6 @@ const Home = () => {
               </p>
             </div>
           </div>
-
-          {/* Content Grid */}
-          <div className="grid md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
-            {/* Left Side - Text Content */}
-            <div className="text-white space-y-6">
-              {/* Call to Action Button */}
-              <div className="pt-2">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-abeze font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                  {t('home.exploreSafaris')}
-                </button>
-              </div>
-            </div>
-
-            {/* Right Side - Empty space for balance */}
-            <div className="hidden md:block">
-              {/* Empty space to maintain layout balance */}
-            </div>
-          </div>
         </div>
       </section>
     </BackgroundSlideshow>
