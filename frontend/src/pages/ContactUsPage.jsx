@@ -76,19 +76,31 @@ const ContactUsPage = () => {
 
         // Points of interest across Sri Lanka with categories
         const points = [
+          // Safari Locations
           { coords: [6.3619, 81.5206], title: 'Yala National Park', category: 'safari', desc: 'Big cats and diverse wildlife' },
           { coords: [8.4871, 80.1069], title: 'Wilpattu National Park', category: 'safari', desc: 'Largest national park' },
           { coords: [8.0393, 80.8203], title: 'Minneriya National Park', category: 'safari', desc: 'Elephant gathering' },
-          { coords: [6.4108, 80.4580], title: 'Sinharaja Forest Reserve', category: 'adventure', desc: 'Rainforest biodiversity hotspot' },
+          { coords: [6.5833, 81.6833], title: 'Kumana National Park', category: 'safari', desc: 'Bird sanctuary and wildlife' },
+          
+          // Water Adventure Locations
+          { coords: [6.9833, 80.4167], title: 'Kithulgala Water Rafting', category: 'water-adventure', desc: 'White water rafting on Kelani River' },
+          { coords: [6.8500, 80.5500], title: 'Lakshapana Bungee Jumping', category: 'adventure', desc: 'Thrilling bungee jumping experience' },
+          { coords: [6.3667, 80.0167], title: 'Madu Ganga', category: 'water-adventure', desc: 'Mangrove ecosystem and boat tours' },
+          
+          // Hiking Locations
           { coords: [7.4653, 80.7782], title: 'Knuckles Mountain Range', category: 'hiking', desc: 'Scenic trails' },
           { coords: [6.8667, 81.0465], title: 'Ella', category: 'hiking', desc: 'Little Adam\'s Peak & Nine Arches' },
           { coords: [6.8097, 80.4990], title: 'Adam\'s Peak (Sri Pada)', category: 'hiking', desc: 'Sunrise pilgrimage hike' },
-          { coords: [6.8020, 80.7998], title: 'Horton Plains National Park', category: 'hiking', desc: 'World\'s End' }
+          { coords: [6.8020, 80.7998], title: 'Horton Plains National Park', category: 'hiking', desc: 'World\'s End' },
+          
+          // Other Adventure Locations
+          { coords: [6.4108, 80.4580], title: 'Sinharaja Forest Reserve', category: 'adventure', desc: 'Rainforest biodiversity hotspot' }
         ];
 
         const categoryColors = {
           safari: '#10B981',
-          hiking: '#3B82F6',
+          'water-adventure': '#3B82F6',
+          hiking: '#8B5CF6',
           adventure: '#F59E0B'
         };
 
@@ -505,9 +517,109 @@ const ContactUsPage = () => {
             </div>
           </div>
 
+          {/* Location Categories Section */}
+          <div className="mb-16">
+            <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
+              Our <span className="text-green-400">Destinations</span> by Category
+            </h3>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Safari Parks */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-xl font-abeze font-bold text-white">Safari Parks</h4>
+                </div>
+                <ul className="space-y-2">
+                  <li className="text-gray-300 font-abeze text-sm">• Yala National Park</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Wilpattu National Park</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Minneriya National Park</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Kumana National Park</li>
+                </ul>
+              </div>
+
+              {/* Water Adventure */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-xl font-abeze font-bold text-white">Water Adventure</h4>
+                </div>
+                <ul className="space-y-2">
+                  <li className="text-gray-300 font-abeze text-sm">• Kithulgala Water Rafting</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Madu Ganga Boat Tours</li>
+                </ul>
+              </div>
+
+              {/* Hiking Trails */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                    </svg>
+                  </div>
+                  <h4 className="text-xl font-abeze font-bold text-white">Hiking Trails</h4>
+                </div>
+                <ul className="space-y-2">
+                  <li className="text-gray-300 font-abeze text-sm">• Knuckles Mountain Range</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Ella (Little Adam's Peak)</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Adam's Peak (Sri Pada)</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Horton Plains</li>
+                </ul>
+              </div>
+
+              {/* Adventure Sports */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <h4 className="text-xl font-abeze font-bold text-white">Adventure Sports</h4>
+                </div>
+                <ul className="space-y-2">
+                  <li className="text-gray-300 font-abeze text-sm">• Lakshapana Bungee Jumping</li>
+                  <li className="text-gray-300 font-abeze text-sm">• Sinharaja Forest Reserve</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
           <div className="mb-16">
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               <h3 className="text-2xl font-abeze font-bold text-white mb-6 text-center">{t('contact.map.title')}</h3>
+              
+              {/* Map Legend */}
+              <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-white/10">
+                <h4 className="text-lg font-abeze font-bold text-white mb-4 text-center">Location Categories</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
+                    <span className="text-white font-abeze text-sm">Safari Parks</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded-full bg-blue-500"></div>
+                    <span className="text-white font-abeze text-sm">Water Adventure</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded-full bg-purple-500"></div>
+                    <span className="text-white font-abeze text-sm">Hiking Trails</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
+                    <span className="text-white font-abeze text-sm">Adventure Sports</span>
+                  </div>
+                </div>
+              </div>
+              
               <div className="bg-gray-800 rounded-lg overflow-hidden">
                 <div ref={mapContainerRef} className="w-full h-96" />
                 <div className="p-3 text-center">
