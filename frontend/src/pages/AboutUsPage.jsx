@@ -272,7 +272,10 @@ expertise: "Elephant behavior, Hiking trails",
                 {t('about.cta.description')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
+                <button 
+                  onClick={() => navigate('/travel-packages')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
+                >
                   {t('about.cta.bookSafari')}
                 </button>
                 <button 
