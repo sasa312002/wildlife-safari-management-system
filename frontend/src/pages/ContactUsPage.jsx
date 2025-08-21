@@ -241,7 +241,7 @@ const ContactUsPage = () => {
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              {t('contact.title')} <span className="text-green-400">Us</span>
+              Contact <span className="text-green-400">Us</span>
             </h1>
             <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
               {t('contact.subtitle')}

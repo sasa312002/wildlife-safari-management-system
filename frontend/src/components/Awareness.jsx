@@ -181,6 +181,26 @@ const Awareness = () => {
             </div>
           ))}
         </div>
+
+        {/* Safari Packages Section */}
+        <div className="mt-20">
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 backdrop-blur-sm rounded-2xl p-6 border border-green-400/30">
+              <h3 className="text-2xl font-abeze font-bold text-white mb-4">
+                {t('safariPackages.exploreCollection')}
+              </h3>
+              <p className="text-gray-300 font-abeze mb-6 max-w-2xl mx-auto">
+                {t('safariPackages.discoverMore')}
+              </p>
+              <button 
+                onClick={() => navigate('/travel-packages')}
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300"
+              >
+                {t('safariPackages.seeAllPackages')}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

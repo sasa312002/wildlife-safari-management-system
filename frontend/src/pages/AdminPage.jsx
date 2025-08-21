@@ -16,7 +16,10 @@ import AssignmentModal from '../components/AssignmentModal';
 const AdminPage = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Get the active tab from localStorage, default to 'dashboard' if not found
+    return localStorage.getItem('adminActiveTab') || 'dashboard';
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [packages, setPackages] = useState([]);
   const [users, setUsers] = useState([]);
@@ -58,6 +61,8 @@ const AdminPage = () => {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    // Save the active tab to localStorage to persist across page refreshes
+    localStorage.setItem('adminActiveTab', tab);
   };
 
   // Navigation items
@@ -73,7 +78,6 @@ const AdminPage = () => {
     { id: 'donations', label: 'Donations', icon: '💝', color: 'blue' },
     { id: 'attendance', label: 'Attendance', icon: '⏰', color: 'blue' },
     { id: 'payroll', label: 'Payroll', icon: '💰', color: 'blue' },
-    { id: 'reports', label: 'Reports', icon: '📈', color: 'blue' },
   ];
 
   // Load data when tabs are selected
@@ -1408,12 +1412,7 @@ The Wildlife Safari Team`);
     </div>
   );
 
-  const renderReports = () => (
-    <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 border border-white/20">
-      <h3 className="text-xl font-abeze font-bold text-white mb-4">Reports & Analytics</h3>
-      <p className="text-gray-300 font-abeze">Reports and analytics functionality will be implemented here.</p>
-    </div>
-  );
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex">
@@ -1789,7 +1788,6 @@ The Wildlife Safari Team`);
                 </div>
               )}
               {activeTab === 'payroll' && <Payroll />}
-              {activeTab === 'reports' && renderReports()}
             </div>
           </div>
         </main>
