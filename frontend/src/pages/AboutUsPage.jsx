@@ -3,6 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import image4 from '../assets/4.jpg';
+import image5 from '../assets/5.webp';
+import image6 from '../assets/6.webp';
+import image7 from '../assets/7.jpg';
+import image8 from '../assets/8.webp';
+import image9 from '../assets/9.jpg';
+import image10 from '../assets/10.jpg';
+import image11 from '../assets/11.jpg';
 
 const AboutUsPage = () => {
   const navigate = useNavigate();
@@ -84,21 +92,43 @@ expertise: "Elephant behavior, Hiking trails",
     }
   ];
 
+  const galleryImages = [
+    { src: image4, alt: "Wildlife Safari Experience" },
+    { src: image5, alt: "Elephant in Natural Habitat" },
+    { src: image6, alt: "Safari Vehicle in Park" },
+    { src: image7, alt: "Wildlife Photography" },
+    { src: image8, alt: "Nature Trail" },
+    { src: image9, alt: "Wildlife Conservation" },
+    { src: image10, alt: "Safari Adventure" },
+    { src: image11, alt: "Wildlife Sanctuary" }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800">
       <Header />
       
       <div className="pt-20">
-        <div className="container mx-auto px-6">
-          {/* Page Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
-              {t('about.title')} <span className="text-green-400">Wild Path</span>
-            </h1>
-            <p className="text-gray-300 text-lg font-abeze max-w-3xl mx-auto">
-              {t('about.subtitle')}
-            </p>
+        {/* Hero Section with Background Image */}
+        <div className="relative h-96 mb-16">
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${image4})` }}
+          >
+            <div className="absolute inset-0 bg-black/50"></div>
           </div>
+          <div className="relative z-10 flex items-center justify-center h-full">
+            <div className="text-center">
+              <h1 className="text-5xl md:text-6xl font-abeze font-bold text-white mb-4">
+                {t('about.title')} <span className="text-green-400">Wild Path</span>
+              </h1>
+              <p className="text-gray-200 text-lg font-abeze max-w-3xl mx-auto px-4">
+                {t('about.subtitle')}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto px-6">
 
           {/* Story Section */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-20">
@@ -128,6 +158,27 @@ expertise: "Elephant behavior, Hiking trails",
                 {t('about.vision.description')}
               </p>
             </div>
+          </div>
+
+          {/* Image Gallery Section */}
+          <div className="mb-20">
+            <h3 className="text-3xl font-abeze font-bold text-white text-center mb-12">
+              Our <span className="text-green-400">Wildlife Gallery</span>
+            </h3>
+                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+               {galleryImages.map((image, index) => (
+                 <div 
+                   key={index}
+                   className="group relative overflow-hidden rounded-2xl border-2 border-green-400/30 hover:border-green-400/60 transition-all duration-300 hover:transform hover:scale-105"
+                 >
+                   <img 
+                     src={image.src} 
+                     alt={image.alt}
+                     className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                   />
+                 </div>
+               ))}
+             </div>
           </div>
 
           {/* Values Section */}
