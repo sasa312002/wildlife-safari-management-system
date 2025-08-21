@@ -713,4 +713,7 @@ export default {
   'editProfile.fileValidation.imageOnly': 'කරුණාකර ඡායාරූප ගොනුවක් තෝරන්න',
   'editProfile.fileValidation.sizeLimit': 'ගොනු ප්‍රමාණය 5MB ට අඩු විය යුතුය',
   'editProfile.fileValidation.uploadFailed': 'උඩුගත කිරීම අසමත් විය',
+  
+  // Travel Packages
+  'travelPackages.customPackage.contactButton': 'අපගේ විශේෂඥයින් සම්බන්ධ කරගන්න',
 };
