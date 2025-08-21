@@ -357,7 +357,10 @@ const TravelPackagesPage = () => {
                 >
                   {showRequestForm ? t('packages.customPackage.hideForm') : t('packages.customPackage.requestSafari')}
                 </button>
-                <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
+                <button 
+                  onClick={() => navigate('/contact')}
+                  className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300"
+                >
                   {t('packages.customPackage.contactUs')}
                 </button>
               </div>

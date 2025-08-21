@@ -354,7 +354,10 @@ const TravelPackages = () => {
               <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-abeze font-bold transition-colors duration-300">
                 {t('travelPackages.customPackage.requestButton')}
               </button>
-              <button className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300">
+              <button 
+                onClick={() => navigate('/contact')}
+                className="bg-transparent border-2 border-green-400 text-green-400 hover:bg-green-400 hover:text-white px-8 py-3 rounded-full font-abeze font-bold transition-all duration-300"
+              >
                 {t('travelPackages.customPackage.contactButton')}
               </button>
             </div>
