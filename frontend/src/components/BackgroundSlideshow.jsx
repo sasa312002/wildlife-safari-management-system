@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import elephantImage from '../assets/elephants-national-park-sri-lanka.jpg';
-import image1 from '../assets/[GetPaidStock.com]-689e244d51834.jpg';
-import image2 from '../assets/[GetPaidStock.com]-689e2479a70dc.jpg';
-import image3 from '../assets/[GetPaidStock.com]-689e24f3bef78.jpg';
+import image1 from '../assets/1.png';
+import image2 from '../assets/2.png';
+import image3 from '../assets/3.png';
 
 const BackgroundSlideshow = ({ children }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const images = [
-    elephantImage,
     image1,
     image2,
     image3
@@ -47,13 +45,13 @@ const BackgroundSlideshow = ({ children }) => {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Background Images with Slideshow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-700 via-gray-600 to-gray-700">
         {images.map((image, index) => (
           <div
             key={index}
             className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1500 ease-in-out transform ${
               index === currentImageIndex 
-                ? 'opacity-70 scale-100' 
+                ? 'opacity-85 scale-100' 
                 : 'opacity-0 scale-110'
             }`}
             style={{ backgroundImage: `url(${image})` }}
@@ -61,7 +59,7 @@ const BackgroundSlideshow = ({ children }) => {
         ))}
         
         {/* Overlay for better text readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/20"></div>
       </div>
 
       {/* Slide Indicators */}
