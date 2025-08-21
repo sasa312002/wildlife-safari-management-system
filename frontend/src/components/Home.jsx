@@ -9,51 +9,46 @@ const Home = () => {
     <BackgroundSlideshow>
       <section id="home" className="min-h-screen flex items-center pt-20">
         {/* Content */}
-        <div className="container mx-auto px-6">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Left Side - Text Content */}
-          <div className="text-white space-y-6">
-            {/* Slogan */}
-            <div className="space-y-2">
+        <div className="w-full px-4">
+          {/* Main Headline - Centered and Full Width */}
+          <div className="text-center mb-12 pt-16 w-full">
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-abeze font-black leading-none text-white whitespace-nowrap">
+              <span className="text-green-400">{t('home.discover')}</span>{' '}
+              <span className="text-white">{t('home.sriLanka')}</span>
+            </h1>
+            
+            {/* Subtext */}
+            <div className="mt-8 space-y-4">
               <p className="text-green-400 font-abeze-italic font-semibold text-xl md:text-2xl">
                 {t('home.slogan')}
               </p>
-            </div>
-
-            {/* Main Headline */}
-            <div className="space-y-3">
-              <h1 className="text-5xl md:text-7xl lg:text-8xl font-abeze font-black leading-tight">
-                {t('home.discover')}<br />
-                <span className="text-green-400">{t('home.sriLanka')}</span>
-              </h1>
-            </div>
-
-            {/* Body Text */}
-            <div className="max-w-lg">
-              <p className="text-gray-300 text-lg font-abeze font-semibold leading-relaxed">
+              <p className="text-gray-300 text-lg font-abeze font-semibold leading-relaxed max-w-3xl mx-auto">
                 {t('home.description')}
               </p>
             </div>
+          </div>
 
-            {/* Call to Action Button */}
-            <div className="pt-2">
-              <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-abeze font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
-                {t('home.exploreSafaris')}
-              </button>
+          {/* Content Grid */}
+          <div className="grid md:grid-cols-2 gap-8 items-center max-w-6xl mx-auto">
+            {/* Left Side - Text Content */}
+            <div className="text-white space-y-6">
+              {/* Call to Action Button */}
+              <div className="pt-2">
+                <button className="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-abeze font-bold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  {t('home.exploreSafaris')}
+                </button>
+              </div>
+            </div>
+
+            {/* Right Side - Empty space for balance */}
+            <div className="hidden md:block">
+              {/* Empty space to maintain layout balance */}
             </div>
           </div>
-
-          {/* Right Side - Empty space for balance */}
-          <div className="hidden md:block">
-            {/* Empty space to maintain layout balance */}
-          </div>
         </div>
-      </div>
-
-
-    </section>
+      </section>
     </BackgroundSlideshow>
   );
 };
 
-export default Home; 
+export default Home;
